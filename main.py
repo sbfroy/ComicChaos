@@ -27,7 +27,9 @@ class GameEngine:
         self,
         config_dir: str = "config",
         use_real_images: bool = True,
-        auto_generate_images: bool = True
+        auto_generate_images: bool = True,
+        use_web_ui: bool = False,
+        auto_open_images: bool = True
     ):
         # Load environment variables
         load_dotenv()
@@ -47,7 +49,15 @@ class GameEngine:
 
         # Initialize components
         self.game_state: GameState | None = None
-        self.ui = TerminalUI(self.config)
+        self.use_web_ui = use_web_ui
+        self.web_ui = None
+
+        if use_web_ui:
+            from src.ui.web_ui import WebUI
+            self.web_ui = WebUI(self.config)
+            self.ui = TerminalUI(self.config, auto_open_images=False)  # Minimal terminal UI
+        else:
+            self.ui = TerminalUI(self.config, auto_open_images=auto_open_images)
 
         # Initialize Narratron if API key available
         self.narratron: Narratron | None = None
@@ -209,6 +219,14 @@ Your goal: {bp.goal}
                 milestone_completed=response.milestone_completed
             )
 
+            # Update web UI if active
+            if self.web_ui:
+                self.web_ui.update(
+                    narrative=response.outcome_narrative,
+                    image_path=self._last_image_path,
+                    milestone_completed=response.milestone_completed
+                )
+
             # Check for game over conditions
             if self.game_state.player.health <= 0:
                 self.ui.show_game_over(won=False, game_state=self.game_state)
@@ -331,6 +349,31 @@ Your goal: {bp.goal}
         else:
             self.ui.show_message("No image has been generated yet.", "yellow")
 
+    def _web_process_action(self, action: str) -> dict:
+        """Process an action from the web UI and return result."""
+        if not self.game_state or not self.narratron:
+            return {"error": "Game not initialized"}
+
+        response = self.narratron.process_action(action, self.game_state)
+
+        # Start image generation
+        if self.auto_generate_images:
+            self._start_image_generation()
+
+        # Update web UI
+        if self.web_ui:
+            self.web_ui.update(
+                narrative=response.outcome_narrative,
+                image_path=self._last_image_path,
+                milestone_completed=response.milestone_completed
+            )
+
+        # Auto-save
+        if self.game_state.meta.turn_count % 5 == 0:
+            self._auto_save()
+
+        return {"success": True}
+
     def run(self) -> None:
         """Main game loop."""
         # Show title screen
@@ -339,7 +382,31 @@ Your goal: {bp.goal}
         # Start new game
         self.start_new_game()
 
-        # Main game loop
+        # Start web UI if enabled
+        if self.web_ui:
+            self.web_ui.start(self.game_state, self._web_process_action)
+
+            # Update web UI with initial state
+            if self.game_state:
+                opening = self.game_state.narrative.current_scene or "The adventure begins..."
+                self.web_ui.update(
+                    narrative=opening,
+                    image_path=self._last_image_path
+                )
+
+            print("\n📖 Game is running in web mode.")
+            print("   Use your browser to play. Press Ctrl+C to quit.\n")
+
+            # Keep the main thread alive for web UI
+            try:
+                while True:
+                    time.sleep(1)
+            except KeyboardInterrupt:
+                print("\n\nShutting down...")
+                self.web_ui.stop()
+                return
+
+        # Terminal mode - main game loop
         running = True
         while running:
             # Show status bar
@@ -377,6 +444,16 @@ def main():
         action="store_true",
         help="Use mock image generation (no API calls)"
     )
+    parser.add_argument(
+        "--web",
+        action="store_true",
+        help="Use web-based UI with image display (recommended)"
+    )
+    parser.add_argument(
+        "--no-auto-open",
+        action="store_true",
+        help="Don't automatically open images in viewer (terminal mode only)"
+    )
 
     args = parser.parse_args()
 
@@ -384,7 +461,9 @@ def main():
         engine = GameEngine(
             config_dir=args.config_dir,
             use_real_images=not args.mock_images,
-            auto_generate_images=not args.no_images
+            auto_generate_images=not args.no_images,
+            use_web_ui=args.web,
+            auto_open_images=not args.no_auto_open
         )
         engine.run()
     except KeyboardInterrupt:

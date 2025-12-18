@@ -2,6 +2,9 @@
 
 import os
 import sys
+import subprocess
+import platform
+import webbrowser
 from pathlib import Path
 
 from rich.console import Console
@@ -18,13 +21,37 @@ from ..state.game_state import GameState
 from ..state.static_config import StaticConfig
 
 
+def open_image(image_path: str) -> bool:
+    """Open an image in the system's default viewer."""
+    try:
+        path = Path(image_path).absolute()
+        if not path.exists():
+            return False
+
+        system = platform.system()
+        if system == "Darwin":  # macOS
+            subprocess.run(["open", str(path)], check=True)
+        elif system == "Windows":
+            os.startfile(str(path))
+        else:  # Linux and others
+            # Try xdg-open first, fall back to webbrowser
+            try:
+                subprocess.run(["xdg-open", str(path)], check=True, stderr=subprocess.DEVNULL)
+            except (subprocess.CalledProcessError, FileNotFoundError):
+                webbrowser.open(f"file://{path}")
+        return True
+    except Exception:
+        return False
+
+
 class TerminalUI:
     """Rich terminal interface for the narrative game."""
 
-    def __init__(self, config: StaticConfig):
+    def __init__(self, config: StaticConfig, auto_open_images: bool = True):
         self.console = Console()
         self.config = config
         self._last_image_path: str | None = None
+        self.auto_open_images = auto_open_images
 
     def clear_screen(self) -> None:
         """Clear the terminal screen."""
@@ -128,10 +155,22 @@ class TerminalUI:
         # Image indicator (if image was generated)
         if image_path:
             self._last_image_path = image_path
-            self.console.print(
-                f"[dim]🎨 Scene illustration: {Path(image_path).name}[/dim]",
-                justify="center"
-            )
+            if self.auto_open_images:
+                if open_image(image_path):
+                    self.console.print(
+                        f"[dim]🎨 Scene illustration opened in viewer[/dim]",
+                        justify="center"
+                    )
+                else:
+                    self.console.print(
+                        f"[dim]🎨 Scene illustration: {Path(image_path).name}[/dim]",
+                        justify="center"
+                    )
+            else:
+                self.console.print(
+                    f"[dim]🎨 Scene illustration: {Path(image_path).name}[/dim]",
+                    justify="center"
+                )
             self.console.print()
 
         # Current scene description
