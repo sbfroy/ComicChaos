@@ -1,0 +1,269 @@
+{
+  "title": "The Jade Falcon Mystery",
+  "synopsis": "In the rain-soaked streets of Noirville, 1947, you're a down-on-your-luck private detective. When a mysterious dame walks into your office with a stolen artifact and a story that doesn't add up, you find yourself pulled into a web of deception, danger, and intrigue. Find the legendary Jade Falcon before the wrong people do.",
+  "setting": "A noir-style 1940s city called Noirville, filled with shadowy alleys, smoky jazz clubs, and characters with secrets to hide. Rain is always threatening, streetlights flicker, and everyone has an angle.",
+  "starting_location_id": "detective_office",
+  "goal": "Recover the stolen Jade Falcon artifact and expose the criminal mastermind behind its theft.",
+  "visual_style": "noir comic book style, high contrast shadows, rain-slicked streets, 1940s aesthetic, dramatic angles, moody lighting",
+  "locations": [
+    {
+      "id": "detective_office",
+      "name": "Detective's Office",
+      "description": "Your cramped office on the third floor of the Baxter Building. A frosted glass door reads 'Private Investigations'. Inside, a battered wooden desk drowns in papers, a half-empty bottle of bourbon sits in the drawer, and the ceiling fan wobbles with each rotation. The window overlooks the wet streets below.",
+      "visual_description": "Small 1940s detective office, frosted glass door, cluttered wooden desk, ceiling fan, rain-streaked window, filing cabinets, noir lighting",
+      "connections": {"down": "street_outside", "out": "street_outside"},
+      "accessible": true
+    },
+    {
+      "id": "street_outside",
+      "name": "Rain-Slicked Street",
+      "description": "The street below your office is wet with the perpetual drizzle of Noirville. A broken streetlamp flickers on the corner. Across the street, the Blue Moon Jazz Club's neon sign buzzes. A newsstand huddles under an awning, and down the block, you can see the entrance to Chinatown.",
+      "visual_description": "1940s city street at night, wet pavement reflecting neon lights, flickering streetlamp, jazz club with neon sign, newsstand, light rain",
+      "connections": {"up": "detective_office", "north": "chinatown_entrance", "east": "jazz_club", "west": "docks"},
+      "accessible": true
+    },
+    {
+      "id": "jazz_club",
+      "name": "Blue Moon Jazz Club",
+      "description": "Smoke curls through the air as a jazz quartet plays a melancholy tune. Booths line the walls, shrouded in shadow. The bar gleams under dim lights, and the bartender polishes glasses with practiced indifference. The club's owner, Vincent Malone, holds court in the back booth.",
+      "visual_description": "Smoky 1940s jazz club interior, stage with jazz band, curved bar with bottles, shadowy booths, art deco details, spotlight on stage",
+      "connections": {"west": "street_outside", "back": "jazz_club_backroom"},
+      "accessible": true
+    },
+    {
+      "id": "jazz_club_backroom",
+      "name": "Jazz Club Backroom",
+      "description": "A private room behind the club, accessed through a door marked 'Staff Only'. It's where Vincent Malone conducts his less-than-legitimate business. A poker table sits in the center, surrounded by comfortable chairs. The walls are lined with photographs of Malone with various city officials.",
+      "visual_description": "Private backroom with poker table, leather chairs, photos on walls, dim lamp light, cigar smoke, hidden door in corner",
+      "connections": {"out": "jazz_club"},
+      "accessible": false,
+      "access_condition": "Must be invited by Vincent Malone or find another way in"
+    },
+    {
+      "id": "chinatown_entrance",
+      "name": "Chinatown Gate",
+      "description": "An ornate gate marks the entrance to Noirville's Chinatown. Red lanterns sway in the breeze, casting dancing shadows. The smell of incense and cooking food wafts from within. Paper dragons hang in shop windows, and somewhere deeper inside, you know the Golden Dragon Antique Shop awaits.",
+      "visual_description": "Traditional Chinatown gate with red lanterns, wet cobblestones, paper decorations, shop fronts with Chinese characters, misty atmosphere",
+      "connections": {"south": "street_outside", "north": "antique_shop"},
+      "accessible": true
+    },
+    {
+      "id": "antique_shop",
+      "name": "Golden Dragon Antiques",
+      "description": "A cramped shop stuffed with curiosities from the Orient. Ancient vases, jade figurines, silk scrolls, and mysterious wooden boxes crowd every surface. Mr. Chen, the elderly proprietor, watches from behind a counter cluttered with incense holders. He knows more than he lets on.",
+      "visual_description": "Crowded antique shop, shelves of jade and porcelain, hanging silk, elderly Chinese man behind counter, incense smoke, dim mysterious lighting",
+      "connections": {"south": "chinatown_entrance", "up": "chen_apartment"},
+      "accessible": true
+    },
+    {
+      "id": "chen_apartment",
+      "name": "Mr. Chen's Apartment",
+      "description": "The modest apartment above the antique shop. Traditional furnishings, a small shrine in the corner, and walls covered with old photographs. A locked chest sits beneath the window - Mr. Chen guards it jealously.",
+      "visual_description": "Simple Chinese apartment, traditional furniture, ancestor shrine with candles, old photographs, wooden chest, paper window screens",
+      "connections": {"down": "antique_shop"},
+      "accessible": false,
+      "access_condition": "Must gain Mr. Chen's trust to be invited upstairs"
+    },
+    {
+      "id": "docks",
+      "name": "Noirville Docks",
+      "description": "The fog-shrouded docks where cargo ships from distant lands unload their goods - legal and otherwise. Warehouses line the waterfront, their windows dark and foreboding. The smell of salt and diesel hangs heavy. Somewhere in Warehouse 13, something is being hidden.",
+      "visual_description": "Foggy waterfront docks at night, cargo ships silhouettes, warehouse buildings, wooden piers, rope and crates, single lamp post",
+      "connections": {"east": "street_outside", "north": "warehouse_13"},
+      "accessible": true
+    },
+    {
+      "id": "warehouse_13",
+      "name": "Warehouse 13",
+      "description": "An abandoned-looking warehouse, but fresh tire tracks in the mud suggest otherwise. The main door is padlocked, but there might be another way in. Crates marked with Chinese characters are stacked near the loading bay.",
+      "visual_description": "Large dark warehouse exterior, padlocked doors, crates with Chinese markings, tire tracks in mud, broken windows high up",
+      "connections": {"south": "docks", "inside": "warehouse_13_interior"},
+      "accessible": true
+    },
+    {
+      "id": "warehouse_13_interior",
+      "name": "Inside Warehouse 13",
+      "description": "The interior of the warehouse reveals a smuggling operation. Crates from overseas are being unpacked, their contents sorted. In the center, under a single hanging light, sits a pedestal where something precious was clearly meant to be displayed - but it's empty now.",
+      "visual_description": "Dark warehouse interior, hanging single light bulb, open crates, empty ornate pedestal, shadows, scattered packing straw",
+      "connections": {"out": "warehouse_13"},
+      "accessible": false,
+      "access_condition": "Must find a way past the locked door or find an alternative entrance"
+    },
+    {
+      "id": "police_station",
+      "name": "Noirville Police Station",
+      "description": "The 14th Precinct, where your old friend Detective Murphy works. The building smells of coffee and cigarettes. Desks overflow with case files, and the cells in back hold tonight's usual suspects. Murphy might have information, if you can catch him in a good mood.",
+      "visual_description": "1940s police station interior, wooden desks with typewriters, ceiling fans, wanted posters, holding cells visible in back, harsh overhead lights",
+      "connections": {"out": "street_outside"},
+      "accessible": true
+    }
+  ],
+  "characters": [
+    {
+      "id": "player",
+      "name": "Sam Noir",
+      "description": "A weathered private detective with a sharp mind and a troubled past. Wearing a rumpled trench coat and a fedora that's seen better days.",
+      "location_id": "detective_office",
+      "role": "player",
+      "abilities": ["investigate", "interrogate", "pick_locks", "fight"],
+      "inventory": ["detective_badge", "pocket_notebook"]
+    },
+    {
+      "id": "vivian",
+      "name": "Vivian Lake",
+      "description": "A stunning woman in a red dress with raven-black hair and eyes that hold secrets. She claims to be the victim, but something about her story doesn't sit right.",
+      "location_id": "detective_office",
+      "role": "npc",
+      "abilities": ["deceive", "seduce", "connections"],
+      "inventory": ["photograph"]
+    },
+    {
+      "id": "vincent",
+      "name": "Vincent Malone",
+      "description": "The smooth-talking owner of the Blue Moon Jazz Club. Silver-haired with a gold tooth that glints when he smiles. He has fingers in every pie in Noirville.",
+      "location_id": "jazz_club",
+      "role": "npc",
+      "abilities": ["connections", "intimidate", "bribe"],
+      "inventory": ["gold_lighter"]
+    },
+    {
+      "id": "chen",
+      "name": "Mr. Chen",
+      "description": "An elderly Chinese man with wise eyes and weathered hands. He runs the Golden Dragon Antique Shop and knows the history of every artifact that passes through Noirville - including the Jade Falcon.",
+      "location_id": "antique_shop",
+      "role": "ally",
+      "abilities": ["ancient_knowledge", "identify_artifacts"],
+      "inventory": ["jade_falcon_history"]
+    },
+    {
+      "id": "murphy",
+      "name": "Detective Murphy",
+      "description": "A heavyset police detective with a mustache and a perpetually loosened tie. Your old partner from your days on the force. He plays by the book, mostly.",
+      "location_id": "police_station",
+      "role": "ally",
+      "abilities": ["police_access", "investigate", "arrest"],
+      "inventory": ["police_badge", "handcuffs"]
+    },
+    {
+      "id": "scarface",
+      "name": "Scarface Tony",
+      "description": "A dangerous enforcer with a jagged scar running down his left cheek. He works for whoever pays the most and doesn't ask questions.",
+      "location_id": "warehouse_13",
+      "role": "antagonist",
+      "abilities": ["fight", "intimidate", "smuggling"],
+      "inventory": ["switchblade", "warehouse_key"]
+    }
+  ],
+  "items": [
+    {
+      "id": "detective_badge",
+      "name": "Detective Badge",
+      "description": "Your tarnished private investigator's badge. It's opened a few doors in its time.",
+      "location_id": null,
+      "owner_id": "player",
+      "usable": true,
+      "takeable": false,
+      "properties": {"opens_doors": true}
+    },
+    {
+      "id": "pocket_notebook",
+      "name": "Pocket Notebook",
+      "description": "A worn leather notebook filled with scribbled notes and observations.",
+      "location_id": null,
+      "owner_id": "player",
+      "usable": true,
+      "takeable": false,
+      "properties": {"records_clues": true}
+    },
+    {
+      "id": "photograph",
+      "name": "Photograph of the Jade Falcon",
+      "description": "A black and white photograph showing an exquisite jade falcon statue. On the back, someone has written 'Worth dying for.'",
+      "location_id": null,
+      "owner_id": "vivian",
+      "usable": true,
+      "takeable": true,
+      "properties": {"clue": true}
+    },
+    {
+      "id": "jade_falcon",
+      "name": "The Jade Falcon",
+      "description": "An ancient Chinese artifact carved from a single piece of imperial jade. The falcon's eyes are rubies, and legends say it grants its owner incredible fortune - or terrible doom.",
+      "location_id": "warehouse_13_interior",
+      "owner_id": null,
+      "usable": false,
+      "takeable": true,
+      "properties": {"artifact": true, "valuable": true, "legendary": true}
+    },
+    {
+      "id": "gold_lighter",
+      "name": "Gold Lighter",
+      "description": "An expensive gold lighter with the initials 'V.M.' engraved on it. Vincent never goes anywhere without it.",
+      "location_id": null,
+      "owner_id": "vincent",
+      "usable": true,
+      "takeable": false,
+      "properties": {"clue": true}
+    },
+    {
+      "id": "warehouse_key",
+      "name": "Warehouse Key",
+      "description": "A heavy iron key that looks like it opens the main door to Warehouse 13.",
+      "location_id": null,
+      "owner_id": "scarface",
+      "usable": true,
+      "takeable": true,
+      "properties": {"opens": "warehouse_13_interior"}
+    },
+    {
+      "id": "switchblade",
+      "name": "Switchblade",
+      "description": "A wicked-looking switchblade knife with a worn handle. It's seen some use.",
+      "location_id": null,
+      "owner_id": "scarface",
+      "usable": true,
+      "takeable": true,
+      "properties": {"weapon": true}
+    },
+    {
+      "id": "cipher_note",
+      "name": "Coded Message",
+      "description": "A slip of paper with strange symbols. It might be a cipher that reveals something important.",
+      "location_id": "jazz_club_backroom",
+      "owner_id": null,
+      "usable": true,
+      "takeable": true,
+      "properties": {"clue": true, "needs_decoding": true}
+    },
+    {
+      "id": "jade_falcon_history",
+      "name": "Scroll of the Jade Falcon",
+      "description": "An ancient scroll detailing the history and legend of the Jade Falcon. Written in both Chinese and English.",
+      "location_id": null,
+      "owner_id": "chen",
+      "usable": true,
+      "takeable": false,
+      "properties": {"lore": true}
+    },
+    {
+      "id": "bourbon",
+      "name": "Bottle of Bourbon",
+      "description": "Half-empty bottle of cheap bourbon. It's been a long week.",
+      "location_id": "detective_office",
+      "owner_id": null,
+      "usable": true,
+      "takeable": true,
+      "properties": {"consumable": true}
+    },
+    {
+      "id": "crowbar",
+      "name": "Crowbar",
+      "description": "A rusty but sturdy crowbar. Could be useful for getting into places.",
+      "location_id": "docks",
+      "owner_id": null,
+      "usable": true,
+      "takeable": true,
+      "properties": {"tool": true, "can_force_doors": true}
+    }
+  ]
+}
