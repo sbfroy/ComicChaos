@@ -191,6 +191,7 @@ class TerminalUI:
         # Image indicator (if image was generated)
         if image_path:
             self._last_image_path = image_path
+            abs_path = Path(image_path).absolute()
             if self.auto_open_images:
                 if open_image(image_path):
                     self.console.print(
@@ -199,12 +200,20 @@ class TerminalUI:
                     )
                 else:
                     self.console.print(
-                        f"[dim]🎨 Scene illustration: {Path(image_path).name}[/dim]",
+                        f"[dim]🎨 Scene illustration saved:[/dim]",
+                        justify="center"
+                    )
+                    self.console.print(
+                        f"[dim cyan]{abs_path}[/dim cyan]",
                         justify="center"
                     )
             else:
                 self.console.print(
-                    f"[dim]🎨 Scene illustration: {Path(image_path).name}[/dim]",
+                    f"[dim]🎨 Scene illustration saved:[/dim]",
+                    justify="center"
+                )
+                self.console.print(
+                    f"[dim cyan]{abs_path}[/dim cyan]",
                     justify="center"
                 )
             self.console.print()
