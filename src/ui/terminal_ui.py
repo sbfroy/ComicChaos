@@ -41,17 +41,19 @@ class TerminalUI:
             title = "NARRATRON"
             synopsis = "An interactive narrative adventure"
 
-        title_art = f"""
-╔══════════════════════════════════════════════════════════════════╗
-║                                                                   ║
-║   ███╗   ██╗ █████╗ ██████╗ ██████╗  █████╗ ████████╗██████╗  ██████╗ ███╗   ██╗   ║
-║   ████╗  ██║██╔══██╗██╔══██╗██╔══██╗██╔══██╗╚══██╔══╝██╔══██╗██╔═══██╗████╗  ██║   ║
-║   ██╔██╗ ██║███████║██████╔╝██████╔╝███████║   ██║   ██████╔╝██║   ██║██╔██╗ ██║   ║
-║   ██║╚██╗██║██╔══██║██╔══██╗██╔══██╗██╔══██║   ██║   ██╔══██╗██║   ██║██║╚██╗██║   ║
-║   ██║ ╚████║██║  ██║██║  ██║██║  ██║██║  ██║   ██║   ██║  ██║╚██████╔╝██║ ╚████║   ║
-║   ╚═╝  ╚═══╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═══╝   ║
-║                                                                   ║
-╚══════════════════════════════════════════════════════════════════╝
+        title_art = """
+    ╔═══════════════════════════════════════════════════════════════════════╗
+    ║                                                                       ║
+    ║   ███╗   ██╗ █████╗ ██████╗ ██████╗  █████╗ ████████╗██████╗  ██████╗ ███╗   ██╗  ║
+    ║   ████╗  ██║██╔══██╗██╔══██╗██╔══██╗██╔══██╗╚══██╔══╝██╔══██╗██╔═══██╗████╗  ██║  ║
+    ║   ██╔██╗ ██║███████║██████╔╝██████╔╝███████║   ██║   ██████╔╝██║   ██║██╔██╗ ██║  ║
+    ║   ██║╚██╗██║██╔══██║██╔══██╗██╔══██╗██╔══██║   ██║   ██╔══██╗██║   ██║██║╚██╗██║  ║
+    ║   ██║ ╚████║██║  ██║██║  ██║██║  ██║██║  ██║   ██║   ██║  ██║╚██████╔╝██║ ╚████║  ║
+    ║   ╚═╝  ╚═══╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═══╝  ║
+    ║                                                                       ║
+    ║                    The Dynamic Narrative Engine                       ║
+    ║                                                                       ║
+    ╚═══════════════════════════════════════════════════════════════════════╝
 """
 
         self.console.print(title_art, style="bold cyan")
@@ -197,16 +199,25 @@ class TerminalUI:
     def show_help(self) -> None:
         """Display help information."""
         help_text = """
-[bold]COMMANDS:[/bold]
+[bold]MOVEMENT & EXPLORATION:[/bold]
   [cyan]look[/cyan] / [cyan]l[/cyan]         - Look around the current location
-  [cyan]inventory[/cyan] / [cyan]i[/cyan]    - Check your inventory
   [cyan]go [direction][/cyan]  - Move in a direction (north, south, east, west, etc.)
+  [cyan]exits[/cyan] / [cyan]map[/cyan]      - Show available exits from current location
+  [cyan]examine [thing][/cyan] - Examine something more closely
+
+[bold]INTERACTION:[/bold]
+  [cyan]talk [person][/cyan]   - Talk to a character
   [cyan]take [item][/cyan]     - Pick up an item
   [cyan]use [item][/cyan]      - Use an item
-  [cyan]talk [person][/cyan]   - Talk to a character
-  [cyan]examine [thing][/cyan] - Examine something more closely
-  [cyan]hint[/cyan]            - Get a hint for your current objective
-  [cyan]status[/cyan]          - View your full status
+  [cyan]give [item] to [person][/cyan] - Give an item to someone
+
+[bold]INFORMATION:[/bold]
+  [cyan]inventory[/cyan] / [cyan]i[/cyan]    - Check your inventory
+  [cyan]status[/cyan]          - View your full status and progress
+  [cyan]hint[/cyan] / [cyan]h[/cyan]         - Get a hint for your current objective
+  [cyan]image[/cyan]           - Show info about the current scene image
+
+[bold]GAME:[/bold]
   [cyan]save[/cyan]            - Save your game
   [cyan]load[/cyan]            - Load a saved game
   [cyan]help[/cyan] / [cyan]?[/cyan]         - Show this help
@@ -216,6 +227,7 @@ class TerminalUI:
   - You can try ANY action! Be creative!
   - Some actions may not advance the story, but you'll get interesting responses
   - Pay attention to descriptions - they contain clues
+  - The game auto-saves every 5 turns
   - Not everything is as it seems...
 """
         self.console.print(Panel(

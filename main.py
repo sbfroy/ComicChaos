@@ -184,6 +184,14 @@ Your goal: {bp.goal}
             self._load_game()
             return True
 
+        if command in ("map", "exits", "where"):
+            self._show_exits()
+            return True
+
+        if command == "image":
+            self._show_image_info()
+            return True
+
         # Process game action
         if self.narratron:
             self.ui.show_loading("Processing your action...")
@@ -210,6 +218,10 @@ Your goal: {bp.goal}
             if self._check_victory():
                 self.ui.show_game_over(won=True, game_state=self.game_state)
                 return False
+
+            # Auto-save every 5 turns
+            if self.game_state.meta.turn_count % 5 == 0:
+                self._auto_save()
 
         else:
             # Limited mode response
@@ -272,6 +284,52 @@ Your goal: {bp.goal}
             )
         except Exception as e:
             self.ui.show_error(f"Failed to load game: {e}")
+
+    def _auto_save(self) -> None:
+        """Automatically save the game (silently)."""
+        if not self.game_state:
+            return
+
+        try:
+            filepath = self.save_dir / "autosave.json"
+            self.game_state.save_to_file(filepath)
+        except Exception:
+            pass  # Silently fail on auto-save
+
+    def _show_exits(self) -> None:
+        """Show available exits from the current location."""
+        if not self.game_state:
+            return
+
+        location = self.config.get_location_by_id(self.game_state.player.location_id)
+        if not location:
+            self.ui.show_message("You're not sure where you are.", "yellow")
+            return
+
+        if not location.connections:
+            self.ui.show_message("There don't seem to be any obvious exits.", "yellow")
+            return
+
+        exits_text = f"From {location.name}, you can go:\n"
+        for direction, dest_id in location.connections.items():
+            dest = self.config.get_location_by_id(dest_id)
+            dest_name = dest.name if dest else dest_id
+            accessible = dest_id in self.game_state.world.accessible_locations
+            lock_status = "" if accessible else " [locked]"
+            exits_text += f"  - {direction.upper()}: {dest_name}{lock_status}\n"
+
+        self.ui.show_message(exits_text.strip(), "cyan")
+
+    def _show_image_info(self) -> None:
+        """Show information about the last generated image."""
+        if self._last_image_path:
+            self.ui.show_message(
+                f"Last generated image: {self._last_image_path}\n"
+                "Open this file to view the scene illustration.",
+                "cyan"
+            )
+        else:
+            self.ui.show_message("No image has been generated yet.", "yellow")
 
     def run(self) -> None:
         """Main game loop."""
