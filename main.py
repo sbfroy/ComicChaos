@@ -156,15 +156,19 @@ Your goal: {bp.goal}
             self.ui.show_help()
             return True
 
-        if command in ("inventory", "i"):
+        if command in ("inventory", "i", "inv"):
             self.ui.show_inventory(self.game_state)
             return True
 
-        if command == "status":
+        if command in ("status", "stats"):
             self.ui.show_full_status(self.game_state)
             return True
 
-        if command == "hint":
+        if command in ("look", "l"):
+            # Shortcut for looking around - pass to narratron as "look around"
+            player_input = "look around"
+
+        if command in ("hint", "h"):
             if self.narratron:
                 hint = self.narratron.get_current_milestone_hint(self.game_state)
                 self.ui.show_hint(hint)
