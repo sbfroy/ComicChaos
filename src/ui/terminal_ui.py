@@ -21,6 +21,15 @@ from ..state.game_state import GameState
 from ..state.static_config import StaticConfig
 
 
+def is_wsl() -> bool:
+    """Check if running in Windows Subsystem for Linux."""
+    try:
+        with open("/proc/version", "r") as f:
+            return "microsoft" in f.read().lower()
+    except Exception:
+        return False
+
+
 def open_image(image_path: str) -> bool:
     """Open an image in the system's default viewer."""
     try:
@@ -29,18 +38,45 @@ def open_image(image_path: str) -> bool:
             return False
 
         system = platform.system()
+
         if system == "Darwin":  # macOS
             subprocess.run(["open", str(path)], check=True)
         elif system == "Windows":
             os.startfile(str(path))
-        else:  # Linux and others
-            # Try xdg-open first, fall back to webbrowser
+        elif is_wsl():
+            # WSL: Convert path to Windows path and use explorer.exe
+            try:
+                # Try wslview first (from wslu package)
+                subprocess.run(["wslview", str(path)], check=True, stderr=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
+            except (subprocess.CalledProcessError, FileNotFoundError):
+                # Fall back to explorer.exe with wslpath conversion
+                try:
+                    # Convert Linux path to Windows path
+                    result = subprocess.run(
+                        ["wslpath", "-w", str(path)],
+                        capture_output=True, text=True, check=True
+                    )
+                    win_path = result.stdout.strip()
+                    subprocess.run(["explorer.exe", win_path], check=True)
+                except Exception:
+                    # Last resort: try powershell
+                    result = subprocess.run(
+                        ["wslpath", "-w", str(path)],
+                        capture_output=True, text=True, check=True
+                    )
+                    win_path = result.stdout.strip()
+                    subprocess.run(
+                        ["powershell.exe", "-Command", f'Start-Process "{win_path}"'],
+                        check=True, stderr=subprocess.DEVNULL, stdout=subprocess.DEVNULL
+                    )
+        else:  # Linux
             try:
                 subprocess.run(["xdg-open", str(path)], check=True, stderr=subprocess.DEVNULL)
             except (subprocess.CalledProcessError, FileNotFoundError):
                 webbrowser.open(f"file://{path}")
         return True
-    except Exception:
+    except Exception as e:
+        print(f"Could not open image: {e}")
         return False
 
 

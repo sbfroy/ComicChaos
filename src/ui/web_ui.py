@@ -2,6 +2,7 @@
 
 import json
 import os
+import subprocess
 import threading
 import webbrowser
 from http.server import HTTPServer, SimpleHTTPRequestHandler
@@ -11,6 +12,31 @@ from typing import Callable
 
 from ..state.game_state import GameState
 from ..state.static_config import StaticConfig
+
+
+def is_wsl() -> bool:
+    """Check if running in Windows Subsystem for Linux."""
+    try:
+        with open("/proc/version", "r") as f:
+            return "microsoft" in f.read().lower()
+    except Exception:
+        return False
+
+
+def open_browser(url: str) -> None:
+    """Open a URL in the default browser, handling WSL specially."""
+    if is_wsl():
+        try:
+            # Try wslview first
+            subprocess.run(["wslview", url], check=True, stderr=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
+        except (subprocess.CalledProcessError, FileNotFoundError):
+            try:
+                # Fall back to cmd.exe
+                subprocess.run(["cmd.exe", "/c", "start", url], check=True, stderr=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
+            except Exception:
+                webbrowser.open(url)
+    else:
+        webbrowser.open(url)
 
 
 class GameWebHandler(SimpleHTTPRequestHandler):
@@ -32,8 +58,13 @@ class GameWebHandler(SimpleHTTPRequestHandler):
             self.send_game_state()
         elif parsed.path.startswith("/assets/"):
             self.serve_asset()
+        elif parsed.path == "/favicon.ico":
+            # Ignore favicon requests
+            self.send_response(204)
+            self.end_headers()
         else:
-            self.send_error(404)
+            # For any other path, try to serve the main page
+            self.send_game_page()
 
     def do_POST(self):
         if self.path == "/action":
@@ -95,19 +126,38 @@ class GameWebHandler(SimpleHTTPRequestHandler):
 
     def serve_asset(self):
         """Serve generated images."""
-        # Remove /assets/ prefix
-        file_path = self.path[8:]
+        from urllib.parse import unquote
+
+        # Remove /assets/ prefix and strip query string
+        file_path = self.path[8:].split("?")[0]
+        file_path = unquote(file_path)  # Handle URL encoding
         full_path = Path("assets/generated") / file_path
 
-        if full_path.exists() and full_path.suffix.lower() in (".png", ".jpg", ".jpeg", ".gif"):
+        # Also try with just the filename in case full path was passed
+        if not full_path.exists():
+            full_path = Path("assets/generated") / Path(file_path).name
+
+        if full_path.exists() and full_path.suffix.lower() in (".png", ".jpg", ".jpeg", ".gif", ".txt"):
             self.send_response(200)
-            content_type = "image/png" if full_path.suffix.lower() == ".png" else "image/jpeg"
+            if full_path.suffix.lower() == ".png":
+                content_type = "image/png"
+            elif full_path.suffix.lower() in (".jpg", ".jpeg"):
+                content_type = "image/jpeg"
+            elif full_path.suffix.lower() == ".gif":
+                content_type = "image/gif"
+            else:
+                content_type = "text/plain"
             self.send_header("Content-Type", content_type)
+            self.send_header("Cache-Control", "no-cache")
             self.end_headers()
             with open(full_path, "rb") as f:
                 self.wfile.write(f.read())
         else:
-            self.send_error(404)
+            # Return a placeholder instead of 404
+            self.send_response(200)
+            self.send_header("Content-Type", "text/plain")
+            self.end_headers()
+            self.wfile.write(b"Image not found")
 
     def get_game_html(self):
         """Generate the game HTML page."""
@@ -470,7 +520,7 @@ class WebUI:
         url = f"http://localhost:{self.port}"
         print(f"\n🌐 Web UI started at: {url}")
         print("   Opening in your browser...")
-        webbrowser.open(url)
+        open_browser(url)
 
     def update(
         self,
