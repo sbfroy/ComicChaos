@@ -1,0 +1,82 @@
+{
+  "title": "Cartoon Chaos",
+  "synopsis": "Welcome to Toontown, where the laws of physics are more like suggestions! A vibrant cartoon world of wacky antics, impossible contraptions, and characters with very elastic faces. Pure, unadulterated cartoon mayhem awaits!",
+  "setting": "A vibrant, bouncy cartoon world called Toontown where everything is exaggerated, colors are impossibly bright, and the impossible happens regularly. Think classic 1940s animation - rubber hose limbs, impossible physics, and everyone bursting into song at random moments.",
+  "starting_location_id": "town_square",
+  "goal": "Have fun! Create hilarious cartoon panels full of slapstick, gags, and visual comedy.",
+  "visual_style": "classic 1940s cartoon style, rubber hose animation, exaggerated squash and stretch, big expressive eyes, bright saturated colors, hand-drawn look, thick black outlines, simple backgrounds with bold shapes, Fleischer Studios and early Disney inspired",
+  "locations": [
+    {
+      "id": "town_square",
+      "name": "Toontown Square",
+      "description": "The heart of Toontown! A bustling square with a comically large fountain that squirts water in rhythm to unheard music. Buildings lean at impossible angles, each painted in eye-popping colors. A clock tower reads different times on each face. Street lamps bow politely as characters pass by.",
+      "visual_description": "Colorful cartoon town square with tilted buildings, a musical fountain, wacky clock tower showing different times, street lamps with faces, bouncy cobblestones",
+      "connections": {"north": "factory", "south": "park", "east": "diner", "west": "theater"}
+    },
+    {
+      "id": "factory",
+      "name": "ACME Factory",
+      "description": "The famous ACME Factory, where they manufacture everything from portable holes to rocket-powered roller skates. Conveyor belts carry absurd items past windows, and occasional explosions (harmless, of course) puff out of chimneys. A sign reads 'Quality Products for Cartoon Creatures Since 1928!'",
+      "visual_description": "Wacky factory building with smokestacks puffing colorful smoke, conveyor belts visible through windows carrying crazy inventions, ACME logo everywhere, comically large machinery",
+      "connections": {"south": "town_square"}
+    },
+    {
+      "id": "park",
+      "name": "Bouncy Park",
+      "description": "A lovely park where the trees have faces and occasionally sneeze out leaves. The grass is a little too green - almost glowing. Park benches have little legs and scuttle around looking for lonely visitors. A pond reflects a sky that's somehow a completely different color than the actual sky above.",
+      "visual_description": "Cartoon park with sentient trees with faces, bouncy grass, walking benches, magical pond, flowers that sing, impossibly blue sky with smiling sun",
+      "connections": {"north": "town_square"}
+    },
+    {
+      "id": "diner",
+      "name": "Greasy Spoon Diner",
+      "description": "A classic cartoon diner where the food literally jumps onto your plate. The pie slices wave at you from their display case. A jukebox plays music that makes everyone involuntarily tap their feet. The coffee is so strong it makes the cups bounce.",
+      "visual_description": "Retro 1950s diner with checkered floor, spinning stools, animated food, dancing jukebox, neon signs, counter with happy dishes waving",
+      "connections": {"west": "town_square"}
+    },
+    {
+      "id": "theater",
+      "name": "The Grand Toon Theater",
+      "description": "An ornate theater with velvet curtains that sometimes refuse to open because they're stage-shy. The seats occasionally applaud on their own when they get excited. A chandelier swings menacingly but never actually falls (it just likes the attention).",
+      "visual_description": "Grand old theater with red velvet curtains, ornate gold decorations, chandelier with personality, seats that bounce with excitement, marquee with living letters",
+      "connections": {"east": "town_square"}
+    }
+  ],
+  "characters": [
+    {
+      "id": "player",
+      "name": "Buddy",
+      "description": "A cheerful, round-faced cartoon character with big gloved hands, oversized shoes, and eyes that can literally pop out when surprised. Body is remarkably elastic and can survive anything - flattened, stretched, and exploded more times than one can count!",
+      "location_id": "town_square",
+      "role": "player"
+    },
+    {
+      "id": "wacky_weasel",
+      "name": "Wacky Wesley",
+      "description": "A fast-talking, zoot-suit wearing weasel with a perpetual grin showing a single gold tooth. Moves so fast he leaves afterimages, and his schemes always backfire in hilarious ways. Speaks in a rapid-fire accent.",
+      "location_id": "factory",
+      "role": "character"
+    },
+    {
+      "id": "chef_pierre",
+      "name": "Chef Pierre",
+      "description": "A rotund, mustachioed French chef whose hat is somehow taller than his entire body. His emotions cause his food to literally change - happy equals delicious, angry equals volcanic. His mustache twirls when he's thinking.",
+      "location_id": "diner",
+      "role": "character"
+    },
+    {
+      "id": "madame_melody",
+      "name": "Madame Melody",
+      "description": "A glamorous songbird (literally a bird) diva with a voice that can shatter glass or make flowers bloom, depending on her mood. Wears an enormous feathered hat and speaks in dramatic declarations. Everything is 'DARLING' to her.",
+      "location_id": "theater",
+      "role": "character"
+    },
+    {
+      "id": "old_timer",
+      "name": "Old Timer Turtle",
+      "description": "An ancient turtle with a shell covered in stickers from places that may or may not exist. Moves incredibly slowly but somehow appears wherever wisdom is needed. Speaks in riddles that actually make sense if you think about them.",
+      "location_id": "park",
+      "role": "character"
+    }
+  ]
+}

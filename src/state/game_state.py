@@ -1,4 +1,4 @@
-"""Dynamic game state that evolves during gameplay."""
+"""Dynamic state for comic creation sessions."""
 
 import json
 from datetime import datetime
@@ -9,126 +9,49 @@ from pydantic import BaseModel, Field
 from .static_config import StaticConfig
 
 
-class NarrativeEvent(BaseModel):
-    """A single event in the narrative history."""
+class ComicPanel(BaseModel):
+    """A single panel in the comic strip."""
 
-    turn: int = Field(description="Turn number when this event occurred")
-    player_action: str = Field(description="What the player attempted to do")
-    outcome: str = Field(description="What actually happened")
+    panel_number: int = Field(description="Panel number in sequence")
+    narrative: str = Field(description="The narrative text for this panel")
+    image_path: str | None = Field(default=None, description="Path to generated image")
+    player_action: str = Field(default="", description="What the player did")
     timestamp: datetime = Field(default_factory=datetime.now)
 
 
 class NarrativeState(BaseModel):
-    """Record of what has happened in the story."""
+    """Record of the comic story."""
 
-    events: list[NarrativeEvent] = Field(default_factory=list)
+    panels: list[ComicPanel] = Field(default_factory=list)
     rolling_summary: str = Field(
         default="The story has just begun.",
-        description="Condensed summary of key events for context efficiency"
+        description="Condensed summary of the story so far"
     )
     current_scene: str = Field(
         default="",
-        description="Description of what's currently happening"
+        description="Description of current scene"
     )
 
 
 class WorldState(BaseModel):
-    """Current state of the game world."""
+    """Current state of the story world."""
 
     character_locations: dict[str, str] = Field(
         default_factory=dict,
         description="character_id -> location_id mapping"
     )
-    discovered_locations: set[str] = Field(
-        default_factory=set,
-        description="Set of location IDs the player has discovered"
-    )
-    accessible_locations: set[str] = Field(
-        default_factory=set,
-        description="Set of location IDs currently accessible"
-    )
-    flags: dict[str, bool] = Field(
+    current_location: str = Field(default="", description="Current story location")
+    flags: dict[str, Any] = Field(
         default_factory=dict,
-        description="Game flags for tracking state"
-    )
-    variables: dict[str, Any] = Field(
-        default_factory=dict,
-        description="Custom variables for puzzles and mechanics"
-    )
-    item_locations: dict[str, str | None] = Field(
-        default_factory=dict,
-        description="item_id -> location_id (None if in inventory)"
-    )
-    item_owners: dict[str, str | None] = Field(
-        default_factory=dict,
-        description="item_id -> character_id who owns it"
+        description="Story state flags"
     )
 
     class Config:
         arbitrary_types_allowed = True
 
-    def model_dump(self, **kwargs) -> dict:
-        """Custom serialization to handle sets."""
-        data = super().model_dump(**kwargs)
-        data["discovered_locations"] = list(data["discovered_locations"])
-        data["accessible_locations"] = list(data["accessible_locations"])
-        return data
-
-    @classmethod
-    def model_validate(cls, obj: Any) -> "WorldState":
-        """Custom deserialization to handle sets."""
-        if isinstance(obj, dict):
-            obj = obj.copy()
-            if "discovered_locations" in obj:
-                obj["discovered_locations"] = set(obj["discovered_locations"])
-            if "accessible_locations" in obj:
-                obj["accessible_locations"] = set(obj["accessible_locations"])
-        return super().model_validate(obj)
-
-
-class PlayerState(BaseModel):
-    """Current state of the player character."""
-
-    location_id: str = Field(description="Current location")
-    inventory: list[str] = Field(default_factory=list, description="Item IDs in inventory")
-    attributes: dict[str, Any] = Field(default_factory=dict, description="Player attributes")
-    known_information: list[str] = Field(
-        default_factory=list,
-        description="Information the player has learned"
-    )
-    health: int = Field(default=100, description="Player health")
-    status_effects: list[str] = Field(default_factory=list, description="Active status effects")
-
-
-class CheckpointProgress(BaseModel):
-    """Tracks progress through milestones."""
-
-    completed_milestones: list[str] = Field(
-        default_factory=list,
-        description="IDs of completed milestones"
-    )
-    current_milestone_id: str | None = Field(
-        default=None,
-        description="The next milestone to achieve"
-    )
-    milestone_timestamps: dict[str, datetime] = Field(
-        default_factory=dict,
-        description="When each milestone was completed"
-    )
-
-    def is_completed(self, milestone_id: str) -> bool:
-        """Check if a milestone is completed."""
-        return milestone_id in self.completed_milestones
-
-    def complete_milestone(self, milestone_id: str) -> None:
-        """Mark a milestone as completed."""
-        if milestone_id not in self.completed_milestones:
-            self.completed_milestones.append(milestone_id)
-            self.milestone_timestamps[milestone_id] = datetime.now()
-
 
 class RenderState(BaseModel):
-    """Visual-only information for image generation."""
+    """Visual information for image generation."""
 
     location_visual: str = Field(default="", description="Visual description of current location")
     characters_present: list[str] = Field(
@@ -143,7 +66,7 @@ class RenderState(BaseModel):
         default="",
         description="Visual description of what's happening"
     )
-    mood: str = Field(default="neutral", description="Scene mood: tense, calm, action, mysterious")
+    mood: str = Field(default="neutral", description="Scene mood")
     time_of_day: str = Field(default="day", description="day, night, dawn, dusk")
     weather: str = Field(default="clear", description="Weather conditions")
 
@@ -161,7 +84,7 @@ class RenderState(BaseModel):
             parts.append(f"Weather: {self.weather}")
 
         if self.characters_present:
-            chars = ", ".join(self.characters_present[:3])  # Limit characters
+            chars = ", ".join(self.characters_present[:3])
             parts.append(f"Characters: {chars}")
 
         if self.current_action:
@@ -174,77 +97,50 @@ class RenderState(BaseModel):
 
 
 class MetaInfo(BaseModel):
-    """Technical metadata for the game session."""
+    """Technical metadata for the session."""
 
     session_id: str = Field(default="", description="Unique session identifier")
-    turn_count: int = Field(default=0, description="Number of turns taken")
+    panel_count: int = Field(default=0, description="Number of panels created")
     started_at: datetime = Field(default_factory=datetime.now)
     last_updated: datetime = Field(default_factory=datetime.now)
-    engine_version: str = Field(default="0.1.0")
 
 
 class GameState(BaseModel):
-    """Complete dynamic game state."""
+    """Complete state for a comic creation session."""
 
     narrative: NarrativeState = Field(default_factory=NarrativeState)
     world: WorldState = Field(default_factory=WorldState)
-    player: PlayerState = Field(default_factory=lambda: PlayerState(location_id=""))
-    checkpoints: CheckpointProgress = Field(default_factory=CheckpointProgress)
     render: RenderState = Field(default_factory=RenderState)
     meta: MetaInfo = Field(default_factory=MetaInfo)
 
     @classmethod
     def initialize_from_config(cls, config: StaticConfig, session_id: str = "") -> "GameState":
-        """Create initial game state from static configuration."""
+        """Create initial state from configuration."""
         import uuid
 
         if not config.world_blueprint:
-            raise ValueError("Cannot initialize game state without world blueprint")
+            raise ValueError("Cannot initialize without world blueprint")
 
         blueprint = config.world_blueprint
-
-        # Initialize player state
-        player = PlayerState(
-            location_id=blueprint.starting_location_id,
-            inventory=[],
-            attributes={},
-            known_information=[]
-        )
 
         # Initialize world state
         world = WorldState(
             character_locations={},
-            discovered_locations={blueprint.starting_location_id},
-            accessible_locations=set(),
-            flags={},
-            variables={},
-            item_locations={},
-            item_owners={}
+            current_location=blueprint.starting_location_id,
+            flags={}
         )
 
         # Set character locations
         for char in blueprint.characters:
             world.character_locations[char.id] = char.location_id
 
-        # Set accessible locations
-        for loc in blueprint.locations:
-            if loc.accessible:
-                world.accessible_locations.add(loc.id)
-
-        # Set item locations and owners
-        for item in blueprint.items:
-            if item.location_id:
-                world.item_locations[item.id] = item.location_id
-            if item.owner_id:
-                world.item_owners[item.id] = item.owner_id
-
         # Initialize narrative state
         starting_loc = config.get_location_by_id(blueprint.starting_location_id)
-        scene_desc = starting_loc.description if starting_loc else "You find yourself in an unknown place."
+        scene_desc = starting_loc.description if starting_loc else "An unknown place."
 
         narrative = NarrativeState(
-            events=[],
-            rolling_summary=f"The story begins. {blueprint.synopsis}",
+            panels=[],
+            rolling_summary=f"{blueprint.synopsis}",
             current_scene=scene_desc
         )
 
@@ -253,7 +149,7 @@ class GameState(BaseModel):
             location_visual=starting_loc.visual_description if starting_loc else "",
             characters_present=[],
             objects_visible=[],
-            current_action="standing, looking around",
+            current_action="The scene opens",
             mood="curious",
             time_of_day="day",
             weather="clear"
@@ -264,82 +160,71 @@ class GameState(BaseModel):
             if char.location_id == blueprint.starting_location_id and char.role != "player":
                 render.characters_present.append(f"{char.name}: {char.description}")
 
-        # Initialize checkpoint progress
-        milestones = config.get_milestones_in_order()
-        first_milestone_id = milestones[0].id if milestones else None
-
-        checkpoints = CheckpointProgress(
-            completed_milestones=[],
-            current_milestone_id=first_milestone_id
-        )
-
         # Meta info
         meta = MetaInfo(
             session_id=session_id or str(uuid.uuid4()),
-            turn_count=0,
+            panel_count=0,
             started_at=datetime.now(),
-            last_updated=datetime.now(),
-            engine_version="0.1.0"
+            last_updated=datetime.now()
         )
 
         return cls(
             narrative=narrative,
             world=world,
-            player=player,
-            checkpoints=checkpoints,
             render=render,
             meta=meta
         )
 
-    def add_event(self, player_action: str, outcome: str) -> None:
-        """Add a new narrative event."""
-        event = NarrativeEvent(
-            turn=self.meta.turn_count,
-            player_action=player_action,
-            outcome=outcome
+    def add_panel(self, player_action: str, narrative: str, image_path: str | None = None) -> ComicPanel:
+        """Add a new panel to the comic strip."""
+        self.meta.panel_count += 1
+        panel = ComicPanel(
+            panel_number=self.meta.panel_count,
+            narrative=narrative,
+            image_path=image_path,
+            player_action=player_action
         )
-        self.narrative.events.append(event)
-        self.meta.turn_count += 1
+        self.narrative.panels.append(panel)
         self.meta.last_updated = datetime.now()
+        return panel
 
-    def get_recent_events(self, count: int = 5) -> list[NarrativeEvent]:
-        """Get the most recent events."""
-        return self.narrative.events[-count:]
+    def get_recent_panels(self, count: int = 5) -> list[ComicPanel]:
+        """Get the most recent panels."""
+        return self.narrative.panels[-count:]
+
+    def get_all_panels(self) -> list[ComicPanel]:
+        """Get all panels in the comic strip."""
+        return self.narrative.panels
 
     def get_context_summary(self) -> str:
-        """Get a summary of current game state for the NARRATRON."""
+        """Get a summary of current state for the LLM."""
         lines = [
-            f"CURRENT GAME STATE (Turn {self.meta.turn_count}):",
+            f"CURRENT STORY STATE (Panel {self.meta.panel_count}):",
             f"",
-            f"Player Location: {self.player.location_id}",
-            f"Player Inventory: {', '.join(self.player.inventory) if self.player.inventory else 'empty'}",
+            f"Current Location: {self.world.current_location}",
             f"",
             f"Story So Far: {self.narrative.rolling_summary}",
             f"",
             f"Current Scene: {self.narrative.current_scene}",
-            f"",
-            f"Completed Milestones: {', '.join(self.checkpoints.completed_milestones) if self.checkpoints.completed_milestones else 'none'}",
-            f"Current Objective: {self.checkpoints.current_milestone_id or 'none'}",
         ]
 
-        if self.narrative.events:
+        if self.narrative.panels:
             lines.append("")
-            lines.append("Recent Events:")
-            for event in self.get_recent_events(3):
-                lines.append(f"  - Player: {event.player_action}")
-                lines.append(f"    Result: {event.outcome}")
+            lines.append("Recent Panels:")
+            for panel in self.get_recent_panels(3):
+                lines.append(f"  Panel {panel.panel_number}: {panel.narrative[:100]}...")
 
         return "\n".join(lines)
 
     def save_to_file(self, filepath: str | Path) -> None:
-        """Save game state to a JSON file."""
+        """Save state to a JSON file."""
         filepath = Path(filepath)
         with open(filepath, "w") as f:
             json.dump(self.model_dump(mode="json"), f, indent=2, default=str)
 
     @classmethod
     def load_from_file(cls, filepath: str | Path) -> "GameState":
-        """Load game state from a JSON file."""
+        """Load state from a JSON file."""
         filepath = Path(filepath)
         with open(filepath) as f:
             data = json.load(f)
