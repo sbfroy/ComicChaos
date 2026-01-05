@@ -34,7 +34,7 @@ class Narratron:
         self,
         config: StaticConfig,
         api_key: str | None = None,
-        model: str = "gpt-4o-mini"
+        model: str = "gpt-4o-mini" # gpt-4o
     ):
         self.config = config
         self.model = model
