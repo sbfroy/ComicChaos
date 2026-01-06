@@ -5,9 +5,7 @@ The LLM dynamically creates locations and characters as the story progresses,
 and this module stores and tracks them.
 """
 
-import json
 from datetime import datetime
-from pathlib import Path
 from typing import Any
 from pydantic import BaseModel, Field
 
@@ -312,17 +310,3 @@ class GameState(BaseModel):
                 lines.append(f"  Panel {panel.panel_number}: {panel.narrative[:100]}...")
 
         return "\n".join(lines)
-
-    def save_to_file(self, filepath: str | Path) -> None:
-        """Save state to a JSON file."""
-        filepath = Path(filepath)
-        with open(filepath, "w") as f:
-            json.dump(self.model_dump(mode="json"), f, indent=2, default=str)
-
-    @classmethod
-    def load_from_file(cls, filepath: str | Path) -> "GameState":
-        """Load state from a JSON file."""
-        filepath = Path(filepath)
-        with open(filepath) as f:
-            data = json.load(f)
-        return cls.model_validate(data)
