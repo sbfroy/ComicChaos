@@ -142,8 +142,8 @@ class ComicCreator:
     def _fallback_opening(self) -> str:
         """Generate opening without AI."""
         bp = self.config.world_blueprint
-        loc = self.config.get_location_by_id(bp.starting_location_id)
-        return f"{bp.synopsis}\n\nThe scene opens at {loc.name if loc else 'an unknown place'}."
+        loc = bp.starting_location
+        return f"{bp.synopsis}\n\nThe scene opens at {loc.name}."
 
     def process_input(self, user_input: str) -> bool:
         """
@@ -175,6 +175,20 @@ class ComicCreator:
         if self.narratron:
             console.print("\n[dim]Creating next panel...[/dim]")
             response = self.narratron.process_input(user_input, self.state)
+
+            # Show if input was rejected/modified
+            if not response.input_accepted and response.rejection_reason:
+                console.print(f"\n[yellow]Story redirected: {response.rejection_reason}[/yellow]")
+
+            # Show if new entities were introduced
+            if response.new_location:
+                loc_name = response.new_location.get("name", "unknown")
+                console.print(f"[green]New location discovered: {loc_name}[/green]")
+
+            if response.new_character:
+                char_name = response.new_character.get("name", "unknown")
+                console.print(f"[green]New character introduced: {char_name}[/green]")
+
             narrative = response.panel_narrative
 
             # Generate image

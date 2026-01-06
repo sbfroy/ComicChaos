@@ -1,96 +1,26 @@
 {
   "title": "The Jade Falcon Mystery",
-  "synopsis": "In the rain-soaked streets of Noirville, 1947. A down-on-your-luck private detective, a mysterious dame with a stolen artifact and a story that doesn't add up. A web of deception, danger, and intrigue. The legendary Jade Falcon must be found.",
-  "setting": "A noir-style 1940s city called Noirville, filled with shadowy alleys, smoky jazz clubs, and characters with secrets to hide. Rain is always threatening, streetlights flicker, and everyone has an angle.",
-  "starting_location_id": "detective_office",
-  "goal": "Create a classic noir detective story with mystery, intrigue, and dramatic twists.",
-  "visual_style": "noir comic book style, high contrast shadows, rain-slicked streets, 1940s aesthetic, dramatic angles, moody lighting, black and white with splashes of color",
-  "locations": [
-    {
-      "id": "detective_office",
-      "name": "Detective's Office",
-      "description": "A cramped office on the third floor of the Baxter Building. A frosted glass door reads 'Private Investigations'. Inside, a battered wooden desk drowns in papers, a half-empty bottle of bourbon sits in the drawer, and the ceiling fan wobbles with each rotation. The window overlooks the wet streets below.",
-      "visual_description": "Small 1940s detective office, frosted glass door, cluttered wooden desk, ceiling fan, rain-streaked window, filing cabinets, noir lighting",
-      "connections": {"out": "street_outside"}
-    },
-    {
-      "id": "street_outside",
-      "name": "Rain-Slicked Street",
-      "description": "The street is wet with the perpetual drizzle of Noirville. A broken streetlamp flickers on the corner. Across the street, the Blue Moon Jazz Club's neon sign buzzes. A newsstand huddles under an awning, and down the block, you can see the entrance to Chinatown.",
-      "visual_description": "1940s city street at night, wet pavement reflecting neon lights, flickering streetlamp, jazz club with neon sign, newsstand, light rain",
-      "connections": {"up": "detective_office", "north": "chinatown", "east": "jazz_club", "west": "docks"}
-    },
-    {
-      "id": "jazz_club",
-      "name": "Blue Moon Jazz Club",
-      "description": "Smoke curls through the air as a jazz quartet plays a melancholy tune. Booths line the walls, shrouded in shadow. The bar gleams under dim lights, and the bartender polishes glasses with practiced indifference.",
-      "visual_description": "Smoky 1940s jazz club interior, stage with jazz band, curved bar with bottles, shadowy booths, art deco details, spotlight on stage",
-      "connections": {"west": "street_outside"}
-    },
-    {
-      "id": "chinatown",
-      "name": "Chinatown",
-      "description": "An ornate gate marks the entrance. Red lanterns sway in the breeze, casting dancing shadows. The smell of incense and cooking food wafts through the air. Paper dragons hang in shop windows, and hidden secrets lurk in every alley.",
-      "visual_description": "Traditional Chinatown gate with red lanterns, wet cobblestones, paper decorations, shop fronts with Chinese characters, misty atmosphere",
-      "connections": {"south": "street_outside"}
-    },
-    {
-      "id": "docks",
-      "name": "Noirville Docks",
-      "description": "The fog-shrouded docks where cargo ships from distant lands unload their goods - legal and otherwise. Warehouses line the waterfront, their windows dark and foreboding. The smell of salt and diesel hangs heavy.",
-      "visual_description": "Foggy waterfront docks at night, cargo ships silhouettes, warehouse buildings, wooden piers, rope and crates, single lamp post",
-      "connections": {"east": "street_outside"}
-    },
-    {
-      "id": "police_station",
-      "name": "Noirville Police Station",
-      "description": "The 14th Precinct. The building smells of coffee and cigarettes. Desks overflow with case files, and the cells in back hold tonight's usual suspects.",
-      "visual_description": "1940s police station interior, wooden desks with typewriters, ceiling fans, wanted posters, holding cells visible in back, harsh overhead lights",
-      "connections": {"out": "street_outside"}
-    }
-  ],
-  "characters": [
-    {
-      "id": "player",
-      "name": "Sam Noir",
-      "description": "A weathered private detective with a sharp mind and a troubled past. Wearing a rumpled trench coat and a fedora that's seen better days. Eyes that have seen too much, but still searching for the truth.",
-      "location_id": "detective_office",
-      "role": "player"
-    },
-    {
-      "id": "vivian",
-      "name": "Vivian Lake",
-      "description": "A stunning woman in a red dress with raven-black hair and eyes that hold secrets. She claims to be the victim, but something about her story doesn't sit right. Classic femme fatale.",
-      "location_id": "detective_office",
-      "role": "character"
-    },
-    {
-      "id": "vincent",
-      "name": "Vincent Malone",
-      "description": "The smooth-talking owner of the Blue Moon Jazz Club. Silver-haired with a gold tooth that glints when he smiles. He has fingers in every pie in Noirville.",
-      "location_id": "jazz_club",
-      "role": "character"
-    },
-    {
-      "id": "chen",
-      "name": "Mr. Chen",
-      "description": "An elderly Chinese man with wise eyes and weathered hands. He runs an antique shop and knows the history of every artifact that passes through Noirville - including the Jade Falcon.",
-      "location_id": "chinatown",
-      "role": "character"
-    },
-    {
-      "id": "murphy",
-      "name": "Detective Murphy",
-      "description": "A heavyset police detective with a mustache and a perpetually loosened tie. An old friend from better days. He plays by the book, mostly.",
-      "location_id": "police_station",
-      "role": "character"
-    },
-    {
-      "id": "scarface",
-      "name": "Scarface Tony",
-      "description": "A dangerous enforcer with a jagged scar running down his left cheek. He works for whoever pays the most and doesn't ask questions. Lurks in the shadows of the docks.",
-      "location_id": "docks",
-      "role": "character"
-    }
+  "synopsis": "In the rain-soaked streets of Noirville, 1947. A down-on-your-luck private detective, a mysterious case, and secrets that run deeper than the fog. Every shadow hides a secret, every smile hides a lie.",
+  "setting": "A noir-style 1940s city called Noirville, filled with shadowy alleys, smoky jazz clubs, and characters with secrets to hide. Rain is always threatening, streetlights flicker, and everyone has an angle. It's a world of fedoras and femme fatales, of whiskey and worn leather, of cases that start simple and end deadly. The city never sleeps, and neither do its secrets.",
+  "starting_location": {
+    "name": "Detective's Office",
+    "description": "A cramped office on the third floor of the Baxter Building. A frosted glass door reads 'Private Investigations'. Inside, a battered wooden desk drowns in papers, case files, and yesterday's coffee. A half-empty bottle of bourbon sits in the drawer for the bad days. The ceiling fan wobbles with each rotation, and the rain-streaked window overlooks the wet streets below. It's not much, but it's home.",
+    "visual_description": "Small 1940s detective office, frosted glass door, cluttered wooden desk with papers, ceiling fan, rain-streaked window overlooking city, filing cabinets, noir lighting with venetian blind shadows, desk lamp creating pools of light"
+  },
+  "main_character": {
+    "name": "Sam Noir",
+    "description": "A weathered private detective with a sharp mind and a troubled past. Wearing a rumpled grey trench coat and a fedora that's seen better days. Has a strong jaw, tired eyes that have seen too much, and a five o'clock shadow. Speaks in a world-weary voice but still believes in doing the right thing. Chain smokes when nervous. Quick with a quip and quicker with his fists when needed."
+  },
+  "goal": "Create a classic noir detective story with mystery, intrigue, and dramatic twists. Unravel cases, meet colorful characters, and navigate a city where everyone has something to hide.",
+  "visual_style": "noir comic book style, high contrast black and white with dramatic shadows, rain-slicked streets, 1940s aesthetic, dramatic camera angles, moody lighting, occasional splashes of color for emphasis, cigarette smoke wisps, venetian blind shadows",
+  "world_rules": [
+    "This is a realistic noir setting - no magic or supernatural elements",
+    "Violence has consequences - people can get hurt",
+    "Everyone has motives and secrets",
+    "The weather reflects the mood - rain, fog, dim streetlights",
+    "Dialogue should be snappy and hard-boiled",
+    "Trust is rare and often misplaced",
+    "The law isn't always on the side of justice",
+    "Money and power corrupt everything they touch"
   ]
 }

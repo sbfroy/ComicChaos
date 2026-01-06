@@ -1,4 +1,8 @@
-"""NARRATRON - The comic creation engine."""
+"""NARRATRON - The comic creation engine.
+
+The LLM has creative control over the story, dynamically introducing
+locations and characters while maintaining world consistency.
+"""
 
 import json
 import os
@@ -6,7 +10,7 @@ from typing import Any
 
 from openai import OpenAI
 
-from ..state.game_state import GameState, RenderState
+from ..state.game_state import GameState, RenderState, DynamicLocation, DynamicCharacter
 from ..state.static_config import StaticConfig
 from .prompts import NARRATRON_SYSTEM_PROMPT, INITIAL_SCENE_PROMPT
 
@@ -16,8 +20,20 @@ class NarratronResponse:
 
     def __init__(self, raw_response: dict):
         self.raw = raw_response
+
+        # Input validation
+        self.input_accepted = raw_response.get("input_accepted", True)
+        self.rejection_reason = raw_response.get("rejection_reason", "")
+
+        # Core narrative
         self.interpretation = raw_response.get("interpretation", "")
         self.panel_narrative = raw_response.get("panel_narrative", "")
+
+        # Dynamic entity creation
+        self.new_location = raw_response.get("new_location")  # dict or None
+        self.new_character = raw_response.get("new_character")  # dict or None
+
+        # State changes
         self.state_changes = raw_response.get("state_changes", {})
         self.visual_summary = raw_response.get("visual_summary", {})
         self.rolling_summary_update = raw_response.get("rolling_summary_update", "")
@@ -25,7 +41,11 @@ class NarratronResponse:
 
 
 class Narratron:
-    """The AI engine that creates comic panels."""
+    """The AI engine that creates comic panels.
+
+    The LLM is the creative driver - it introduces new locations and characters
+    as the story needs them, and validates user inputs against the world's logic.
+    """
 
     def __init__(
         self,
@@ -48,24 +68,39 @@ class Narratron:
             world_context_parts.append(f"STORY CONCEPT: {bp.goal}")
             world_context_parts.append("")
 
-            # Locations
-            world_context_parts.append("LOCATIONS:")
-            for loc in bp.locations:
+            # Main character (from blueprint)
+            world_context_parts.append("MAIN CHARACTER:")
+            world_context_parts.append(
+                f"  {game_state.world.main_character_name}: {game_state.world.main_character_description}"
+            )
+            world_context_parts.append("")
+
+            # Known locations (dynamically created)
+            world_context_parts.append("KNOWN LOCATIONS:")
+            for loc in game_state.world.locations:
                 world_context_parts.append(f"  - {loc.name} ({loc.id}): {loc.description[:100]}...")
             world_context_parts.append("")
 
-            # Characters
-            world_context_parts.append("CHARACTERS:")
-            for char in bp.characters:
-                current_loc = game_state.world.character_locations.get(char.id, char.location_id)
-                world_context_parts.append(f"  - {char.name} ({char.id}): {char.description[:80]}... [at: {current_loc}]")
+            # Known characters (dynamically created)
+            if game_state.world.characters:
+                world_context_parts.append("CHARACTERS IN STORY:")
+                for char in game_state.world.characters:
+                    loc_info = f" [at: {char.current_location}]" if char.current_location else ""
+                    world_context_parts.append(f"  - {char.name} ({char.id}): {char.description[:80]}...{loc_info}")
+                world_context_parts.append("")
 
         world_context = "\n".join(world_context_parts)
         visual_style = self.config.world_blueprint.visual_style if self.config.world_blueprint else "comic book style"
 
+        # Format world rules
+        world_rules = "None specified - use common sense for this setting."
+        if self.config.world_blueprint and self.config.world_blueprint.world_rules:
+            world_rules = "\n".join(f"- {rule}" for rule in self.config.world_blueprint.world_rules)
+
         return NARRATRON_SYSTEM_PROMPT.format(
             visual_style=visual_style,
-            world_context=f"WORLD INFORMATION:\n{world_context}"
+            world_rules=world_rules,
+            world_context=f"CURRENT WORLD STATE:\n{world_context}"
         )
 
     def _call_llm(self, messages: list[dict]) -> str:
@@ -74,7 +109,7 @@ class Narratron:
             model=self.model,
             messages=messages,
             temperature=0.8,
-            max_tokens=1000,
+            max_tokens=1500,  # Increased for entity creation
             response_format={"type": "json_object"}
         )
         return response.choices[0].message.content
@@ -86,6 +121,7 @@ class Narratron:
             return NarratronResponse(data)
         except json.JSONDecodeError:
             return NarratronResponse({
+                "input_accepted": True,
                 "interpretation": "Unknown",
                 "panel_narrative": "Something unexpected happened...",
                 "state_changes": {},
@@ -102,7 +138,8 @@ class Narratron:
 
 USER WANTS: {user_input}
 
-Create the next comic panel based on what the user wants to happen."""
+Create the next comic panel based on what the user wants to happen.
+Remember: You have creative control. Reject requests that don't fit the world, introduce new characters/locations when needed."""
 
         messages = [
             {"role": "system", "content": system_prompt},
@@ -112,22 +149,51 @@ Create the next comic panel based on what the user wants to happen."""
         response_text = self._call_llm(messages)
         response = self._parse_response(response_text)
 
-        # Apply state changes
+        # Apply state changes (including new entities)
         self._apply_state_changes(response, game_state)
 
         return response
 
     def _apply_state_changes(self, response: NarratronResponse, game_state: GameState) -> None:
-        """Apply state changes from the response."""
+        """Apply state changes from the response, including new entities."""
         changes = response.state_changes
 
-        # Update location
-        if changes.get("current_location"):
-            game_state.world.current_location = changes["current_location"]
+        # Add new location if introduced
+        if response.new_location:
+            new_loc = response.new_location
+            location = DynamicLocation(
+                id=new_loc.get("id", f"loc_{game_state.meta.panel_count}"),
+                name=new_loc.get("name", "Unknown Location"),
+                description=new_loc.get("description", ""),
+                visual_description=new_loc.get("visual_description", ""),
+                first_appeared_panel=game_state.meta.panel_count + 1
+            )
+            game_state.world.add_location(location)
 
-        # Move characters
-        for char_id, new_loc in changes.get("characters_moved", {}).items():
-            game_state.world.character_locations[char_id] = new_loc
+        # Add new character if introduced
+        if response.new_character:
+            new_char = response.new_character
+            character = DynamicCharacter(
+                id=new_char.get("id", f"char_{game_state.meta.panel_count}"),
+                name=new_char.get("name", "Unknown Character"),
+                description=new_char.get("description", ""),
+                current_location=game_state.world.current_location_id,
+                first_appeared_panel=game_state.meta.panel_count + 1
+            )
+            game_state.world.add_character(character)
+
+        # Update current location
+        if changes.get("current_location_id"):
+            game_state.world.current_location_id = changes["current_location_id"]
+        if changes.get("current_location_name"):
+            game_state.world.current_location_name = changes["current_location_name"]
+
+        # Update character locations based on who's present
+        characters_present = changes.get("characters_present_ids", [])
+        for char_id in characters_present:
+            char = game_state.world.get_character_by_id(char_id)
+            if char:
+                char.current_location = game_state.world.current_location_id
 
         # Set flags
         for flag, value in changes.get("flags_set", {}).items():
@@ -159,12 +225,14 @@ Create the next comic panel based on what the user wants to happen."""
             raise ValueError("Cannot generate opening without world blueprint")
 
         bp = self.config.world_blueprint
-        starting_loc = self.config.get_location_by_id(bp.starting_location_id)
+        starting_loc = bp.starting_location
+        main_char = bp.main_character
 
         system_prompt = self._build_system_prompt(game_state)
 
         user_message = INITIAL_SCENE_PROMPT.format(
-            starting_location=f"{starting_loc.name}: {starting_loc.description}" if starting_loc else "Unknown location",
+            starting_location=f"{starting_loc.name}: {starting_loc.description}",
+            main_character=f"{main_char.name}: {main_char.description}",
             goal=bp.goal,
             setting=bp.setting
         )
