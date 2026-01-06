@@ -8,6 +8,8 @@ from pathlib import Path
 from datetime import datetime
 
 from openai import OpenAI
+from rich.console import Console
+from rich.panel import Panel
 
 from ..state.game_state import RenderState
 
@@ -20,15 +22,32 @@ class ImageGenerator:
         api_key: str | None = None,
         model: str = "dall-e-3",
         output_dir: str | Path = "assets/generated",
-        cache_enabled: bool = True
+        cache_enabled: bool = True,
+        verbose: bool = False
     ):
         self.client = OpenAI(api_key=api_key or os.getenv("OPENAI_API_KEY"))
         self.model = model
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(parents=True, exist_ok=True)
         self.cache_enabled = cache_enabled
+        self.verbose = verbose
+        self._console = Console() if verbose else None
         self._cache: dict[str, str] = {}  # prompt_hash -> filepath
         self._last_image_path: str | None = None
+
+    def _log(self, title: str, content: str, style: str = "dim") -> None:
+        """Log verbose output if enabled."""
+        if not self.verbose or not self._console:
+            return
+        self._console.print(Panel(content, title=f"[bold]{title}[/bold]", border_style=style))
+
+    def _log_section(self, text: str, style: str = "yellow") -> None:
+        """Log a section header."""
+        if not self.verbose or not self._console:
+            return
+        self._console.print(f"\n[{style}]{'='*60}[/{style}]")
+        self._console.print(f"[{style} bold]{text}[/{style} bold]")
+        self._console.print(f"[{style}]{'='*60}[/{style}]\n")
 
     def _hash_prompt(self, prompt: str) -> str:
         """Create a hash of the prompt for caching."""
@@ -57,22 +76,34 @@ class ImageGenerator:
         render_state: RenderState,
         visual_style: str = "comic book style, vibrant colors, bold outlines, dramatic lighting",
         size: str = "1024x1024",
-        quality: str = "standard"
+        quality: str = "standard",
+        resize_to: int | None = 512
     ) -> str | None:
         """
         Generate an image from the render state.
 
         Returns the path to the generated image or None if generation fails.
         """
+        if self.verbose:
+            self._log_section("IMAGE GENERATION", "magenta")
+
         # Build the prompt
         prompt = self._build_prompt(render_state, visual_style)
+
+        if self.verbose:
+            self._log("DALL-E Prompt", prompt, style="blue")
 
         # Check cache
         prompt_hash = self._hash_prompt(prompt)
         cached = self._get_cached_image(prompt_hash)
         if cached:
             self._last_image_path = cached
+            if self.verbose and self._console:
+                self._console.print(f"[green]Cache hit![/green] Using cached image: {cached}\n")
             return cached
+
+        if self.verbose and self._console:
+            self._console.print(f"[dim]Calling {self.model} API (size={size}, quality={quality})...[/dim]")
 
         try:
             # Generate the image
@@ -91,75 +122,95 @@ class ImageGenerator:
             filename = f"{prompt_hash}_{timestamp}.png"
             filepath = self.output_dir / filename
 
-            with open(filepath, "wb") as f:
-                f.write(base64.b64decode(image_data))
+            # Decode and optionally resize
+            from PIL import Image
+            import io
+
+            img_bytes = base64.b64decode(image_data)
+
+            if resize_to:
+                # Resize image to smaller size for comic panels
+                img = Image.open(io.BytesIO(img_bytes))
+                img = img.resize((resize_to, resize_to), Image.Resampling.LANCZOS)
+                img.save(filepath, "PNG")
+                if self.verbose and self._console:
+                    self._console.print(f"[dim]Resized image to {resize_to}x{resize_to}[/dim]")
+            else:
+                with open(filepath, "wb") as f:
+                    f.write(img_bytes)
 
             # Update cache
             self._cache[prompt_hash] = str(filepath)
             self._last_image_path = str(filepath)
 
+            if self.verbose and self._console:
+                self._console.print(f"[green]Image generated![/green] Saved to: {filepath}\n")
+
             return str(filepath)
 
         except Exception as e:
-            print(f"Image generation failed: {e}")
+            if self.verbose and self._console:
+                self._console.print(f"[red]Image generation failed: {e}[/red]\n")
+            else:
+                print(f"Image generation failed: {e}")
             return None
 
     def _build_prompt(self, render_state: RenderState, visual_style: str) -> str:
         """Build an image generation prompt from the render state."""
         parts = []
 
-        # Style first
-        parts.append(f"Art style: {visual_style}")
+        # Style first - keep it simple
+        parts.append(f"{visual_style}")
 
-        # Scene/location
+        # Scene/location - simplified
         if render_state.location_visual:
-            parts.append(f"Scene: {render_state.location_visual}")
+            # Simplify the location description
+            loc = render_state.location_visual
+            if len(loc) > 100:
+                loc = loc[:100]
+            parts.append(f"Setting: {loc}")
 
-        # Time and weather atmosphere
-        atmosphere_parts = []
-        if render_state.time_of_day:
-            atmosphere_parts.append(f"{render_state.time_of_day} time")
-        if render_state.weather and render_state.weather != "clear":
-            atmosphere_parts.append(f"{render_state.weather} weather")
-        if atmosphere_parts:
-            parts.append(f"Atmosphere: {', '.join(atmosphere_parts)}")
-
-        # Characters in scene (limit to prevent prompt overflow)
+        # Characters in scene (limit to 1-2 for simplicity)
         if render_state.characters_present:
-            chars = render_state.characters_present[:2]  # Limit to 2 characters
-            parts.append(f"Characters: {'; '.join(chars)}")
+            # Take just the first character for simpler images
+            char = render_state.characters_present[0] if render_state.characters_present else ""
+            if char and len(char) > 80:
+                char = char[:80]
+            if char:
+                parts.append(f"Character: {char}")
 
-        # Current action
+        # Current action - keep simple
         if render_state.current_action:
-            parts.append(f"Action: {render_state.current_action}")
+            action = render_state.current_action
+            if len(action) > 60:
+                action = action[:60]
+            parts.append(f"Action: {action}")
 
-        # Visible objects (limit)
-        if render_state.objects_visible:
-            objects = render_state.objects_visible[:3]
-            parts.append(f"Notable objects: {', '.join(objects)}")
-
-        # Mood
+        # Simple mood mapping
         if render_state.mood:
-            mood_map = {
-                "tense": "tense atmosphere, dramatic shadows",
-                "calm": "peaceful atmosphere, soft lighting",
-                "action": "dynamic action scene, motion blur effects",
-                "mysterious": "mysterious atmosphere, fog, shadows",
-                "humorous": "lighthearted comedic scene",
-                "dramatic": "dramatic cinematic framing"
+            simple_moods = {
+                "tense": "slightly worried",
+                "calm": "peaceful",
+                "action": "energetic",
+                "mysterious": "curious",
+                "humorous": "cheerful and funny",
+                "dramatic": "expressive",
+                "funny": "cheerful and silly",
+                "peaceful": "calm and happy",
+                "chaotic": "playful chaos"
             }
-            mood_desc = mood_map.get(render_state.mood, render_state.mood)
+            mood_desc = simple_moods.get(render_state.mood, render_state.mood)
             parts.append(f"Mood: {mood_desc}")
 
-        # Additional instructions
-        parts.append("Single panel comic illustration, no speech bubbles, no text")
+        # Keep instructions simple
+        parts.append("Simple single panel illustration, no text, no speech bubbles, clean composition")
 
         # Join all parts
         full_prompt = ". ".join(parts)
 
-        # Ensure prompt isn't too long (DALL-E has a 4000 char limit)
-        if len(full_prompt) > 3800:
-            full_prompt = full_prompt[:3800] + "..."
+        # Ensure prompt isn't too long
+        if len(full_prompt) > 2000:
+            full_prompt = full_prompt[:2000]
 
         return full_prompt
 

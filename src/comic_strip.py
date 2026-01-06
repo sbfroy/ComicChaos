@@ -47,28 +47,70 @@ class ComicStrip:
             elif sys.platform == "win32":
                 os.startfile(abs_path)
             else:
-                # Linux - try various viewers
-                # Check if we're in WSL
-                if "microsoft" in os.uname().release.lower():
-                    # Convert to Windows path for WSL
+                # Linux - check if we're in WSL first
+                is_wsl = False
+                try:
+                    with open("/proc/version", "r") as f:
+                        is_wsl = "microsoft" in f.read().lower()
+                except Exception:
                     try:
+                        is_wsl = "microsoft" in os.uname().release.lower()
+                    except Exception:
+                        pass
+
+                if is_wsl:
+                    # WSL - try multiple methods to open the image
+                    try:
+                        # Convert to Windows path
                         result = subprocess.run(
                             ["wslpath", "-w", abs_path],
                             capture_output=True, text=True
                         )
                         if result.returncode == 0:
                             win_path = result.stdout.strip()
-                            subprocess.Popen(
-                                ["cmd.exe", "/c", "start", "", win_path],
-                                stdout=subprocess.DEVNULL,
-                                stderr=subprocess.DEVNULL
-                            )
-                            return
+
+                            # Method 1: Try wslview if available (from wslu package)
+                            try:
+                                subprocess.Popen(
+                                    ["wslview", abs_path],
+                                    stdout=subprocess.DEVNULL,
+                                    stderr=subprocess.DEVNULL
+                                )
+                                return
+                            except FileNotFoundError:
+                                pass
+
+                            # Method 2: Use powershell with Invoke-Item
+                            try:
+                                # Escape the path for PowerShell
+                                escaped_path = win_path.replace("'", "''")
+                                subprocess.Popen(
+                                    ["powershell.exe", "-NoProfile", "-Command",
+                                     f"Invoke-Item '{escaped_path}'"],
+                                    stdout=subprocess.DEVNULL,
+                                    stderr=subprocess.DEVNULL
+                                )
+                                return
+                            except Exception:
+                                pass
+
+                            # Method 3: Use cmd.exe with start
+                            try:
+                                subprocess.Popen(
+                                    ["cmd.exe", "/c", f'start "" "{win_path}"'],
+                                    stdout=subprocess.DEVNULL,
+                                    stderr=subprocess.DEVNULL,
+                                    shell=True
+                                )
+                                return
+                            except Exception:
+                                pass
+
                     except Exception:
                         pass
 
-                # Try common Linux viewers
-                for viewer in ["xdg-open", "eog", "feh", "display", "gpicview"]:
+                # Native Linux - try common viewers
+                for viewer in ["xdg-open", "eog", "feh", "display", "gpicview", "open"]:
                     try:
                         subprocess.Popen(
                             [viewer, abs_path],

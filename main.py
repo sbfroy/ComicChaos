@@ -34,20 +34,32 @@ class ComicCreator:
         self,
         config_dir: str,
         use_real_images: bool = True,
-        auto_show_images: bool = True
+        auto_show_images: bool = True,
+        verbose: bool = False
     ):
         load_dotenv()
 
+        self.verbose = verbose
         self.api_key = os.getenv("OPENAI_API_KEY")
         if not self.api_key:
             console.print("[yellow]Warning: OPENAI_API_KEY not found.[/yellow]")
             console.print("Please set it in a .env file for full features.\n")
+
+        if self.verbose:
+            console.print("[bold magenta]VERBOSE MODE ENABLED[/bold magenta]")
+            console.print("[dim]You will see detailed logs of LLM prompts, responses, and state changes.[/dim]\n")
 
         # Load configuration
         self.config = StaticConfig.load_from_directory(config_dir)
 
         if not self.config.world_blueprint:
             raise ValueError("No world blueprint found. Cannot start.")
+
+        if self.verbose:
+            bp = self.config.world_blueprint
+            console.print(f"[dim]Loaded blueprint: {bp.title}[/dim]")
+            console.print(f"[dim]Starting location: {bp.starting_location.name}[/dim]")
+            console.print(f"[dim]Main character: {bp.main_character.name}[/dim]\n")
 
         # Initialize state
         self.state: GameState | None = None
@@ -59,14 +71,16 @@ class ComicCreator:
             self.narratron = Narratron(
                 config=self.config,
                 api_key=self.api_key,
-                model="gpt-4o-mini"
+                model="gpt-4o-mini",
+                verbose=self.verbose
             )
 
         # Initialize image generator
         if use_real_images and self.api_key:
             self.image_gen = ImageGenerator(
                 api_key=self.api_key,
-                output_dir="assets/generated"
+                output_dir="assets/generated",
+                verbose=self.verbose
             )
         else:
             self.image_gen = MockImageGenerator(output_dir="assets/generated")
@@ -212,7 +226,8 @@ class ComicCreator:
 
     def _show_help(self) -> None:
         """Show help information."""
-        help_text = """
+        verbose_note = "\n[dim]Verbose mode is ON - showing detailed LLM interactions[/dim]" if self.verbose else ""
+        help_text = f"""
 [bold]Comic Creator Commands:[/bold]
 
   Just type what you want to happen next in the story!
@@ -226,7 +241,8 @@ class ComicCreator:
   - Describe actions, dialogue, or scene changes
   - Be creative! The AI will create panels based on your ideas
   - Each input creates a new panel in your comic strip
-"""
+  - Use --verbose / -v flag to see LLM prompts and responses
+{verbose_note}"""
         console.print(Panel(help_text, title="Help", border_style="green"))
 
     def _list_panels(self) -> None:
@@ -353,6 +369,7 @@ def main():
     parser.add_argument("--mock-images", action="store_true", help="Use mock images (no API)")
     parser.add_argument("--no-auto-show", action="store_true", help="Don't auto-open images")
     parser.add_argument("--list", action="store_true", help="List available comics")
+    parser.add_argument("-v", "--verbose", action="store_true", help="Enable verbose mode - show LLM prompts, responses, and state changes")
 
     args = parser.parse_args()
 
@@ -386,7 +403,8 @@ def main():
         creator = ComicCreator(
             config_dir=str(config_dir),
             use_real_images=not args.mock_images and not args.no_images,
-            auto_show_images=not args.no_auto_show
+            auto_show_images=not args.no_auto_show,
+            verbose=args.verbose
         )
         creator.run()
     except KeyboardInterrupt:

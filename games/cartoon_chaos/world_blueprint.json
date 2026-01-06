@@ -1,25 +1,24 @@
 {
   "title": "Cartoon Chaos",
-  "synopsis": "Welcome to Toontown, where the laws of physics are more like suggestions! A vibrant cartoon world of wacky antics, impossible contraptions, and characters with very elastic faces. Pure, unadulterated cartoon mayhem awaits!",
-  "setting": "A vibrant, bouncy cartoon world called Toontown where everything is exaggerated, colors are impossibly bright, and the impossible happens regularly. Think classic 1940s animation - rubber hose limbs, impossible physics, and everyone bursting into song at random moments. Characters can survive being flattened, stretched, and exploded. Anvils fall from the sky, dynamite is a common problem-solving tool, and reality itself bends to the whims of comedy.",
+  "synopsis": "Welcome to Toontown, a charming little cartoon world where anything can happen! Simple joys, silly mishaps, and heartwarming moments await in this gentle, whimsical place.",
+  "setting": "A gentle, whimsical cartoon world called Toontown. Everything has a soft, hand-drawn quality with simple shapes and warm, faded colors. The world is kind and playful - characters have big hearts and simple expressions. Think classic 1960s Saturday morning cartoons - uncomplicated, cheerful, and full of innocent fun.",
   "starting_location": {
     "name": "Toontown Square",
-    "description": "The heart of Toontown! A bustling square with a comically large fountain that squirts water in rhythm to unheard music. Buildings lean at impossible angles, each painted in eye-popping colors. A clock tower reads different times on each face. Street lamps bow politely as characters pass by. The cobblestones are bouncy and the air smells faintly of cotton candy.",
-    "visual_description": "Colorful cartoon town square with tilted buildings, a musical fountain, wacky clock tower showing different times, street lamps with faces, bouncy cobblestones, bright saturated colors, hand-drawn aesthetic"
+    "description": "A cozy little town square with a friendly fountain in the center. Simple buildings with rounded edges line the streets. A clock tower stands tall but friendly. Everything feels warm and welcoming.",
+    "visual_description": "Simple cartoon town square, rounded buildings, friendly fountain, warm faded colors, soft pastel tones, minimal details, clean lines"
   },
   "main_character": {
     "name": "Buddy",
-    "description": "A cheerful, round-faced cartoon character with big gloved hands, oversized red shoes, and enormous expressive eyes that can literally pop out when surprised. Has a small red bowtie and a friendly demeanor. Body is remarkably elastic and can survive anything - being flattened, stretched, and exploded more times than one can count! Always optimistic and ready for adventure."
+    "description": "A friendly, simple cartoon character with a round head, dot eyes, a warm smile, and a small body. Wears a simple outfit. Has a kind expression and cheerful demeanor. Simple, clean design with minimal details."
   },
-  "goal": "Have fun! Create hilarious cartoon panels full of slapstick, gags, and visual comedy. Embrace the absurd and let anything happen - as long as it's funny!",
-  "visual_style": "classic 1940s cartoon style, rubber hose animation, exaggerated squash and stretch, big expressive eyes, bright saturated colors, hand-drawn look, thick black outlines, simple backgrounds with bold shapes, Fleischer Studios and early Disney inspired",
+  "goal": "Have gentle fun! Create heartwarming and silly cartoon panels. Keep things simple, kind, and cheerful.",
+  "visual_style": "1960s Saturday morning cartoon style, simple flat shapes, faded warm pastel colors, minimal background details, clean black outlines, friendly rounded characters, vintage retro cartoon aesthetic, soft muted tones, simple expressions, hand-drawn look, UPA animation style, limited color palette",
   "world_rules": [
-    "Physics are optional - gravity only works when it's funny",
-    "Violence is cartoon-style only - no one gets truly hurt, they just get flattened or stretched",
-    "Characters can pull objects from nowhere (hammerspace)",
-    "The fourth wall is thin - characters might acknowledge the comic medium",
-    "Everything is exaggerated for comedy",
-    "Music can happen spontaneously",
-    "Emotions cause physical transformations (anger = red face, love = heart eyes, etc.)"
+    "Keep everything simple and gentle",
+    "Characters are kind and friendly",
+    "Humor is innocent and silly, never mean",
+    "Simple shapes and minimal details",
+    "Warm, faded color palette",
+    "Everything has a soft, rounded quality"
   ]
 }
