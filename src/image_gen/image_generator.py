@@ -22,17 +22,14 @@ class ImageGenerator:
         api_key: str | None = None,
         model: str = "gpt-image-1-mini",  # "dall-e-3"
         output_dir: str | Path = "assets/generated",
-        cache_enabled: bool = True,
         verbose: bool = False
     ):
         self.client = OpenAI(api_key=api_key or os.getenv("OPENAI_API_KEY"))
         self.model = model
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(parents=True, exist_ok=True)
-        self.cache_enabled = cache_enabled
         self.verbose = verbose
         self._console = Console() if verbose else None
-        self._cache: dict[str, str] = {}  # prompt_hash -> filepath
         self._last_image_path: str | None = None
 
     def _log(self, title: str, content: str, style: str = "dim") -> None:
@@ -49,37 +46,12 @@ class ImageGenerator:
         self._console.print(f"[{style} bold]{text}[/{style} bold]")
         self._console.print(f"[{style}]{'='*60}[/{style}]\n")
 
-    def _hash_prompt(self, prompt: str) -> str:
-        """Create a hash of the prompt for caching."""
-        return hashlib.md5(prompt.encode()).hexdigest()[:12]
-
-
-    # TODO: Remove the caching stuff
-    
-    def _get_cached_image(self, prompt_hash: str) -> str | None:
-        """Check if we have a cached image for this prompt."""
-        if not self.cache_enabled:
-            return None
-
-        if prompt_hash in self._cache:
-            path = self._cache[prompt_hash]
-            if Path(path).exists():
-                return path
-            del self._cache[prompt_hash]
-
-        # Check filesystem for cached images
-        for img_path in self.output_dir.glob(f"{prompt_hash}_*.png"):
-            self._cache[prompt_hash] = str(img_path)
-            return str(img_path)
-
-        return None
-
     def generate_image(
         self,
         render_state: RenderState,
         visual_style: str = "comic book style, vibrant colors, bold outlines, dramatic lighting",
         size: str = "1024x1024",
-        quality: str = "standard",
+        quality: str = "auto",
         resize_to: int | None = 512
     ) -> str | None:
         """
@@ -96,15 +68,6 @@ class ImageGenerator:
         if self.verbose:
             self._log("DALL-E Prompt", prompt, style="blue")
 
-        # Check cache
-        prompt_hash = self._hash_prompt(prompt)
-        cached = self._get_cached_image(prompt_hash)
-        if cached:
-            self._last_image_path = cached
-            if self.verbose and self._console:
-                self._console.print(f"[green]Cache hit![/green] Using cached image: {cached}\n")
-            return cached
-
         if self.verbose and self._console:
             self._console.print(f"[dim]Calling {self.model} API (size={size}, quality={quality})...[/dim]")
 
@@ -116,13 +79,13 @@ class ImageGenerator:
                 size=size,
                 quality=quality,
                 n=1,
-                response_format="b64_json"
+                #response_format="b64_json"
             )
 
             # Save the image
             image_data = response.data[0].b64_json
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            filename = f"{prompt_hash}_{timestamp}.png"
+            filename = f"panel_{timestamp}.png"
             filepath = self.output_dir / filename
 
             # Decode and optionally resize
@@ -142,8 +105,6 @@ class ImageGenerator:
                 with open(filepath, "wb") as f:
                     f.write(img_bytes)
 
-            # Update cache
-            self._cache[prompt_hash] = str(filepath)
             self._last_image_path = str(filepath)
 
             if self.verbose and self._console:
@@ -173,6 +134,8 @@ class ImageGenerator:
                 loc = loc[:100]
             parts.append(f"Setting: {loc}")
 
+        # TODO: Remove this stupid shit
+        
         # Characters in scene (limit to 1-2 for simplicity)
         if render_state.characters_present:
             # Take just the first character for simpler images
@@ -225,15 +188,9 @@ class ImageGenerator:
         self,
         prompt: str,
         size: str = "1024x1024",
-        quality: str = "standard"
+        quality: str = "auto"
     ) -> str | None:
         """Generate an image from a raw prompt string."""
-        prompt_hash = self._hash_prompt(prompt)
-        cached = self._get_cached_image(prompt_hash)
-        if cached:
-            self._last_image_path = cached
-            return cached
-
         try:
             response = self.client.images.generate(
                 model=self.model,
@@ -241,18 +198,17 @@ class ImageGenerator:
                 size=size,
                 quality=quality,
                 n=1,
-                response_format="b64_json"
+                #response_format="b64_json"
             )
 
             image_data = response.data[0].b64_json
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            filename = f"{prompt_hash}_{timestamp}.png"
+            filename = f"prompt_{timestamp}.png"
             filepath = self.output_dir / filename
 
             with open(filepath, "wb") as f:
                 f.write(base64.b64decode(image_data))
 
-            self._cache[prompt_hash] = str(filepath)
             self._last_image_path = str(filepath)
 
             return str(filepath)
@@ -260,10 +216,6 @@ class ImageGenerator:
         except Exception as e:
             print(f"Image generation failed: {e}")
             return None
-
-    def clear_cache(self) -> None:
-        """Clear the image cache."""
-        self._cache.clear()
 
     def cleanup_old_images(self, keep_count: int = 50) -> None:
         """Remove old generated images, keeping the most recent ones."""
@@ -276,10 +228,6 @@ class ImageGenerator:
         for img_path in images[keep_count:]:
             try:
                 img_path.unlink()
-                # Remove from cache if present
-                for hash_key, cached_path in list(self._cache.items()):
-                    if cached_path == str(img_path):
-                        del self._cache[hash_key]
             except Exception:
                 pass
 
@@ -298,7 +246,7 @@ class MockImageGenerator(ImageGenerator):
         render_state: RenderState,
         visual_style: str = "comic book style",
         size: str = "1024x1024",
-        quality: str = "standard"
+        quality: str = "auto"
     ) -> str | None:
         """Return a placeholder path without making API calls."""
         self._call_count += 1
