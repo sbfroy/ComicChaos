@@ -1,0 +1,24 @@
+{
+  "title": "test_01",
+  "synopsis": "A simple cartoon town where small everyday events lead to mild trouble and quiet humor. Situations unfold calmly and are resolved through patience, routine, and clear actions rather than chaos.",
+  "setting": "A traditional mid-20th-century cartoon world inspired by old European and American newspaper comics. The environment is simple and practical, drawn with clean lines and flat, faded colors. There is little decoration and no excess detail. Everything feels familiar, orderly, and slightly old-fashioned. Humor comes from timing, repetition, and small misunderstandings.",
+  "starting_location": {
+    "name": "Town Square",
+    "description": "A plain town square with boxy buildings and large windows. The area feels quiet, routine, and well known to everyone.",
+    "visual_description": "Classic old cartoon town, colorful muted colors, clean black outlines, simple shapes, no shading, mid-century comic style"
+  },
+  "main_character": {
+    "name": "Buddy",
+    "description": "A straightforward cartoon character with a simple design and clear expressions. He is an otter who reacts honestly to situations and shows emotion through posture and movement rather than exaggeration. He wears a blue t-shirt and jeans. Clothing and appearance are practical and unchanged."
+  },
+  "goal": "Create clear and readable comic panels based on everyday situations. Focus on pacing, simple actions, and visual storytelling rather than complex plots or strong exaggeration.",
+  "visual_style": "Classic mid-20th-century comic style, flat and faded colors, strong black outlines, simple backgrounds, clear panel flow, minimal detail, traditional hand-drawn look",
+  "world_rules": [
+    "Stories are based on ordinary situations",
+    "Characters behave seriously and consistently",
+    "Humor comes from small problems and repetition",
+    "Panels are clean and easy to read",
+    "Colors are flat and slightly aged",
+    "Movement and timing are more important than detail"
+  ]
+}

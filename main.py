@@ -18,7 +18,7 @@ from rich.prompt import Prompt
 
 from src.state.static_config import StaticConfig
 from src.state.game_state import GameState
-from src.game_registry import GameRegistry, GameInfo
+from settings.setting_registry import SettingRegistry, SettingInfo
 from src.narratron.narratron import Narratron
 from src.image_gen.image_generator import ImageGenerator, MockImageGenerator
 from src.comic_strip import ComicStrip
@@ -52,11 +52,11 @@ class ComicCreator:
         # Load configuration
         self.config = StaticConfig.load_from_directory(config_dir)
 
-        if not self.config.world_blueprint:
-            raise ValueError("No world blueprint found. Cannot start.")
+        if not self.config.blueprint:
+            raise ValueError("No blueprint found. Cannot start.")
 
         if self.verbose:
-            bp = self.config.world_blueprint
+            bp = self.config.blueprint
             console.print(f"[dim]Loaded blueprint: {bp.title}[/dim]")
             console.print(f"[dim]Starting location: {bp.starting_location.name}[/dim]")
             console.print(f"[dim]Main character: {bp.main_character.name}[/dim]\n")
@@ -98,7 +98,7 @@ class ComicCreator:
         self.state = GameState.initialize_from_config(self.config)
 
         # Initialize comic strip collector
-        title = self.config.world_blueprint.title if self.config.world_blueprint else "My Comic"
+        title = self.config.blueprint.title if self.config.blueprint else "My Comic"
         self.comic_strip = ComicStrip(title=title)
 
         # Generate opening panel
@@ -128,7 +128,7 @@ class ComicCreator:
         try:
             path = self.image_gen.generate_image(
                 self.state.render,
-                visual_style=self.config.world_blueprint.visual_style
+                visual_style=self.config.blueprint.visual_style
             )
             self._current_image_path = path
         except Exception as e:
@@ -155,7 +155,7 @@ class ComicCreator:
 
     def _fallback_opening(self) -> str:
         """Generate opening without AI."""
-        bp = self.config.world_blueprint
+        bp = self.config.blueprint
         loc = bp.starting_location
         return f"{bp.synopsis}\n\nThe scene opens at {loc.name}."
 
@@ -302,8 +302,8 @@ class ComicCreator:
 
     def _show_title(self) -> None:
         """Show the title screen."""
-        if self.config.world_blueprint:
-            bp = self.config.world_blueprint
+        if self.config.blueprint:
+            bp = self.config.blueprint
             title = f"""
 [bold cyan]{'=' * 50}[/bold cyan]
 [bold]  COMIC CREATOR[/bold]
@@ -321,35 +321,35 @@ class ComicCreator:
             console.print(title)
 
 
-def show_comic_selection(registry: GameRegistry) -> GameInfo | None:
+def show_comic_selection(registry: SettingRegistry) -> SettingInfo | None:
     """Display comic selection menu."""
-    games = registry.get_available_games()
+    settings = registry.get_available_settings()
 
-    if not games:
-        console.print("\n[yellow]No comics found in 'games' directory.[/yellow]")
+    if not settings:
+        console.print("\n[yellow]No settings found in 'settings' directory.[/yellow]")
         return None
 
     console.print("\n[bold cyan]" + "=" * 50 + "[/bold cyan]")
-    console.print("[bold]  COMIC CREATOR - Choose Your Comic[/bold]")
+    console.print("[bold]  COMIC CREATOR - Choose Your Setting[/bold]")
     console.print("[bold cyan]" + "=" * 50 + "[/bold cyan]\n")
 
-    for i, game in enumerate(games, 1):
-        console.print(f"  [bold][{i}][/bold] {game.name}")
-        console.print(f"      [dim]{game.description[:60]}...[/dim]")
-        console.print(f"      [italic]Style: {game.style[:40]}...[/italic]\n")
+    for i, setting in enumerate(settings, 1):
+        console.print(f"  [bold][{i}][/bold] {setting.name}")
+        console.print(f"      [dim]{setting.description[:60]}...[/dim]")
+        console.print(f"      [italic]Style: {setting.style[:40]}...[/italic]\n")
 
     console.print("  [bold][0][/bold] Exit\n")
 
     while True:
         try:
-            choice = Prompt.ask("Select a comic").strip()
+            choice = Prompt.ask("Select a setting").strip()
 
             if choice == "0":
                 return None
 
             idx = int(choice) - 1
-            if 0 <= idx < len(games):
-                return games[idx]
+            if 0 <= idx < len(settings):
+                return settings[idx]
             else:
                 console.print("[yellow]Invalid selection.[/yellow]")
         except ValueError:
@@ -373,20 +373,20 @@ def main():
 
     args = parser.parse_args()
 
-    registry = GameRegistry(games_dir="games")
+    registry = SettingRegistry(settings_dir="settings")
 
     if args.list:
-        console.print(registry.list_games())
+        console.print(registry.list_settings())
         return
 
     config_dir = args.config_dir
 
     if config_dir is None:
         if args.comic:
-            config_dir = registry.get_game_config_dir(args.comic)
+            config_dir = registry.get_setting_config_dir(args.comic)
             if config_dir is None:
-                console.print(f"[red]Comic '{args.comic}' not found.[/red]")
-                console.print(registry.list_games())
+                console.print(f"[red]Setting '{args.comic}' not found.[/red]")
+                console.print(registry.list_settings())
                 return
         else:
             selected = show_comic_selection(registry)
@@ -394,7 +394,7 @@ def main():
                 console.print("\n[cyan]Goodbye![/cyan]")
                 return
 
-            config_dir = registry.get_game_config_dir(selected.id)
+            config_dir = registry.get_setting_config_dir(selected.id)
             if config_dir is None:
                 console.print(f"[red]Could not find config for '{selected.id}'[/red]")
                 return

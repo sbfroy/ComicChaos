@@ -191,10 +191,10 @@ class GameState(BaseModel):
         """
         import uuid
 
-        if not config.world_blueprint:
-            raise ValueError("Cannot initialize without world blueprint")
+        if not config.blueprint:
+            raise ValueError("Cannot initialize without blueprint")
 
-        blueprint = config.world_blueprint
+        blueprint = config.blueprint
 
         # Initialize world state with starting location and main character
         starting_loc = blueprint.starting_location

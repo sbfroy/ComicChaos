@@ -27,8 +27,8 @@ class MainCharacter(BaseModel):
     description: str = Field(description="Visual and personality description")
 
 
-class WorldBlueprint(BaseModel):
-    """The comic world definition.
+class Blueprint(BaseModel):
+    """The comic setting definition.
 
     This is intentionally minimal - it sets up the world's foundation,
     but the LLM brings it to life by dynamically creating locations
@@ -60,19 +60,19 @@ class StaticConfig(BaseModel):
     Dynamic content (new locations, characters) is stored in GameState.
     """
 
-    world_blueprint: WorldBlueprint | None = None
+    blueprint: Blueprint | None = None
 
     @classmethod
     def load_from_directory(cls, config_dir: str | Path) -> "StaticConfig":
         """Load configuration from a directory."""
         config_dir = Path(config_dir)
 
-        world_blueprint = None
+        blueprint = None
 
-        blueprint_file = config_dir / "world_blueprint.json"
+        blueprint_file = config_dir / "blueprint.json"
         if blueprint_file.exists():
             with open(blueprint_file) as f:
                 data = json.load(f)
-                world_blueprint = WorldBlueprint(**data)
+                blueprint = Blueprint(**data)
 
-        return cls(world_blueprint=world_blueprint)
+        return cls(blueprint=blueprint)

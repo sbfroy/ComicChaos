@@ -94,8 +94,8 @@ class Narratron:
         """Build the system prompt with current context."""
         world_context_parts = []
 
-        if self.config.world_blueprint:
-            bp = self.config.world_blueprint
+        if self.config.blueprint:
+            bp = self.config.blueprint
             world_context_parts.append(f"COMIC TITLE: {bp.title}")
             world_context_parts.append(f"SETTING: {bp.setting}")
             world_context_parts.append(f"STORY CONCEPT: {bp.goal}")
@@ -123,12 +123,12 @@ class Narratron:
                 world_context_parts.append("")
 
         world_context = "\n".join(world_context_parts)
-        visual_style = self.config.world_blueprint.visual_style if self.config.world_blueprint else "comic book style"
+        visual_style = self.config.blueprint.visual_style if self.config.blueprint else "comic book style"
 
         # Format world rules
         world_rules = "None specified - use common sense for this setting."
-        if self.config.world_blueprint and self.config.world_blueprint.world_rules:
-            world_rules = "\n".join(f"- {rule}" for rule in self.config.world_blueprint.world_rules)
+        if self.config.blueprint and self.config.blueprint.world_rules:
+            world_rules = "\n".join(f"- {rule}" for rule in self.config.blueprint.world_rules)
 
         return NARRATRON_SYSTEM_PROMPT.format(
             visual_style=visual_style,
@@ -306,10 +306,10 @@ Remember: You have creative control. Reject requests that don't fit the world, i
 
     def generate_opening_panel(self, game_state: GameState) -> NarratronResponse:
         """Generate the opening panel of the comic."""
-        if not self.config.world_blueprint:
-            raise ValueError("Cannot generate opening without world blueprint")
+        if not self.config.blueprint:
+            raise ValueError("Cannot generate opening without blueprint")
 
-        bp = self.config.world_blueprint
+        bp = self.config.blueprint
         starting_loc = bp.starting_location
         main_char = bp.main_character
 

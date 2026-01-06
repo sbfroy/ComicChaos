@@ -20,7 +20,7 @@ class ImageGenerator:
     def __init__(
         self,
         api_key: str | None = None,
-        model: str = "dall-e-3",
+        model: str = "gpt-image-1-mini",  # "dall-e-3"
         output_dir: str | Path = "assets/generated",
         cache_enabled: bool = True,
         verbose: bool = False
@@ -53,6 +53,9 @@ class ImageGenerator:
         """Create a hash of the prompt for caching."""
         return hashlib.md5(prompt.encode()).hexdigest()[:12]
 
+
+    # TODO: Remove the caching stuff
+    
     def _get_cached_image(self, prompt_hash: str) -> str | None:
         """Check if we have a cached image for this prompt."""
         if not self.cache_enabled:
