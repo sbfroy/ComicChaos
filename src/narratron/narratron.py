@@ -293,13 +293,10 @@ Remember: You have creative control. Reject requests that don't fit the world, i
                 location_visual=vs.get("location_visual", game_state.render.location_visual),
                 characters_present=vs.get("characters_present", game_state.render.characters_present),
                 objects_visible=vs.get("objects_visible", game_state.render.objects_visible),
-                current_action=vs.get("current_action", game_state.render.current_action),
-                mood=vs.get("mood", game_state.render.mood),
-                time_of_day=vs.get("time_of_day", game_state.render.time_of_day),
-                weather=vs.get("weather", game_state.render.weather)
+                current_action=vs.get("current_action", game_state.render.current_action)
             )
             if self.verbose and self._console:
-                self._console.print(f"[cyan]~ Render State Updated:[/cyan] mood={vs.get('mood')}, time={vs.get('time_of_day')}")
+                self._console.print(f"[cyan]~ Render State Updated[/cyan]")
 
         if self.verbose and self._console:
             self._console.print()  # Add spacing

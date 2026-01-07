@@ -71,10 +71,7 @@ You MUST respond with valid JSON in this exact structure:
         "location_visual": "Concrete visual description of the scene",
         "characters_present": ["Brief visual description of each character in the panel, including main character"],
         "objects_visible": ["Visual descriptions of notable objects"],
-        "current_action": "What is visually happening in this panel",
-        "mood": "funny/dramatic/action/peaceful/mysterious/chaotic",
-        "time_of_day": "day/night/dawn/dusk",
-        "weather": "clear/rainy/stormy/foggy/snowy"
+        "current_action": "What is visually happening in this panel"
     }},
     "rolling_summary_update": "Updated 1-2 sentence summary of the story so far",
     "current_scene": "Brief description of the current situation"
@@ -99,7 +96,7 @@ Main character: {main_character}
 
 This is the FIRST PANEL of our comic. Set the scene with:
 - A vivid visual establishing shot of the starting location
-- Introduction of the setting's mood and style
+- Introduction of the setting and visual style
 - The main character in their element
 
 You may introduce one supporting character if it feels natural for the opening, or keep focus on the main character.

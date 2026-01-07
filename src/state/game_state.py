@@ -135,9 +135,6 @@ class RenderState(BaseModel):
         default="",
         description="Visual description of what's happening"
     )
-    mood: str = Field(default="neutral", description="Scene mood")
-    time_of_day: str = Field(default="day", description="day, night, dawn, dusk")
-    weather: str = Field(default="clear", description="Weather conditions")
 
     def to_image_prompt(self, visual_style: str = "comic book style") -> str:
         """Generate an image prompt from the render state."""
@@ -146,21 +143,12 @@ class RenderState(BaseModel):
         if self.location_visual:
             parts.append(f"Setting: {self.location_visual}")
 
-        if self.time_of_day:
-            parts.append(f"Time: {self.time_of_day}")
-
-        if self.weather and self.weather != "clear":
-            parts.append(f"Weather: {self.weather}")
-
         if self.characters_present:
             chars = ", ".join(self.characters_present[:3])
             parts.append(f"Characters: {chars}")
 
         if self.current_action:
             parts.append(f"Action: {self.current_action}")
-
-        if self.mood:
-            parts.append(f"Mood: {self.mood}")
 
         return ". ".join(parts)
 
@@ -231,10 +219,7 @@ class GameState(BaseModel):
             location_visual=starting_loc.visual_description,
             characters_present=[f"{main_char.name}: {main_char.description}"],
             objects_visible=[],
-            current_action="The scene opens",
-            mood="curious",
-            time_of_day="day",
-            weather="clear"
+            current_action="The scene opens"
         )
 
         # Meta info
