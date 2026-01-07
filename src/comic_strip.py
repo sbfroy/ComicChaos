@@ -192,9 +192,6 @@ class ComicStrip:
             x = padding + col * (panel_width + padding)
             y = 60 + padding + row * (panel_height + text_height + padding)
 
-            # Resize image to fit panel
-            img_resized = img.resize((panel_width, panel_height), Image.Resampling.LANCZOS)
-
             # Draw border
             draw.rectangle(
                 [x - border, y - border, x + panel_width + border, y + panel_height + border],
@@ -203,7 +200,7 @@ class ComicStrip:
             )
 
             # Paste image
-            strip.paste(img_resized, (x, y))
+            strip.paste(img, (x, y))
 
             # Draw panel number
             draw.text((x + 5, y + 5), f"#{panel_num}", fill="white", font=text_font)

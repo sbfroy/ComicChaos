@@ -51,8 +51,7 @@ class ImageGenerator:
         render_state: RenderState,
         visual_style: str = "comic book style, vibrant colors, bold outlines, dramatic lighting",
         size: str = "1024x1024",
-        quality: str = "auto",
-        resize_to: int | None = 512
+        quality: str = "auto"
     ) -> str | None:
         """
         Generate an image from the render state.
@@ -88,22 +87,10 @@ class ImageGenerator:
             filename = f"panel_{timestamp}.png"
             filepath = self.output_dir / filename
 
-            # Decode and optionally resize
-            from PIL import Image
-            import io
-
+            # Decode and save image
             img_bytes = base64.b64decode(image_data)
-
-            if resize_to:
-                # Resize image to smaller size for comic panels
-                img = Image.open(io.BytesIO(img_bytes))
-                img = img.resize((resize_to, resize_to), Image.Resampling.LANCZOS)
-                img.save(filepath, "PNG")
-                if self.verbose and self._console:
-                    self._console.print(f"[dim]Resized image to {resize_to}x{resize_to}[/dim]")
-            else:
-                with open(filepath, "wb") as f:
-                    f.write(img_bytes)
+            with open(filepath, "wb") as f:
+                f.write(img_bytes)
 
             self._last_image_path = str(filepath)
 
