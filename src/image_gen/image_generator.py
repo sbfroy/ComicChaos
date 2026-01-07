@@ -48,13 +48,17 @@ class ImageGenerator:
         render_state: RenderState,
         visual_style: str,
         size: str = "1024x1024",
-        quality: str = "low"
+        quality: str = "low",
+        moderation: str = "low",
+        # partial_images: int = 3 TODO: implement partial images in final comic app
     ) -> str | None:
         """
         Generate an image from the render state.
 
         Returns the path to the generated image or None if generation fails.
         """
+
+        # TODO: Remove everything related verbose. I can understand the project by myself.
         if self.verbose:
             self._log_section("IMAGE GENERATION", "magenta")
 
@@ -68,13 +72,19 @@ class ImageGenerator:
             self._console.print(f"[dim]Calling {self.model} API (size={size}, quality={quality})...[/dim]")
 
         try:
-            # Generate the image
             result = self.client.images.generate(
                 model=self.model,
                 prompt=prompt,
                 size=size,
-                quality=quality
+                quality=quality,
+                moderation=moderation,
+                # partial_images=partial_images
             )
+
+            # TODO: Maybe save the images only for a moment, and once they are saved as a comic strip,
+            # delete the individual images to save space. 
+
+            # TODO: Fix sizing issues. Final comic strip looks off.
 
             image_base64 = result.data[0].b64_json
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
