@@ -6,8 +6,6 @@ from pathlib import Path
 from datetime import datetime
 
 from openai import OpenAI
-from rich.console import Console
-from rich.panel import Panel
 
 from ..state.game_state import RenderState
 
@@ -19,29 +17,12 @@ class ImageGenerator:
         self,
         api_key: str | None = None,
         model: str = "gpt-image-1-mini",  # "dall-e-3"
-        output_dir: str | Path = "assets/generated",
-        verbose: bool = False
+        output_dir: str | Path = "assets/generated"
     ):
         self.client = OpenAI(api_key=api_key or os.getenv("OPENAI_API_KEY"))
         self.model = model
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(parents=True, exist_ok=True)
-        self.verbose = verbose
-        self._console = Console() if verbose else None
-
-    def _log(self, title: str, content: str, style: str = "dim") -> None:
-        """Log verbose output if enabled."""
-        if not self.verbose or not self._console:
-            return
-        self._console.print(Panel(content, title=f"[bold]{title}[/bold]", border_style=style))
-
-    def _log_section(self, text: str, style: str = "yellow") -> None:
-        """Log a section header."""
-        if not self.verbose or not self._console:
-            return
-        self._console.print(f"\n[{style}]{'='*60}[/{style}]")
-        self._console.print(f"[{style} bold]{text}[/{style} bold]")
-        self._console.print(f"[{style}]{'='*60}[/{style}]\n")
 
     def generate_image(
         self,
@@ -57,19 +38,8 @@ class ImageGenerator:
 
         Returns the path to the generated image or None if generation fails.
         """
-
-        # TODO: Remove everything related verbose. I can understand the project by myself.
-        if self.verbose:
-            self._log_section("IMAGE GENERATION", "magenta")
-
         # Build the prompt
         prompt = self._build_prompt(render_state, visual_style)
-
-        if self.verbose:
-            self._log("Image Prompt", prompt, style="blue")
-
-        if self.verbose and self._console:
-            self._console.print(f"[dim]Calling {self.model} API (size={size}, quality={quality})...[/dim]")
 
         try:
             result = self.client.images.generate(
@@ -82,7 +52,7 @@ class ImageGenerator:
             )
 
             # TODO: Maybe save the images only for a moment, and once they are saved as a comic strip,
-            # delete the individual images to save space. 
+            # delete the individual images to save space.
 
             # TODO: Fix sizing issues. Final comic strip looks off.
 
@@ -96,16 +66,10 @@ class ImageGenerator:
             with open(filepath, "wb") as f:
                 f.write(img_bytes)
 
-            if self.verbose and self._console:
-                self._console.print(f"[green]Image generated![/green] Saved to: {filepath}\n")
-
             return str(filepath)
 
         except Exception as e:
-            if self.verbose and self._console:
-                self._console.print(f"[red]Image generation failed: {e}[/red]\n")
-            else:
-                print(f"Image generation failed: {e}")
+            print(f"Image generation failed: {e}")
             return None
 
     def _build_prompt(self, render_state: RenderState, visual_style: str) -> str:

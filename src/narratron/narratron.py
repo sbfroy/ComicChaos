@@ -6,12 +6,8 @@ locations and characters while maintaining world consistency.
 
 import json
 import os
-from typing import Any, Callable
 
 from openai import OpenAI
-from rich.console import Console
-from rich.panel import Panel
-from rich.syntax import Syntax
 
 from ..state.game_state import GameState, RenderState, DynamicLocation, DynamicCharacter
 from ..state.static_config import StaticConfig
@@ -57,41 +53,11 @@ class Narratron:
         self,
         config: StaticConfig,
         api_key: str | None = None,
-        model: str = "gpt-4o-mini",
-        verbose: bool = False
+        model: str = "gpt-4o-mini"
     ):
         self.config = config
         self.model = model
         self.client = OpenAI(api_key=api_key or os.getenv("OPENAI_API_KEY"))
-        self.verbose = verbose
-        self._console = Console() if verbose else None
-
-    def _log(self, title: str, content: str, style: str = "dim", syntax: str | None = None) -> None:
-        """Log verbose output if enabled."""
-        if not self.verbose or not self._console:
-            return
-
-        if syntax:
-            # Use syntax highlighting for JSON/code
-            self._console.print(Panel(
-                Syntax(content, syntax, theme="monokai", word_wrap=True),
-                title=f"[bold]{title}[/bold]",
-                border_style=style
-            ))
-        else:
-            self._console.print(Panel(
-                content,
-                title=f"[bold]{title}[/bold]",
-                border_style=style
-            ))
-
-    def _log_section(self, text: str, style: str = "yellow") -> None:
-        """Log a section header."""
-        if not self.verbose or not self._console:
-            return
-        self._console.print(f"\n[{style}]{'='*60}[/{style}]")
-        self._console.print(f"[{style} bold]{text}[/{style} bold]")
-        self._console.print(f"[{style}]{'='*60}[/{style}]\n")
 
     def _build_system_prompt(self, game_state: GameState) -> str:
         """
@@ -147,14 +113,6 @@ class Narratron:
 
     def _call_llm(self, messages: list[dict]) -> str:
         """Make an API call to the LLM."""
-        # Log the request
-        if self.verbose:
-            self._log_section("LLM API CALL", "magenta")
-            self._log("System Prompt", messages[0]["content"], style="blue")
-            self._log("User Message", messages[1]["content"], style="cyan")
-            if self._console:
-                self._console.print(f"[dim]Calling {self.model}...[/dim]\n")
-
         response = self.client.chat.completions.create(
             model=self.model,
             messages=messages,
@@ -163,26 +121,7 @@ class Narratron:
             response_format={"type": "json_object"}
         )
 
-        result = response.choices[0].message.content
-
-        # Log the response
-        if self.verbose:
-            self._log_section("LLM RESPONSE", "green")
-            # Pretty print the JSON response
-            try:
-                parsed = json.loads(result)
-                pretty_json = json.dumps(parsed, indent=2)
-                self._log("Raw JSON Response", pretty_json, style="green", syntax="json")
-            except json.JSONDecodeError:
-                self._log("Raw Response (not JSON)", result, style="red")
-
-            # Log token usage if available
-            if hasattr(response, 'usage') and response.usage:
-                usage = response.usage
-                if self._console:
-                    self._console.print(f"[dim]Tokens - Prompt: {usage.prompt_tokens}, Completion: {usage.completion_tokens}, Total: {usage.total_tokens}[/dim]\n")
-
-        return result
+        return response.choices[0].message.content
 
     def _parse_response(self, response_text: str) -> NarratronResponse:
         """Parse the LLM response into a structured format."""
@@ -228,9 +167,6 @@ Remember: You have creative control. Reject requests that don't fit the world, i
         """Apply state changes from the response, including new entities."""
         changes = response.state_changes
 
-        if self.verbose:
-            self._log_section("APPLYING STATE CHANGES", "yellow")
-
         # Add new location if introduced
         if response.new_location:
             new_loc = response.new_location
@@ -241,9 +177,6 @@ Remember: You have creative control. Reject requests that don't fit the world, i
                 first_appeared_panel=game_state.meta.panel_count + 1
             )
             game_state.world.add_location(location)
-            if self.verbose and self._console:
-                self._console.print(f"[green]+ New Location Added:[/green] {location.name} ({location.id})")
-                self._console.print(f"  [dim]{location.description[:100]}...[/dim]")
 
         # Add new character if introduced
         if response.new_character:
@@ -256,16 +189,10 @@ Remember: You have creative control. Reject requests that don't fit the world, i
                 first_appeared_panel=game_state.meta.panel_count + 1
             )
             game_state.world.add_character(character)
-            if self.verbose and self._console:
-                self._console.print(f"[green]+ New Character Added:[/green] {character.name} ({character.id})")
-                self._console.print(f"  [dim]{character.description[:100]}...[/dim]")
 
         # Update current location
         if changes.get("current_location_id"):
-            old_loc = game_state.world.current_location_id
             game_state.world.current_location_id = changes["current_location_id"]
-            if self.verbose and self._console:
-                self._console.print(f"[cyan]~ Location Changed:[/cyan] {old_loc} -> {changes['current_location_id']}")
 
         if changes.get("current_location_name"):
             game_state.world.current_location_name = changes["current_location_name"]
@@ -276,20 +203,14 @@ Remember: You have creative control. Reject requests that don't fit the world, i
             char = game_state.world.get_character_by_id(char_id)
             if char:
                 char.current_location = game_state.world.current_location_id
-                if self.verbose and self._console:
-                    self._console.print(f"[cyan]~ Character Moved:[/cyan] {char.name} -> {game_state.world.current_location_id}")
 
         # Set flags
         for flag, value in changes.get("flags_set", {}).items():
             game_state.world.flags[flag] = value
-            if self.verbose and self._console:
-                self._console.print(f"[cyan]~ Flag Set:[/cyan] {flag} = {value}")
 
         # Update narrative
         if response.rolling_summary_update:
             game_state.narrative.rolling_summary = response.rolling_summary_update
-            if self.verbose and self._console:
-                self._console.print(f"[cyan]~ Story Summary Updated[/cyan]")
 
         if response.current_scene:
             game_state.narrative.current_scene = response.current_scene
@@ -303,11 +224,6 @@ Remember: You have creative control. Reject requests that don't fit the world, i
                 objects_visible=vs.get("objects_visible", game_state.render.objects_visible),
                 current_action=vs.get("current_action", game_state.render.current_action)
             )
-            if self.verbose and self._console:
-                self._console.print(f"[cyan]~ Render State Updated[/cyan]")
-
-        if self.verbose and self._console:
-            self._console.print()  # Add spacing
 
     def generate_opening_panel(self, game_state: GameState) -> NarratronResponse:
         """Generate the opening panel of the comic."""
