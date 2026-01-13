@@ -193,7 +193,6 @@ class GameState(BaseModel):
             id="starting_location",
             name=starting_loc.name,
             description=starting_loc.description,
-            visual_description=starting_loc.visual_description,
             first_appeared_panel=0
         )
 
@@ -216,7 +215,7 @@ class GameState(BaseModel):
 
         # Initialize render state
         render = RenderState(
-            location_visual=starting_loc.visual_description,
+            location_visual=starting_loc.description,
             characters_present=[f"{main_char.name}: {main_char.description}"],
             objects_visible=[],
             current_action="The scene opens"

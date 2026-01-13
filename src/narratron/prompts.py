@@ -53,8 +53,7 @@ You MUST respond with valid JSON in this exact structure:
     "new_location": {{
         "id": "unique_snake_case_id",
         "name": "Location Name",
-        "description": "Detailed description of this place",
-        "visual_description": "Concrete visual description for image generation"
+        "description": "Detailed description of this place"
     }} or null if no new location is introduced,
     "new_character": {{
         "id": "unique_snake_case_id",
@@ -87,9 +86,6 @@ IMPORTANT RULES:
 """
 
 INITIAL_SCENE_PROMPT = """Generate the OPENING PANEL of the comic.
-
-Setting: {setting}
-Story concept: {goal}
 
 The story begins at: {starting_location}
 Main character: {main_character}

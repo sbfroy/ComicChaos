@@ -17,7 +17,6 @@ class StartingLocation(BaseModel):
 
     name: str = Field(description="Location name")
     description: str = Field(description="Detailed description of the location")
-    visual_description: str = Field(description="Visual description for image generation")
 
 
 class MainCharacter(BaseModel):
@@ -37,10 +36,8 @@ class Blueprint(BaseModel):
 
     title: str = Field(description="Comic title")
     synopsis: str = Field(description="Brief story synopsis/hook")
-    setting: str = Field(description="World description - the overall setting and atmosphere")
     starting_location: StartingLocation = Field(description="Where the story begins")
     main_character: MainCharacter = Field(description="The protagonist")
-    goal: str = Field(description="Story concept/premise - what kind of story should unfold")
     visual_style: str = Field(
         default="comic book style, vibrant colors",
         description="Art style for generated images"
