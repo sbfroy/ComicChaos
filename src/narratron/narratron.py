@@ -13,19 +13,15 @@ from ..state.game_state import GameState, RenderState, DynamicLocation, DynamicC
 from ..state.static_config import StaticConfig
 from .prompts import NARRATRON_SYSTEM_PROMPT, INITIAL_SCENE_PROMPT
 
-# TODO: Change the name
-
 class NarratronResponse:
     """Structured response from NARRATRON."""
 
     def __init__(self, raw_response: dict):
         self.raw = raw_response
 
-        # Input validation
-        self.input_accepted = raw_response.get("input_accepted", True)
-
-        # TODO: Things shouldnt be rejected but if rejected the llm should just adjust it to fit
-        self.rejection_reason = raw_response.get("rejection_reason", "")
+        # Redirection info (only when world rules are violated)
+        self.was_redirected = raw_response.get("was_redirected", False)
+        self.redirection_note = raw_response.get("redirection_note", "")
 
         # Core narrative
         self.interpretation = raw_response.get("interpretation", "")
@@ -130,7 +126,7 @@ class Narratron:
             return NarratronResponse(data)
         except json.JSONDecodeError:
             return NarratronResponse({
-                "input_accepted": True,
+                "was_redirected": False,
                 "interpretation": "Unknown",
                 "panel_narrative": "Something unexpected happened...",
                 "state_changes": {},
@@ -148,7 +144,7 @@ class Narratron:
 USER WANTS: {user_input}
 
 Create the next comic panel based on what the user wants to happen.
-Remember: You have creative control. Reject requests that don't fit the world, introduce new characters/locations when needed."""
+Remember: Say YES to creative ideas! Only redirect if a specific world rule is violated. Introduce new characters/locations when needed."""
 
         messages = [
             {"role": "system", "content": system_prompt},

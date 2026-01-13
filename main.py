@@ -176,9 +176,9 @@ class ComicCreator:
             console.print("\n[dim]Creating next panel...[/dim]")
             response = self.narratron.process_input(user_input, self.state)
 
-            # Show if input was rejected/modified
-            if not response.input_accepted and response.rejection_reason:
-                console.print(f"\n[yellow]Story redirected: {response.rejection_reason}[/yellow]")
+            # Show if input was redirected due to world rule violation
+            if response.was_redirected and response.redirection_note:
+                console.print(f"\n[yellow]Story redirected: {response.redirection_note}[/yellow]")
 
             # Show if new entities were introduced
             if response.new_location:
