@@ -130,10 +130,8 @@ class Narratron:
         # Add all known locations (dynamically created during the story)
         comic_context_parts.append("KNOWN LOCATIONS:")
         for location in comic_state.world.locations:
-            # Truncate long descriptions to keep prompt manageable
-            description_preview = location.description[:100]
             comic_context_parts.append(
-                f"  - {location.name} ({location.id}): {description_preview}..."
+                f"  - {location.name} ({location.id}): {location.description}"
             )
         comic_context_parts.append("")
 
@@ -147,10 +145,9 @@ class Narratron:
                     if character.current_location
                     else ""
                 )
-                description_preview = character.description[:80]
                 comic_context_parts.append(
                     f"  - {character.name} ({character.id}): "
-                    f"{description_preview}...{location_info}"
+                    f"{character.description}{location_info}"
                 )
             comic_context_parts.append("")
 

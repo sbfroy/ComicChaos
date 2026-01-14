@@ -15,14 +15,14 @@ class Location(BaseModel):
     """A location in the comic world."""
 
     name: str = Field(description="Location name")
-    description: str = Field(description="Detailed description of the location")
+    description: str = Field(description="Brief description (1-2 sentences: setting type, key atmosphere)")
 
 
 class Character(BaseModel):
     """A character in the comic world."""
 
     name: str = Field(description="Character's name")
-    description: str = Field(description="Visual and personality description")
+    description: str = Field(description="Brief description (1-2 sentences: 2-3 key visual features + 1 personality trait)")
 
 
 class Blueprint(BaseModel):

@@ -40,10 +40,18 @@ RULES:
 {comic_context}
 
 WHEN INTRODUCING NEW ENTITIES:
-- NEW LOCATION: Create a unique ID (snake_case), name, and description (what this place is, atmosphere, what's there)
-- NEW CHARACTER: Create a unique ID (snake_case), name, appearance description, and personality notes
+- NEW LOCATION: Create a unique ID (snake_case), name, and CONCISE description (1-2 sentences max - what this place is, key atmosphere)
+- NEW CHARACTER: Create a unique ID (snake_case), name, and BRIEF description (1-2 sentences max - key visual features and personality trait)
+- Keep descriptions SHORT and FOCUSED - only the essentials for recognition and consistency
 - Only introduce entities that fit naturally into the established comic and story
 - Don't introduce too many entities at once - let the story breathe
+
+DESCRIPTION GUIDELINES (IMPORTANT):
+- Character descriptions: Focus on 2-3 distinctive visual features (appearance, clothing) + 1 key personality trait
+- Location descriptions: The setting type + 1-2 key atmospheric or visual details
+- Keep ALL descriptions under 2 sentences - brevity is essential
+- Avoid lengthy backstories, exhaustive details, or over-explanation
+- Think: "What's the minimum needed to recognize this entity later?"
 
 WRITING STYLE:
 - Write in a punchy, dynamic style perfect for comic panels
@@ -60,12 +68,12 @@ You MUST respond with valid JSON in this exact structure:
     "new_location": {{
         "id": "unique_snake_case_id",
         "name": "Location Name",
-        "description": "What this place is, its atmosphere, what's there"
+        "description": "Brief 1-2 sentence description - setting type and key atmosphere only"
     }} or null if no new location is introduced,
     "new_character": {{
         "id": "unique_snake_case_id",
         "name": "Character Name",
-        "description": "Appearance and personality - what they look like, how they act"
+        "description": "Brief 1-2 sentence description - 2-3 key visual features and 1 personality trait only"
     }} or null if no new character is introduced,
     "state_changes": {{
         "current_location_id": "location_id if changed, or null",
