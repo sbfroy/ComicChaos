@@ -30,7 +30,7 @@ class NarratronResponse:
 
         # State changes
         self.state_changes = raw_response.get("state_changes", {})
-        self.visual_summary = raw_response.get("visual_summary", {})
+        self.scene_summary = raw_response.get("scene_summary", {})
         self.rolling_summary_update = raw_response.get("rolling_summary_update", "")
         self.current_scene = raw_response.get("current_scene", "")
 
@@ -160,12 +160,10 @@ Remember: Say YES to creative ideas! Introduce new characters/locations when nee
         # Add new location if introduced
         if response.new_location:
             new_loc = response.new_location
-            description = new_loc.get("description", "")
             location = DynamicLocation(
                 id=new_loc.get("id", f"loc_{comic_state.meta.panel_count}"),
                 name=new_loc.get("name", "Unknown Location"),
-                description=description,
-                visual_description=description,
+                description=new_loc.get("description", ""),
                 first_appeared_panel=comic_state.meta.panel_count + 1
             )
             comic_state.world.add_location(location)
@@ -203,14 +201,14 @@ Remember: Say YES to creative ideas! Introduce new characters/locations when nee
         if response.current_scene:
             comic_state.narrative.current_scene = response.current_scene
 
-        # Update render state
-        vs = response.visual_summary
-        if vs:
+        # Update render state from scene summary
+        ss = response.scene_summary
+        if ss:
             comic_state.render = RenderState(
-                location_visual=vs.get("location_visual", comic_state.render.location_visual),
-                characters_present=vs.get("characters_present", comic_state.render.characters_present),
-                objects_visible=vs.get("objects_visible", comic_state.render.objects_visible),
-                current_action=vs.get("current_action", comic_state.render.current_action)
+                scene_setting=ss.get("scene_setting", comic_state.render.scene_setting),
+                characters_present=ss.get("characters_present", comic_state.render.characters_present),
+                objects_visible=ss.get("objects_visible", comic_state.render.objects_visible),
+                current_action=ss.get("current_action", comic_state.render.current_action)
             )
 
     def generate_opening_panel(self, comic_state: ComicState) -> NarratronResponse:

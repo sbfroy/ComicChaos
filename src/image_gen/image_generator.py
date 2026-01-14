@@ -72,12 +72,12 @@ class ImageGenerator:
         """Build an image generation prompt from the render state."""
         parts = []
 
-        # Style first
+        # Visual style first (applies to entire comic)
         parts.append(f"{visual_style}")
 
         # Scene/location
-        if render_state.location_visual:
-            parts.append(f"Setting: {render_state.location_visual}")
+        if render_state.scene_setting:
+            parts.append(f"Setting: {render_state.scene_setting}")
 
         # Characters in scene
         if render_state.characters_present:
