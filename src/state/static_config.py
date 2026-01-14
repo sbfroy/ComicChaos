@@ -2,25 +2,24 @@
 
 The blueprint provides the foundation for a comic world, but the LLM
 dynamically creates locations and characters as the story evolves.
-Only the world description, starting location, and main character
-are defined upfront - everything else emerges from the narrative.
+Locations and characters can be pre-defined in the blueprint - the first
+location is the starting location and the first character is the main character.
 """
 
 import json
 from pathlib import Path
-from typing import Any
 from pydantic import BaseModel, Field
 
 
-class StartingLocation(BaseModel):
-    """The initial location where the story begins."""
+class Location(BaseModel):
+    """A location in the comic world."""
 
     name: str = Field(description="Location name")
     description: str = Field(description="Detailed description of the location")
 
 
-class MainCharacter(BaseModel):
-    """The main protagonist of the comic."""
+class Character(BaseModel):
+    """A character in the comic world."""
 
     name: str = Field(description="Character's name")
     description: str = Field(description="Visual and personality description")
@@ -29,25 +28,39 @@ class MainCharacter(BaseModel):
 class Blueprint(BaseModel):
     """The comic setting definition.
 
-    This is intentionally minimal - it sets up the world's foundation,
-    but the LLM brings it to life by dynamically creating locations
-    and characters as the story evolves.
+    This sets up the world's foundation. The first location is the starting
+    location and the first character is the main character. Additional
+    locations and characters can be pre-defined or created dynamically by the LLM.
     """
 
     title: str = Field(description="Comic title")
     synopsis: str = Field(description="Brief story synopsis/hook")
-    starting_location: StartingLocation = Field(description="Where the story begins")
-    main_character: MainCharacter = Field(description="The protagonist")
+    locations: list[Location] = Field(
+        default_factory=list,
+        description="Pre-defined locations (first one is the starting location)"
+    )
+    characters: list[Character] = Field(
+        default_factory=list,
+        description="Pre-defined characters (first one is the main character)"
+    )
     visual_style: str = Field(
         default="comic book style, vibrant colors",
         description="Art style for generated images"
     )
-
-    # Rules that the LLM should respect when creating new content
     rules: list[str] = Field(
         default_factory=list,
         description="Rules/constraints for the world that the LLM should follow"
     )
+
+    @property
+    def starting_location(self) -> Location | None:
+        """Get the starting location (first in the list)."""
+        return self.locations[0] if self.locations else None
+
+    @property
+    def main_character(self) -> Character | None:
+        """Get the main character (first in the list)."""
+        return self.characters[0] if self.characters else None
 
 
 class StaticConfig(BaseModel):
