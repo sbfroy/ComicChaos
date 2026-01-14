@@ -7,31 +7,28 @@ from datetime import datetime
 
 from openai import OpenAI
 
+from ..config import (
+    IMAGE_MODEL,
+    IMAGE_SIZE,
+    IMAGE_QUALITY,
+    IMAGE_MODERATION,
+    GENERATED_IMAGES_DIR,
+)
 from ..state.game_state import RenderState
 
 
 class ImageGenerator:
     """Generates comic-style images for the game."""
 
-    def __init__(
-        self,
-        api_key: str | None = None,
-        model: str = "gpt-image-1-mini",  # "dall-e-3"
-        output_dir: str | Path = "assets/generated"
-    ):
+    def __init__(self, api_key: str | None = None):
         self.client = OpenAI(api_key=api_key or os.getenv("OPENAI_API_KEY"))
-        self.model = model
-        self.output_dir = Path(output_dir)
+        self.output_dir = Path(GENERATED_IMAGES_DIR)
         self.output_dir.mkdir(parents=True, exist_ok=True)
 
     def generate_image(
         self,
         render_state: RenderState,
-        visual_style: str,
-        size: str = "1024x1024",
-        quality: str = "low",
-        moderation: str = "low",
-        # partial_images: int = 3 TODO: implement partial images in final comic app
+        visual_style: str
     ) -> str | None:
         """
         Generate an image from the render state.
@@ -43,12 +40,11 @@ class ImageGenerator:
 
         try:
             result = self.client.images.generate(
-                model=self.model,
+                model=IMAGE_MODEL,
                 prompt=prompt,
-                size=size,
-                quality=quality,
-                moderation=moderation,
-                # partial_images=partial_images
+                size=IMAGE_SIZE,
+                quality=IMAGE_QUALITY,
+                moderation=IMAGE_MODERATION,
             )
 
             # TODO: Maybe save the images only for a moment, and once they are saved as a comic strip,
@@ -101,17 +97,15 @@ class ImageGenerator:
 class MockImageGenerator(ImageGenerator):
     """A mock image generator for testing without API calls."""
 
-    def __init__(self, output_dir: str | Path = "assets/generated"):
-        self.output_dir = Path(output_dir)
+    def __init__(self):
+        self.output_dir = Path(GENERATED_IMAGES_DIR)
         self.output_dir.mkdir(parents=True, exist_ok=True)
         self._call_count = 0
 
     def generate_image(
         self,
         render_state: RenderState,
-        visual_style: str = "comic book style",
-        size: str = "1024x1024",
-        quality: str = "low"
+        visual_style: str = "comic book style"
     ) -> str | None:
         """Return a placeholder path without making API calls."""
         self._call_count += 1
@@ -126,11 +120,7 @@ class MockImageGenerator(ImageGenerator):
             f.write(f"MOCK IMAGE GENERATION\n")
             f.write(f"=====================\n\n")
             f.write(f"Prompt:\n{prompt}\n\n")
-            f.write(f"Size: {size}\n")
-            f.write(f"Quality: {quality}\n")
+            f.write(f"Size: {IMAGE_SIZE}\n")
+            f.write(f"Quality: {IMAGE_QUALITY}\n")
 
         return str(filepath)
-
-    def _build_prompt(self, render_state: RenderState, visual_style: str) -> str:
-        """Use parent's prompt builder."""
-        return super()._build_prompt(render_state, visual_style)

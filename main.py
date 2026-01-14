@@ -16,6 +16,11 @@ from rich.panel import Panel
 from rich.text import Text
 from rich.prompt import Prompt
 
+from src.config import (
+    LLM_MODEL,
+    GENERATED_IMAGES_DIR,
+    SETTINGS_DIR,
+)
 from src.state.static_config import StaticConfig
 from src.state.game_state import GameState
 from settings.setting_registry import SettingRegistry, SettingInfo
@@ -58,18 +63,14 @@ class ComicCreator:
         if self.api_key:
             self.narratron = Narratron(
                 config=self.config,
-                api_key=self.api_key,
-                model="gpt-4o-mini"
+                api_key=self.api_key
             )
 
         # Initialize image generator
         if use_real_images and self.api_key:
-            self.image_gen = ImageGenerator(
-                api_key=self.api_key,
-                output_dir="assets/generated"
-            )
+            self.image_gen = ImageGenerator(api_key=self.api_key)
         else:
-            self.image_gen = MockImageGenerator(output_dir="assets/generated")
+            self.image_gen = MockImageGenerator()
 
         # Comic strip collector
         self.comic_strip: ComicStrip | None = None
@@ -287,7 +288,7 @@ def main():
 
     args = parser.parse_args()
 
-    registry = SettingRegistry(settings_dir="settings")
+    registry = SettingRegistry(settings_dir=SETTINGS_DIR)
 
     if args.list:
         console.print(registry.list_settings())

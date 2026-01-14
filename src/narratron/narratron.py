@@ -9,6 +9,7 @@ import os
 
 from openai import OpenAI
 
+from ..config import LLM_MODEL, LLM_TEMPERATURE, LLM_MAX_TOKENS
 from ..state.game_state import GameState, RenderState, DynamicLocation, DynamicCharacter
 from ..state.static_config import StaticConfig
 from .prompts import NARRATRON_SYSTEM_PROMPT, INITIAL_SCENE_PROMPT
@@ -35,20 +36,18 @@ class NarratronResponse:
 
 
 class Narratron:
-    """The AI engine that creates comic panels.
+    """Narratron is the AI engine that orchestrates the comic creation.
 
-    The LLM is the creative driver - it introduces new locations and characters
+    Narratron is the creative driver - it introduces new locations and characters
     as the story needs them, and validates user inputs against the world's logic.
     """
 
     def __init__(
         self,
         config: StaticConfig,
-        api_key: str | None = None,
-        model: str = "gpt-4o-mini"
+        api_key: str | None = None
     ):
         self.config = config
-        self.model = model
         self.client = OpenAI(api_key=api_key or os.getenv("OPENAI_API_KEY"))
 
     def _build_system_prompt(self, game_state: GameState) -> str:
@@ -106,10 +105,10 @@ class Narratron:
     def _call_llm(self, messages: list[dict]) -> str:
         """Make an API call to the LLM."""
         response = self.client.chat.completions.create(
-            model=self.model,
+            model=LLM_MODEL,
             messages=messages,
-            temperature=0.8,
-            max_tokens=1500,  # Increased for entity creation
+            temperature=LLM_TEMPERATURE,
+            max_tokens=LLM_MAX_TOKENS,
             response_format={"type": "json_object"}
         )
 

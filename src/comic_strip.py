@@ -9,12 +9,14 @@ from typing import Optional
 
 from PIL import Image, ImageDraw, ImageFont
 
+from .config import COMIC_STRIPS_DIR
+
 
 class ComicStrip:
     """Collects comic panels and can display/export them."""
 
-    def __init__(self, output_dir: str = "assets/comics", title: str = "My Comic"):
-        self.output_dir = Path(output_dir)
+    def __init__(self, title: str = "My Comic"):
+        self.output_dir = Path(COMIC_STRIPS_DIR)
         self.output_dir.mkdir(parents=True, exist_ok=True)
         self.title = title
         self.panels: list[dict] = []
