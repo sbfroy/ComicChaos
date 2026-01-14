@@ -14,6 +14,9 @@ from dotenv import load_dotenv
 from rich.console import Console
 from rich.panel import Panel
 from rich.text import Text
+from prompt_toolkit import prompt as pt_prompt
+from prompt_toolkit.key_binding import KeyBindings
+from prompt_toolkit.keys import Keys
 from rich.prompt import Prompt
 
 from src.state.static_config import StaticConfig
@@ -145,33 +148,11 @@ class ComicCreator:
         loc = bp.starting_location
         return f"{bp.synopsis}\n\nThe scene opens at {loc.name}."
 
-    def process_input(self, user_input: str) -> bool:
-        """
-        Process user input to create the next panel.
-        Returns False if the session should end, True otherwise.
-        """
+    def process_input(self, user_input: str) -> None:
+        """Process user input to create the next panel."""
         if not self.state:
-            return False
+            return
 
-        command = user_input.lower().strip()
-
-        # Handle commands
-        if command in ("quit", "q", "exit", "done"):
-            return False
-
-        if command in ("help", "?"):
-            self._show_help()
-            return True
-
-        if command in ("strip", "show", "comic"):
-            self._show_comic_so_far()
-            return True
-
-        if command in ("panels", "list"):
-            self._list_panels()
-            return True
-
-        # Create next panel
         if self.narratron:
             console.print("\n[dim]Creating next panel...[/dim]")
             response = self.narratron.process_input(user_input, self.state)
@@ -208,44 +189,6 @@ class ComicCreator:
         else:
             console.print("[yellow]AI not available. Set OPENAI_API_KEY.[/yellow]")
 
-        return True
-
-    def _show_help(self) -> None:
-        """Show help information."""
-        help_text = """
-[bold]Comic Creator Commands:[/bold]
-
-  Just type what you want to happen next in the story!
-
-  [cyan]strip[/cyan] / [cyan]show[/cyan]  - Generate and view the comic strip so far
-  [cyan]panels[/cyan]       - List all panels created
-  [cyan]done[/cyan] / [cyan]quit[/cyan] - Finish and show final comic
-  [cyan]help[/cyan]         - Show this help
-
-[bold]Tips:[/bold]
-  - Describe actions, dialogue, or scene changes
-  - Be creative! The AI will create panels based on your ideas
-  - Each input creates a new panel in your comic strip"""
-        console.print(Panel(help_text, title="Help", border_style="green"))
-
-    def _list_panels(self) -> None:
-        """List all panels created so far."""
-        if not self.state or not self.state.narrative.panels:
-            console.print("[yellow]No panels created yet.[/yellow]")
-            return
-
-        console.print("\n[bold]Panels created:[/bold]\n")
-        for panel in self.state.narrative.panels:
-            console.print(f"  [cyan]Panel {panel.panel_number}:[/cyan] {panel.narrative[:60]}...")
-
-    def _show_comic_so_far(self) -> None:
-        """Generate and show the comic strip so far."""
-        if self.comic_strip and self.comic_strip.get_panel_count() > 0:
-            console.print("\n[dim]Generating comic strip...[/dim]")
-            self.comic_strip.show_final_comic()
-        else:
-            console.print("[yellow]No panels to show yet.[/yellow]")
-
     def finish(self) -> None:
         """Finish the session and show the final comic."""
         if self.comic_strip and self.comic_strip.get_panel_count() > 0:
@@ -266,14 +209,33 @@ class ComicCreator:
         self._show_title()
         self.start()
 
+        # Set up key bindings for ESC to exit
+        kb = KeyBindings()
+        escape_pressed = [False]
+
+        @kb.add(Keys.Escape)
+        def _(event):
+            escape_pressed[0] = True
+            event.app.exit(result="")
+
         running = True
         while running:
             console.print()
             try:
-                user_input = Prompt.ask("[bold cyan]What happens next?[/bold cyan]")
+                escape_pressed[0] = False
+                user_input = pt_prompt(
+                    "What happens next? ",
+                    key_bindings=kb
+                )
+
+                if escape_pressed[0]:
+                    console.print("\n[dim]ESC pressed - finishing comic...[/dim]")
+                    break
+
                 if not user_input.strip():
                     continue
-                running = self.process_input(user_input)
+
+                self.process_input(user_input)
             except KeyboardInterrupt:
                 console.print("\n")
                 running = False
@@ -299,7 +261,7 @@ class ComicCreator:
 [dim]Style: {bp.visual_style[:50]}...[/dim]
 
 [bold green]Type what you want to happen to create comic panels![/bold green]
-[dim]Type 'help' for commands, 'done' when finished.[/dim]
+[dim]Press ESC when finished to generate your comic strip.[/dim]
 """
             console.print(title)
 
