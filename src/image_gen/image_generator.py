@@ -47,11 +47,6 @@ class ImageGenerator:
                 moderation=IMAGE_MODERATION,
             )
 
-            # TODO: Maybe save the images only for a moment, and once they are saved as a comic strip,
-            # delete the individual images to save space.
-
-            # TODO: Fix sizing issues. Final comic strip looks off.
-
             image_base64 = result.data[0].b64_json
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
             filename = f"image_{timestamp}.png"
@@ -73,7 +68,7 @@ class ImageGenerator:
         parts = []
 
         # Visual style first (applies to entire comic)
-        parts.append(f"{visual_style}")
+        parts.append(f"Visual style: {visual_style}")
 
         # Scene/location
         if render_state.scene_setting:

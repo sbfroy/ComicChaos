@@ -142,11 +142,17 @@ class ComicStrip:
         if not valid_panels:
             return None
 
-        # Load all images
+        # Panel dimensions for the comic strip
+        panel_width = 512
+        panel_height = 512
+
+        # Load and resize all images to fit the panel size
         images = []
         for panel in valid_panels:
             try:
                 img = Image.open(panel["image_path"])
+                # Resize image to fit panel dimensions
+                img = img.resize((panel_width, panel_height), Image.Resampling.LANCZOS)
                 images.append((img, panel["narrative"], panel["panel_number"]))
             except Exception:
                 continue
@@ -155,8 +161,6 @@ class ComicStrip:
             return None
 
         # Calculate layout
-        panel_width = 512
-        panel_height = 512
         text_height = 80
         padding = 20
         border = 4
@@ -234,13 +238,33 @@ class ComicStrip:
 
         return str(output_path)
 
-    def show_final_comic(self) -> Optional[str]:
-        """Generate and display the final comic strip."""
+    def show_final_comic(self, cleanup_panels: bool = True) -> Optional[str]:
+        """Generate and display the final comic strip.
+
+        Args:
+            cleanup_panels: If True, delete individual panel images after generating the strip.
+        """
         strip_path = self.generate_comic_strip()
         if strip_path:
             print(f"\nComic strip saved to: {strip_path}")
             self._open_image(strip_path)
+
+            if cleanup_panels:
+                self._cleanup_panel_images()
+
         return strip_path
+
+    def _cleanup_panel_images(self) -> None:
+        """Delete individual panel images to save space."""
+        for panel in self.panels:
+            image_path = panel.get("image_path")
+            if image_path:
+                try:
+                    path = Path(image_path)
+                    if path.exists():
+                        path.unlink()
+                except Exception:
+                    pass  # Ignore cleanup errors
 
     def get_summary(self) -> str:
         """Get a text summary of the comic."""
