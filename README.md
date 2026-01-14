@@ -76,7 +76,7 @@ The dynamic comic state reflects the current situation in the story and changes 
 A record of what has happened so far, stored as a series of short, incremental events. A rolling summary is maintained for efficient context sharing with the orchestrator.
 
 #### b. World State
-The current positions of characters, discovered locations, accessible paths, activated flags, and puzzle variables. This is a real-time representation of the game world driven by the player’s actions.
+The current positions of characters and discovered locations. This is a real-time representation of the comic world driven by the player's actions.
 
 #### c. Player State
 The player’s location, inventory, attributes, and known information. This component ensures that the system responds appropriately to the player’s current situation.

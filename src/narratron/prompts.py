@@ -68,8 +68,7 @@ You MUST respond with valid JSON in this exact structure:
     "state_changes": {{
         "current_location_id": "location_id if changed, or null",
         "current_location_name": "location name if changed, or null",
-        "characters_present_ids": ["character_ids present in this scene"],
-        "flags_set": {{"flag_name": value}}
+        "characters_present_ids": ["character_ids present in this scene"]
     }},
     "visual_summary": {{
         "location_visual": "Concrete visual description of the scene",

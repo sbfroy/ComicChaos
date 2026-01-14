@@ -196,10 +196,6 @@ Remember: Say YES to creative ideas! Introduce new characters/locations when nee
             if char:
                 char.current_location = comic_state.world.current_location_id
 
-        # Set flags
-        for flag, value in changes.get("flags_set", {}).items():
-            comic_state.world.flags[flag] = value
-
         # Update narrative
         if response.rolling_summary_update:
             comic_state.narrative.rolling_summary = response.rolling_summary_update

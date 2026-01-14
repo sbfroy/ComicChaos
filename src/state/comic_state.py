@@ -6,7 +6,7 @@ and this module stores and tracks them.
 """
 
 from datetime import datetime
-from typing import Any
+
 from pydantic import BaseModel, Field
 
 from .static_config import StaticConfig
@@ -80,12 +80,6 @@ class WorldState(BaseModel):
     # Main character info (from blueprint)
     main_character_name: str = Field(default="", description="Name of the main character")
     main_character_description: str = Field(default="", description="Description of the main character")
-
-    # Story state flags
-    flags: dict[str, Any] = Field(
-        default_factory=dict,
-        description="Story state flags"
-    )
 
     class Config:
         arbitrary_types_allowed = True
@@ -203,8 +197,7 @@ class ComicState(BaseModel):
             locations=[initial_location],
             characters=[],  # No characters yet - LLM will introduce them
             main_character_name=main_char.name,
-            main_character_description=main_char.description,
-            flags={}
+            main_character_description=main_char.description
         )
 
         # Initialize narrative state
