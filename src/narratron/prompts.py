@@ -83,7 +83,6 @@ You MUST respond with valid JSON in this exact structure:
     "scene_summary": {{
         "scene_setting": "Description of the current scene/location for this panel",
         "characters_present": ["Brief description of each character in the panel"],
-        "objects_visible": ["Notable objects in the scene"],
         "current_action": "What is happening in this panel"
     }},
     "rolling_summary_update": "Updated 1-2 sentence summary of the story so far",

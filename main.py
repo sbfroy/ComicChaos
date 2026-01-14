@@ -98,7 +98,7 @@ class ComicCreator:
             self._generate_image_sync()
 
             # Add panel to comic strip
-            self.state.add_panel("Opening", narrative, self._current_image_path)
+            self.state.add_panel(narrative, self._current_image_path)
             self.comic_strip.add_panel(self._current_image_path, narrative, 1)
 
             # Show the panel
@@ -170,7 +170,7 @@ class ComicCreator:
             self._generate_image_sync()
 
             # Add to comic strip
-            self.state.add_panel(user_input, narrative, self._current_image_path)
+            self.state.add_panel(narrative, self._current_image_path)
             if self.comic_strip:
                 self.comic_strip.add_panel(
                     self._current_image_path,

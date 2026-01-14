@@ -280,8 +280,7 @@ Remember: Say YES to creative ideas! Introduce new characters/locations when nee
                     "id", f"loc_{comic_state.meta.panel_count}"
                 ),
                 name=new_location_data.get("name", "Unknown Location"),
-                description=new_location_data.get("description", ""),
-                first_appeared_panel=comic_state.meta.panel_count + 1,
+                description=new_location_data.get("description", "")
             )
             comic_state.world.add_location(location)
 
@@ -294,8 +293,7 @@ Remember: Say YES to creative ideas! Introduce new characters/locations when nee
                 ),
                 name=new_character_data.get("name", "Unknown Character"),
                 description=new_character_data.get("description", ""),
-                current_location=comic_state.world.current_location_id,
-                first_appeared_panel=comic_state.meta.panel_count + 1,
+                current_location=comic_state.world.current_location_id
             )
             comic_state.world.add_character(character)
 
@@ -332,9 +330,6 @@ Remember: Say YES to creative ideas! Introduce new characters/locations when nee
                 ),
                 characters_present=scene_summary.get(
                     "characters_present", comic_state.render.characters_present
-                ),
-                objects_visible=scene_summary.get(
-                    "objects_visible", comic_state.render.objects_visible
                 ),
                 current_action=scene_summary.get(
                     "current_action", comic_state.render.current_action
