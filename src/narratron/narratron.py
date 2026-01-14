@@ -166,10 +166,12 @@ Remember: Say YES to creative ideas! Only redirect if a specific world rule is v
         # Add new location if introduced
         if response.new_location:
             new_loc = response.new_location
+            description = new_loc.get("description", "")
             location = DynamicLocation(
                 id=new_loc.get("id", f"loc_{game_state.meta.panel_count}"),
                 name=new_loc.get("name", "Unknown Location"),
-                description=new_loc.get("description", ""),
+                description=description,
+                visual_description=description,
                 first_appeared_panel=game_state.meta.panel_count + 1
             )
             game_state.world.add_location(location)

@@ -193,6 +193,7 @@ class GameState(BaseModel):
             id="starting_location",
             name=starting_loc.name,
             description=starting_loc.description,
+            visual_description=starting_loc.description,
             first_appeared_panel=0
         )
 
