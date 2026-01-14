@@ -243,7 +243,7 @@ class ComicCreator:
                 running = False
 
         self.finish()
-        console.print("\n[cyan]Thanks for creating with Comic Creator![/cyan]\n")
+        console.print("\n[cyan]Thanks for creating with Comic Chaos![/cyan]\n")
 
     def _show_title(self) -> None:
         """Show the title screen."""
@@ -251,7 +251,7 @@ class ComicCreator:
             bp = self.config.blueprint
             title = f"""
 [bold cyan]{'=' * 50}[/bold cyan]
-[bold]  COMIC CREATOR[/bold]
+[bold]  COMIC CHAOS[/bold]
 [bold cyan]{'=' * 50}[/bold cyan]
 
 [bold]{bp.title}[/bold]
