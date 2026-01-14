@@ -19,10 +19,6 @@ class NarratronResponse:
     def __init__(self, raw_response: dict):
         self.raw = raw_response
 
-        # Redirection info (only when world rules are violated)
-        self.was_redirected = raw_response.get("was_redirected", False)
-        self.redirection_note = raw_response.get("redirection_note", "")
-
         # Core narrative
         self.interpretation = raw_response.get("interpretation", "")
         self.panel_narrative = raw_response.get("panel_narrative", "")
@@ -126,7 +122,6 @@ class Narratron:
             return NarratronResponse(data)
         except json.JSONDecodeError:
             return NarratronResponse({
-                "was_redirected": False,
                 "interpretation": "Unknown",
                 "panel_narrative": "Something unexpected happened...",
                 "state_changes": {},
@@ -144,7 +139,7 @@ class Narratron:
 USER WANTS: {user_input}
 
 Create the next comic panel based on what the user wants to happen.
-Remember: Say YES to creative ideas! Only redirect if a specific world rule is violated. Introduce new characters/locations when needed."""
+Remember: Say YES to creative ideas! Introduce new characters/locations when needed."""
 
         messages = [
             {"role": "system", "content": system_prompt},
