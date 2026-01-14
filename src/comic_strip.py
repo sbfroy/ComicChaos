@@ -7,7 +7,7 @@ from pathlib import Path
 from datetime import datetime
 from typing import Optional
 
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image
 
 from .config import COMIC_STRIPS_DIR
 
@@ -145,15 +145,16 @@ class ComicStrip:
         # Panel dimensions for the comic strip
         panel_width = 512
         panel_height = 512
+        border = 4
+        gap = 2  # Small gap between panels
 
-        # Load and resize all images to fit the panel size
+        # Load and resize all images
         images = []
         for panel in valid_panels:
             try:
                 img = Image.open(panel["image_path"])
-                # Resize image to fit panel dimensions
                 img = img.resize((panel_width, panel_height), Image.Resampling.LANCZOS)
-                images.append((img, panel["narrative"], panel["panel_number"]))
+                images.append(img)
             except Exception:
                 continue
 
@@ -161,76 +162,26 @@ class ComicStrip:
             return None
 
         # Calculate layout
-        text_height = 80
-        padding = 20
-        border = 4
-
         num_panels = len(images)
         cols = min(num_panels, max_panels_per_row)
         rows = (num_panels + cols - 1) // cols
 
         # Calculate total dimensions
-        total_width = cols * (panel_width + padding) + padding
-        total_height = rows * (panel_height + text_height + padding) + padding + 60  # Extra for title
+        total_width = cols * panel_width + (cols - 1) * gap + border * 2
+        total_height = rows * panel_height + (rows - 1) * gap + border * 2
 
         # Create the comic strip image
-        strip = Image.new("RGB", (total_width, total_height), "white")
-        draw = ImageDraw.Draw(strip)
+        strip = Image.new("RGB", (total_width, total_height), "black")
 
-        # Try to load a font
-        try:
-            title_font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 32)
-            text_font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 14)
-        except Exception:
-            title_font = ImageFont.load_default()
-            text_font = ImageFont.load_default()
-
-        # Draw title
-        title_bbox = draw.textbbox((0, 0), self.title, font=title_font)
-        title_x = (total_width - (title_bbox[2] - title_bbox[0])) // 2
-        draw.text((title_x, 15), self.title, fill="black", font=title_font)
-
-        # Draw panels
-        for i, (img, narrative, panel_num) in enumerate(images):
+        # Place panels
+        for i, img in enumerate(images):
             row = i // cols
             col = i % cols
 
-            x = padding + col * (panel_width + padding)
-            y = 60 + padding + row * (panel_height + text_height + padding)
+            x = border + col * (panel_width + gap)
+            y = border + row * (panel_height + gap)
 
-            # Draw border
-            draw.rectangle(
-                [x - border, y - border, x + panel_width + border, y + panel_height + border],
-                outline="black",
-                width=border
-            )
-
-            # Paste image
             strip.paste(img, (x, y))
-
-            # Draw panel number
-            draw.text((x + 5, y + 5), f"#{panel_num}", fill="white", font=text_font)
-
-            # Draw narrative text (wrap if needed)
-            text_y = y + panel_height + 5
-            words = narrative.split()
-            lines = []
-            current_line = []
-            for word in words:
-                current_line.append(word)
-                line = " ".join(current_line)
-                bbox = draw.textbbox((0, 0), line, font=text_font)
-                if bbox[2] - bbox[0] > panel_width - 10:
-                    current_line.pop()
-                    if current_line:
-                        lines.append(" ".join(current_line))
-                    current_line = [word]
-            if current_line:
-                lines.append(" ".join(current_line))
-
-            # Draw only first 3 lines of text
-            for j, line in enumerate(lines[:3]):
-                draw.text((x + 5, text_y + j * 18), line, fill="black", font=text_font)
 
         # Save the comic strip
         output_path = self.output_dir / f"comic_strip_{self.session_id}.png"
