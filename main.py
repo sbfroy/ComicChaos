@@ -22,7 +22,7 @@ from src.config import (
     SETTINGS_DIR,
 )
 from src.state.static_config import StaticConfig
-from src.state.game_state import GameState
+from src.state.comic_state import ComicState
 from settings.setting_registry import SettingRegistry, SettingInfo
 from src.narratron.narratron import Narratron
 from src.image_gen.image_generator import ImageGenerator, MockImageGenerator
@@ -55,7 +55,7 @@ class ComicCreator:
             raise ValueError("No blueprint found. Cannot start.")
 
         # Initialize state
-        self.state: GameState | None = None
+        self.state: ComicState | None = None
         self.auto_show_images = auto_show_images
 
         # Initialize Narratron
@@ -82,7 +82,7 @@ class ComicCreator:
 
     def start(self) -> None:
         """Start a new comic creation session."""
-        self.state = GameState.initialize_from_config(self.config)
+        self.state = ComicState.initialize_from_config(self.config)
 
         # Initialize comic strip collector
         title = self.config.blueprint.title if self.config.blueprint else "My Comic"

@@ -14,7 +14,7 @@ from ..config import (
     IMAGE_MODERATION,
     GENERATED_IMAGES_DIR,
 )
-from ..state.game_state import RenderState
+from ..state.comic_state import RenderState
 
 
 class ImageGenerator:

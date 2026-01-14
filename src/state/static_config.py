@@ -43,8 +43,8 @@ class Blueprint(BaseModel):
         description="Art style for generated images"
     )
 
-    # World rules that the LLM should respect when creating new content
-    world_rules: list[str] = Field(
+    # Rules that the LLM should respect when creating new content
+    rules: list[str] = Field(
         default_factory=list,
         description="Rules/constraints for the world that the LLM should follow"
     )
@@ -54,7 +54,7 @@ class StaticConfig(BaseModel):
     """Complete comic configuration.
 
     This holds only the initial blueprint - the foundation of the world.
-    Dynamic content (new locations, characters) is stored in GameState.
+    Dynamic content (new locations, characters) is stored in ComicState.
     """
 
     blueprint: Blueprint | None = None

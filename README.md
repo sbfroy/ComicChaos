@@ -52,9 +52,9 @@ Although the player experiences freedom, only one path ultimately leads to succe
 
 ---
 
-## The Game-State
+## The Comic State
 
-The system distinguishes clearly between static game logic and the dynamic game state. This separation ensures consistency, reduces computational overhead, and allows the orchestrator module (Narratron) to reason about the story without confusion or drift.
+The system distinguishes clearly between static comic logic and the dynamic comic state. This separation ensures consistency, reduces computational overhead, and allows the orchestrator module (Narratron) to reason about the story without confusion or drift.
 
 ### 1. Static Components (do not change during gameplay)
 
@@ -67,10 +67,10 @@ Milestones define the game's predefined narrative structure. They describe the k
 #### c. World Blueprint
 The blueprint includes the initial layout of locations, characters, items, and environmental properties before the game begins. This serves as the foundation from which the dynamic world state evolves.
 
-These static components are stored separately from the game state, typically in dedicated configuration files or modules.
+These static components are stored separately from the comic state, typically in dedicated configuration files or modules.
 
-### 2. Dynamic Game State (updated after every player action)
-The dynamic game state reflects the current situation in the story and changes continuously throughout gameplay. It includes:
+### 2. Dynamic Comic State (updated after every player action)
+The dynamic comic state reflects the current situation in the story and changes continuously throughout gameplay. It includes:
 
 #### a. Narrative State
 A record of what has happened so far, stored as a series of short, incremental events. A rolling summary is maintained for efficient context sharing with the orchestrator.

@@ -162,7 +162,7 @@ class MetaInfo(BaseModel):
     last_updated: datetime = Field(default_factory=datetime.now)
 
 
-class GameState(BaseModel):
+class ComicState(BaseModel):
     """Complete state for a comic creation session."""
 
     narrative: NarrativeState = Field(default_factory=NarrativeState)
@@ -171,7 +171,7 @@ class GameState(BaseModel):
     meta: MetaInfo = Field(default_factory=MetaInfo)
 
     @classmethod
-    def initialize_from_config(cls, config: StaticConfig, session_id: str = "") -> "GameState":
+    def initialize_from_config(cls, config: StaticConfig, session_id: str = "") -> "ComicState":
         """Create initial state from configuration.
 
         The blueprint only defines the starting location and main character.

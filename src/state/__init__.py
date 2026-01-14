@@ -1,6 +1,6 @@
-"""Game state management module."""
+"""Comic state management module."""
 
-from .game_state import GameState
+from .comic_state import ComicState
 from .static_config import StaticConfig
 
-__all__ = ["GameState", "StaticConfig"]
+__all__ = ["ComicState", "StaticConfig"]

@@ -10,7 +10,7 @@
     "name": "Buddy",
     "description": "A straightforward cartoon character with a simple design and clear expressions. He is an otter who reacts honestly to situations and shows emotion through posture and movement rather than exaggeration. He wears a blue t-shirt and jeans. Clothing and appearance are practical and unchanged."
   },
-  "world_rules": [
+  "rules": [
     "You can not access the moon or outer space.",
     "Magic does not exist in this world."
   ]

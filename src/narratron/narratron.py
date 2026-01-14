@@ -10,7 +10,7 @@ import os
 from openai import OpenAI
 
 from ..config import LLM_MODEL, LLM_TEMPERATURE, LLM_MAX_TOKENS
-from ..state.game_state import GameState, RenderState, DynamicLocation, DynamicCharacter
+from ..state.comic_state import ComicState, RenderState, DynamicLocation, DynamicCharacter
 from ..state.static_config import StaticConfig
 from .prompts import NARRATRON_SYSTEM_PROMPT, INITIAL_SCENE_PROMPT
 
@@ -50,12 +50,12 @@ class Narratron:
         self.config = config
         self.client = OpenAI(api_key=api_key or os.getenv("OPENAI_API_KEY"))
 
-    def _build_system_prompt(self, game_state: GameState) -> str:
+    def _build_system_prompt(self, comic_state: ComicState) -> str:
         """
         Build the system prompt with current context.
         
         Args:
-            game_state (GameState): The current state of the world.
+            comic_state (ComicState): The current state of the world.
         
         Returns:
             str: The formatted system prompt.
@@ -72,20 +72,20 @@ class Narratron:
         # Main character (from blueprint)
         world_context_parts.append("MAIN CHARACTER:")
         world_context_parts.append(
-            f"  {game_state.world.main_character_name}: {game_state.world.main_character_description}"
+            f"  {comic_state.world.main_character_name}: {comic_state.world.main_character_description}"
         )
         world_context_parts.append("")
 
         # Known locations (dynamically created)
         world_context_parts.append("KNOWN LOCATIONS:")
-        for loc in game_state.world.locations:
+        for loc in comic_state.world.locations:
             world_context_parts.append(f"  - {loc.name} ({loc.id}): {loc.description[:100]}...")
         world_context_parts.append("")
 
         # Known characters (dynamically created)
-        if game_state.world.characters:
+        if comic_state.world.characters:
             world_context_parts.append("CHARACTERS IN STORY:")
-            for char in game_state.world.characters:
+            for char in comic_state.world.characters:
                 loc_info = f" [at: {char.current_location}]" if char.current_location else ""
                 world_context_parts.append(f"  - {char.name} ({char.id}): {char.description[:80]}...{loc_info}")
             world_context_parts.append("")
@@ -94,11 +94,11 @@ class Narratron:
 
         visual_style = self.config.blueprint.visual_style 
         
-        world_rules = "\n".join(f"- {rule}" for rule in self.config.blueprint.world_rules)
+        rules = "\n".join(f"- {rule}" for rule in self.config.blueprint.rules)
 
         return NARRATRON_SYSTEM_PROMPT.format(
             visual_style=visual_style,
-            world_rules=world_rules,
+            rules=rules,
             world_context=f"CURRENT WORLD STATE:\n{world_context}"
         )
 
@@ -127,10 +127,10 @@ class Narratron:
                 "visual_summary": {}
             })
 
-    def process_input(self, user_input: str, game_state: GameState) -> NarratronResponse:
+    def process_input(self, user_input: str, comic_state: ComicState) -> NarratronResponse:
         """Process user input and create the next comic panel."""
-        system_prompt = self._build_system_prompt(game_state)
-        context = game_state.get_context_summary()
+        system_prompt = self._build_system_prompt(comic_state)
+        context = comic_state.get_context_summary()
 
         user_message = f"""CURRENT STORY STATE:
 {context}
@@ -149,11 +149,11 @@ Remember: Say YES to creative ideas! Introduce new characters/locations when nee
         response = self._parse_response(response_text)
 
         # Apply state changes (including new entities)
-        self._apply_state_changes(response, game_state)
+        self._apply_state_changes(response, comic_state)
 
         return response
 
-    def _apply_state_changes(self, response: NarratronResponse, game_state: GameState) -> None:
+    def _apply_state_changes(self, response: NarratronResponse, comic_state: ComicState) -> None:
         """Apply state changes from the response, including new entities."""
         changes = response.state_changes
 
@@ -162,62 +162,62 @@ Remember: Say YES to creative ideas! Introduce new characters/locations when nee
             new_loc = response.new_location
             description = new_loc.get("description", "")
             location = DynamicLocation(
-                id=new_loc.get("id", f"loc_{game_state.meta.panel_count}"),
+                id=new_loc.get("id", f"loc_{comic_state.meta.panel_count}"),
                 name=new_loc.get("name", "Unknown Location"),
                 description=description,
                 visual_description=description,
-                first_appeared_panel=game_state.meta.panel_count + 1
+                first_appeared_panel=comic_state.meta.panel_count + 1
             )
-            game_state.world.add_location(location)
+            comic_state.world.add_location(location)
 
         # Add new character if introduced
         if response.new_character:
             new_char = response.new_character
             character = DynamicCharacter(
-                id=new_char.get("id", f"char_{game_state.meta.panel_count}"),
+                id=new_char.get("id", f"char_{comic_state.meta.panel_count}"),
                 name=new_char.get("name", "Unknown Character"),
                 description=new_char.get("description", ""),
-                current_location=game_state.world.current_location_id,
-                first_appeared_panel=game_state.meta.panel_count + 1
+                current_location=comic_state.world.current_location_id,
+                first_appeared_panel=comic_state.meta.panel_count + 1
             )
-            game_state.world.add_character(character)
+            comic_state.world.add_character(character)
 
         # Update current location
         if changes.get("current_location_id"):
-            game_state.world.current_location_id = changes["current_location_id"]
+            comic_state.world.current_location_id = changes["current_location_id"]
 
         if changes.get("current_location_name"):
-            game_state.world.current_location_name = changes["current_location_name"]
+            comic_state.world.current_location_name = changes["current_location_name"]
 
         # Update character locations based on who's present
         characters_present = changes.get("characters_present_ids", [])
         for char_id in characters_present:
-            char = game_state.world.get_character_by_id(char_id)
+            char = comic_state.world.get_character_by_id(char_id)
             if char:
-                char.current_location = game_state.world.current_location_id
+                char.current_location = comic_state.world.current_location_id
 
         # Set flags
         for flag, value in changes.get("flags_set", {}).items():
-            game_state.world.flags[flag] = value
+            comic_state.world.flags[flag] = value
 
         # Update narrative
         if response.rolling_summary_update:
-            game_state.narrative.rolling_summary = response.rolling_summary_update
+            comic_state.narrative.rolling_summary = response.rolling_summary_update
 
         if response.current_scene:
-            game_state.narrative.current_scene = response.current_scene
+            comic_state.narrative.current_scene = response.current_scene
 
         # Update render state
         vs = response.visual_summary
         if vs:
-            game_state.render = RenderState(
-                location_visual=vs.get("location_visual", game_state.render.location_visual),
-                characters_present=vs.get("characters_present", game_state.render.characters_present),
-                objects_visible=vs.get("objects_visible", game_state.render.objects_visible),
-                current_action=vs.get("current_action", game_state.render.current_action)
+            comic_state.render = RenderState(
+                location_visual=vs.get("location_visual", comic_state.render.location_visual),
+                characters_present=vs.get("characters_present", comic_state.render.characters_present),
+                objects_visible=vs.get("objects_visible", comic_state.render.objects_visible),
+                current_action=vs.get("current_action", comic_state.render.current_action)
             )
 
-    def generate_opening_panel(self, game_state: GameState) -> NarratronResponse:
+    def generate_opening_panel(self, comic_state: ComicState) -> NarratronResponse:
         """Generate the opening panel of the comic."""
         if not self.config.blueprint:
             raise ValueError("Cannot generate opening without blueprint")
@@ -226,7 +226,7 @@ Remember: Say YES to creative ideas! Introduce new characters/locations when nee
         starting_loc = bp.starting_location
         main_char = bp.main_character
 
-        system_prompt = self._build_system_prompt(game_state)
+        system_prompt = self._build_system_prompt(comic_state)
 
         user_message = INITIAL_SCENE_PROMPT.format(
             starting_location=f"{starting_loc.name}: {starting_loc.description}",
@@ -242,6 +242,6 @@ Remember: Say YES to creative ideas! Introduce new characters/locations when nee
         response = self._parse_response(response_text)
 
         # Apply state changes
-        self._apply_state_changes(response, game_state)
+        self._apply_state_changes(response, comic_state)
 
         return response
