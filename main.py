@@ -14,9 +14,6 @@ from dotenv import load_dotenv
 from rich.console import Console
 from rich.panel import Panel
 from rich.text import Text
-from prompt_toolkit import prompt as pt_prompt
-from prompt_toolkit.key_binding import KeyBindings
-from prompt_toolkit.keys import Keys
 from rich.prompt import Prompt
 
 from src.state.static_config import StaticConfig
@@ -205,38 +202,15 @@ class ComicCreator:
         self._show_title()
         self.start()
 
-        # Set up key bindings for ESC to exit
-        kb = KeyBindings()
-        escape_pressed = [False]
-
-        @kb.add(Keys.Escape)
-        def _(event):
-            escape_pressed[0] = True
-            event.app.exit(result="")
-
-        running = True
-        while running:
+        while True:
             console.print()
             try:
-                escape_pressed[0] = False
-                user_input = pt_prompt(
-                    "What happens next? ",
-                    key_bindings=kb
-                )
-
-                if escape_pressed[0]:
-                    console.print("\n[dim]ESC pressed - finishing comic...[/dim]")
-                    break
-
+                user_input = Prompt.ask("[bold cyan]What happens next?[/bold cyan]")
                 if not user_input.strip():
                     continue
-
                 self.process_input(user_input)
-            except KeyboardInterrupt:
-                console.print("\n")
-                running = False
-            except EOFError:
-                running = False
+            except (KeyboardInterrupt, EOFError):
+                break
 
         self.finish()
         console.print("\n[cyan]Thanks for creating with Comic Chaos![/cyan]\n")
@@ -257,7 +231,7 @@ class ComicCreator:
 [dim]Style: {bp.visual_style[:50]}...[/dim]
 
 [bold green]Type what you want to happen to create comic panels![/bold green]
-[dim]Press ESC when finished to generate your comic strip.[/dim]
+[dim]Press Ctrl+C when finished to generate your comic strip.[/dim]
 """
             console.print(title)
 
