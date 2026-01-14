@@ -63,7 +63,6 @@ WRITING STYLE:
 RESPONSE FORMAT:
 You MUST respond with valid JSON in this exact structure:
 {{
-    "interpretation": "What you understood the user wanted to happen",
     "panel_narrative": "The narrative text for this comic panel (1-3 sentences, punchy)",
     "new_location": {{
         "id": "unique_snake_case_id",
@@ -85,8 +84,7 @@ You MUST respond with valid JSON in this exact structure:
         "characters_present": ["Brief description of each character in the panel"],
         "current_action": "What is happening in this panel"
     }},
-    "rolling_summary_update": "Updated 1-2 sentence summary of the story so far",
-    "current_scene": "Brief description of the current situation"
+    "rolling_summary_update": "Updated 1-2 sentence summary of the story so far"
 }}
 
 IMPORTANT RULES:
@@ -111,5 +109,5 @@ You may introduce one supporting character if it feels natural for the opening, 
 
 Make it a great opening panel that draws the reader in and establishes the comic!
 
-Respond in the same JSON format. For the opening, interpretation should describe the opening scene setup.
+Respond in the same JSON format.
 """

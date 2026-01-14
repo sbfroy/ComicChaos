@@ -33,14 +33,12 @@ class NarratronResponse:
     
     Attributes:
         raw: The raw dictionary response from the LLM.
-        interpretation: Narratron's interpretation of the user's request.
         panel_narrative: The narrative text for the comic panel.
         new_location: Dictionary describing a newly introduced location (if any).
         new_character: Dictionary describing a newly introduced character (if any).
         state_changes: Dictionary of changes to apply to the comic state.
         scene_summary: Summary of the current scene for rendering.
         rolling_summary_update: Updated summary of the story so far.
-        current_scene: Description of the current scene.
     """
 
     def __init__(self, raw_response: Dict[str, Any]) -> None:
@@ -52,7 +50,6 @@ class NarratronResponse:
         self.raw: Dict[str, Any] = raw_response
 
         # Core narrative elements
-        self.interpretation: str = raw_response.get("interpretation", "")
         self.panel_narrative: str = raw_response.get("panel_narrative", "")
 
         # Dynamic entity creation (locations and characters)
@@ -63,7 +60,6 @@ class NarratronResponse:
         self.state_changes: Dict[str, Any] = raw_response.get("state_changes", {})
         self.scene_summary: Dict[str, Any] = raw_response.get("scene_summary", {})
         self.rolling_summary_update: str = raw_response.get("rolling_summary_update", "")
-        self.current_scene: str = raw_response.get("current_scene", "")
 
 
 class Narratron:
@@ -206,7 +202,6 @@ class Narratron:
             # Fallback response if JSON parsing fails
             return NarratronResponse(
                 {
-                    "interpretation": "Unknown",
                     "panel_narrative": "Something unexpected happened...",
                     "state_changes": {},
                     "visual_summary": {},
@@ -316,10 +311,6 @@ Remember: Say YES to creative ideas! Introduce new characters/locations when nee
             comic_state.narrative.rolling_summary = (
                 response.rolling_summary_update
             )
-
-        # Update the current scene description
-        if response.current_scene:
-            comic_state.narrative.current_scene = response.current_scene
 
         # Update render state from scene summary for visual generation
         scene_summary = response.scene_summary

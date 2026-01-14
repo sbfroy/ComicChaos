@@ -45,10 +45,6 @@ class NarrativeState(BaseModel):
         default="The story has just begun.",
         description="Condensed summary of the story so far"
     )
-    current_scene: str = Field(
-        default="",
-        description="Description of current scene"
-    )
 
 
 class WorldState(BaseModel):
@@ -168,8 +164,7 @@ class ComicState(BaseModel):
         # Initialize narrative state
         narrative = NarrativeState(
             panels=[],
-            rolling_summary=f"{blueprint.synopsis}",
-            current_scene=starting_loc.description
+            rolling_summary=f"{blueprint.synopsis}"
         )
 
         # Initialize render state
@@ -218,8 +213,6 @@ class ComicState(BaseModel):
             f"Current Location: {self.world.current_location_name}",
             f"",
             f"Story So Far: {self.narrative.rolling_summary}",
-            f"",
-            f"Current Scene: {self.narrative.current_scene}",
         ]
 
         # List known locations
