@@ -1,7 +1,7 @@
 """NARRATRON - The comic creation engine.
 
 The LLM has creative control over the story, dynamically introducing
-locations and characters while maintaining world consistency.
+locations and characters while maintaining consistency.
 """
 
 import json
@@ -39,7 +39,7 @@ class Narratron:
     """Narratron is the AI engine that orchestrates the comic creation.
 
     Narratron is the creative driver - it introduces new locations and characters
-    as the story needs them, and validates user inputs against the world's logic.
+    as the story needs them, and validates user inputs against the comic's logic.
     """
 
     def __init__(
@@ -55,42 +55,42 @@ class Narratron:
         Build the system prompt with current context.
         
         Args:
-            comic_state (ComicState): The current state of the world.
+            comic_state (ComicState): The current state of the comic.
         
         Returns:
             str: The formatted system prompt.
         """
 
-        world_context_parts = [] # List to build context string part by part
+        comic_context_parts = [] # List to build context string part by part
 
         bp = self.config.blueprint
 
-        world_context_parts.append(f"COMIC TITLE: {bp.title}")
-        world_context_parts.append(f"SYNOPSIS: {bp.synopsis}")
-        world_context_parts.append("") # Blank line for spacing
+        comic_context_parts.append(f"COMIC TITLE: {bp.title}")
+        comic_context_parts.append(f"SYNOPSIS: {bp.synopsis}")
+        comic_context_parts.append("") # Blank line for spacing
 
         # Main character (from blueprint)
-        world_context_parts.append("MAIN CHARACTER:")
-        world_context_parts.append(
+        comic_context_parts.append("MAIN CHARACTER:")
+        comic_context_parts.append(
             f"  {comic_state.world.main_character_name}: {comic_state.world.main_character_description}"
         )
-        world_context_parts.append("")
+        comic_context_parts.append("")
 
         # Known locations (dynamically created)
-        world_context_parts.append("KNOWN LOCATIONS:")
+        comic_context_parts.append("KNOWN LOCATIONS:")
         for loc in comic_state.world.locations:
-            world_context_parts.append(f"  - {loc.name} ({loc.id}): {loc.description[:100]}...")
-        world_context_parts.append("")
+            comic_context_parts.append(f"  - {loc.name} ({loc.id}): {loc.description[:100]}...")
+        comic_context_parts.append("")
 
         # Known characters (dynamically created)
         if comic_state.world.characters:
-            world_context_parts.append("CHARACTERS IN STORY:")
+            comic_context_parts.append("CHARACTERS IN STORY:")
             for char in comic_state.world.characters:
                 loc_info = f" [at: {char.current_location}]" if char.current_location else ""
-                world_context_parts.append(f"  - {char.name} ({char.id}): {char.description[:80]}...{loc_info}")
-            world_context_parts.append("")
+                comic_context_parts.append(f"  - {char.name} ({char.id}): {char.description[:80]}...{loc_info}")
+            comic_context_parts.append("")
 
-        world_context = "\n".join(world_context_parts)
+        comic_context = "\n".join(comic_context_parts)
 
         visual_style = self.config.blueprint.visual_style 
         
@@ -99,7 +99,7 @@ class Narratron:
         return NARRATRON_SYSTEM_PROMPT.format(
             visual_style=visual_style,
             rules=rules,
-            world_context=f"CURRENT WORLD STATE:\n{world_context}"
+            comic_context=f"CURRENT COMIC STATE:\n{comic_context}"
         )
 
     def _call_llm(self, messages: list[dict]) -> str:
