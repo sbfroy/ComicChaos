@@ -161,7 +161,7 @@ class ImageGenerator:
             prompt_parts.append(f"Action: {render_state.current_action}")
 
         # Join all parts into a coherent prompt
-        full_prompt = ". ".join(prompt_parts)
+        full_prompt = " ".join(prompt_parts)
 
         return full_prompt
 
