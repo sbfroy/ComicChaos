@@ -24,7 +24,7 @@ from ..state.comic_state import (
 )
 from ..state.static_config import StaticConfig
 from ..logging.interaction_logger import InteractionLogger
-from .prompts import NARRATRON_SYSTEM_PROMPT, INITIAL_SCENE_PROMPT
+from .prompts import NARRATRON_SYSTEM_PROMPT, INITIAL_SCENE_PROMPT, USER_MESSAGE_TEMPLATE
 
 class NarratronResponse:
     """Structured response from NARRATRON.
@@ -97,72 +97,25 @@ class Narratron:
         )
         self.logger: Optional[InteractionLogger] = logger
 
-    def _build_system_prompt(self, comic_state: ComicState) -> str:
-        """Build the system prompt with current comic context.
-        
-        Constructs a comprehensive system prompt that includes the comic's blueprint,
-        visual style, rules, and current state (known locations, characters, etc.).
-        This gives the LLM full context to make informed creative decisions.
-        
-        Args:
-            comic_state: The current state of the comic including world and narrative.
-        
+    def _build_system_prompt(self) -> str:
+        """Build the system prompt with static comic information only.
+
+        Creates a compact system prompt with just the essential static info:
+        title, visual style, and rules. All dynamic context (locations,
+        characters, panels) is provided in the user message to avoid duplication.
+
         Returns:
             The formatted system prompt string ready for the LLM.
         """
-        # Build context string part by part for clarity
-        comic_context_parts: List[str] = []
         blueprint = self.config.blueprint
 
-        # Add comic title and synopsis
-        comic_context_parts.append(f"COMIC TITLE: {blueprint.title}")
-        comic_context_parts.append(f"SYNOPSIS: {blueprint.synopsis}")
-        comic_context_parts.append("")  # Blank line for readability
+        # Format rules compactly
+        rules = " | ".join(self.config.blueprint.rules) if self.config.blueprint.rules else "None"
 
-        # Add main character information (from blueprint)
-        comic_context_parts.append("MAIN CHARACTER:")
-        comic_context_parts.append(
-            f"  {comic_state.world.main_character_name}: "
-            f"{comic_state.world.main_character_description}"
-        )
-        comic_context_parts.append("")
-
-        # Add all known locations (dynamically created during the story)
-        comic_context_parts.append("KNOWN LOCATIONS:")
-        for location in comic_state.world.locations:
-            comic_context_parts.append(
-                f"  - {location.name} ({location.id}): {location.description}"
-            )
-        comic_context_parts.append("")
-
-        # Add all known characters (dynamically created during the story)
-        if comic_state.world.characters:
-            comic_context_parts.append("CHARACTERS IN STORY:")
-            for character in comic_state.world.characters:
-                # Include current location if available
-                location_info = (
-                    f" [at: {character.current_location}]"
-                    if character.current_location
-                    else ""
-                )
-                comic_context_parts.append(
-                    f"  - {character.name} ({character.id}): "
-                    f"{character.description}{location_info}"
-                )
-            comic_context_parts.append("")
-
-        # Join all context parts into a single string
-        comic_context = "\n".join(comic_context_parts)
-
-        # Extract visual style and rules from blueprint
-        visual_style = self.config.blueprint.visual_style
-        rules = "\n".join(f"- {rule}" for rule in self.config.blueprint.rules)
-
-        # Format and return the complete system prompt
         return NARRATRON_SYSTEM_PROMPT.format(
-            visual_style=visual_style,
+            title=blueprint.title,
+            visual_style=blueprint.visual_style,
             rules=rules,
-            comic_context=f"CURRENT COMIC STATE:\n{comic_context}",
         )
 
     def _call_llm(self, messages: List[Dict[str, str]]) -> str:
@@ -240,30 +193,23 @@ class Narratron:
         self, user_input: str, comic_state: ComicState
     ) -> NarratronResponse:
         """Process user input and create the next comic panel.
-        
+
         This is the main entry point for generating new comic content. It takes
         the user's request, combines it with the current comic state, sends it
         to the LLM, and applies the resulting state changes.
-        
+
         Args:
             user_input: The user's description of what they want to happen next.
             comic_state: The current state of the comic.
-        
+
         Returns:
             A NarratronResponse containing the generated narrative and state changes.
         """
-        # Build the system prompt with current context
-        system_prompt = self._build_system_prompt(comic_state)
-        context = comic_state.get_context_summary()
+        # Build compact system prompt (static info only)
+        system_prompt = self._build_system_prompt()
 
-        # Construct the user message with current state and user's request
-        user_message = f"""CURRENT STORY STATE:
-{context}
-
-USER WANTS: {user_input}
-
-Create the next comic panel based on what the user wants to happen.
-Remember: Say YES to creative ideas! Introduce new characters/locations when needed."""
+        # Build user message with all dynamic context
+        user_message = self._build_user_message(user_input, comic_state)
 
         # Prepare messages for the LLM
         messages = [
@@ -280,20 +226,102 @@ Remember: Say YES to creative ideas! Introduce new characters/locations when nee
 
         return response
 
+    def _build_user_message(self, user_input: str, comic_state: ComicState) -> str:
+        """Build compact user message with all dynamic context.
+
+        Constructs a token-efficient user message containing:
+        - Main character info
+        - Current location with full description
+        - Story summary
+        - Compact entity list (full desc only for entities in scene)
+        - Recent panel summaries
+        - User's request
+
+        Args:
+            user_input: What the user wants to happen.
+            comic_state: Current comic state.
+
+        Returns:
+            Formatted user message string.
+        """
+        world = comic_state.world
+
+        # Main character
+        main_char = f"{world.main_character_name}: {world.main_character_description}"
+
+        # Current location with full description
+        current_loc = world.get_location_by_id(world.current_location_id)
+        current_location = (
+            f"{current_loc.name}: {current_loc.description}"
+            if current_loc
+            else world.current_location_name
+        )
+
+        # Build compact entities context
+        entities_parts: List[str] = []
+
+        # Locations: current gets full desc, others just name
+        other_locations = [
+            loc.name for loc in world.locations
+            if loc.id != world.current_location_id
+        ]
+        if other_locations:
+            entities_parts.append(f"OTHER LOCATIONS: {', '.join(other_locations)}")
+
+        # Characters: those in scene get full desc, others compact
+        if world.characters:
+            chars_here = []
+            chars_elsewhere = []
+            for char in world.characters:
+                if char.current_location == world.current_location_id:
+                    chars_here.append(f"{char.name}: {char.description}")
+                else:
+                    loc_name = char.current_location or "unknown"
+                    chars_elsewhere.append(f"{char.name} (at {loc_name})")
+
+            if chars_here:
+                entities_parts.append(f"CHARACTERS HERE: {'; '.join(chars_here)}")
+            if chars_elsewhere:
+                entities_parts.append(f"OTHER CHARACTERS: {', '.join(chars_elsewhere)}")
+
+        entities_context = "\n".join(entities_parts) if entities_parts else ""
+
+        # Recent panels (compact)
+        recent_panels = ""
+        if comic_state.narrative.panels:
+            panel_lines = []
+            for panel in comic_state.get_recent_panels(3):
+                # Truncate long narratives
+                narrative = panel.narrative[:150] + "..." if len(panel.narrative) > 150 else panel.narrative
+                panel_lines.append(f"P{panel.panel_number}: {narrative}")
+            recent_panels = "RECENT:\n" + "\n".join(panel_lines)
+
+        return USER_MESSAGE_TEMPLATE.format(
+            main_character=main_char,
+            current_location=current_location,
+            rolling_summary=comic_state.narrative.rolling_summary,
+            entities_context=entities_context,
+            recent_panels=recent_panels,
+            user_input=user_input,
+        )
+
     def _apply_state_changes(
         self, response: NarratronResponse, comic_state: ComicState
     ) -> None:
         """Apply state changes from the response, including new entities.
-        
+
         Processes the response from the LLM and updates the comic state accordingly.
         This includes adding new locations and characters, updating the current scene,
         moving characters between locations, and updating narrative summaries.
-        
+
         Args:
             response: The parsed response from NARRATRON containing state changes.
             comic_state: The comic state to update (modified in place).
         """
         changes = response.state_changes
+
+        # Track the actual location ID (handles duplicate detection)
+        actual_location_id = None
 
         # Add new location if the LLM introduced one
         if response.new_location:
@@ -305,7 +333,8 @@ Remember: Say YES to creative ideas! Introduce new characters/locations when nee
                 name=new_location_data.get("name", "Unknown Location"),
                 description=new_location_data.get("description", "")
             )
-            comic_state.world.add_location(location)
+            # add_location returns the actual ID (existing if duplicate)
+            actual_location_id = comic_state.world.add_location(location)
 
         # Add new character if the LLM introduced one
         if response.new_character:
@@ -321,8 +350,10 @@ Remember: Say YES to creative ideas! Introduce new characters/locations when nee
             comic_state.world.add_character(character)
 
         # Update current location if it changed
+        # Use actual_location_id if we detected a duplicate location
         if changes.get("current_location_id"):
-            comic_state.world.current_location_id = changes["current_location_id"]
+            location_id = actual_location_id or changes["current_location_id"]
+            comic_state.world.current_location_id = location_id
 
         if changes.get("current_location_name"):
             comic_state.world.current_location_name = changes["current_location_name"]
@@ -357,17 +388,17 @@ Remember: Say YES to creative ideas! Introduce new characters/locations when nee
 
     def generate_opening_panel(self, comic_state: ComicState) -> NarratronResponse:
         """Generate the opening panel of the comic.
-        
+
         Creates the first panel of the comic based on the blueprint's starting
         location and main character. This establishes the initial scene and sets
         the tone for the story.
-        
+
         Args:
             comic_state: The current (initial) state of the comic.
-        
+
         Returns:
             A NarratronResponse containing the opening panel narrative.
-        
+
         Raises:
             ValueError: If the blueprint is not configured.
         """
@@ -379,8 +410,8 @@ Remember: Say YES to creative ideas! Introduce new characters/locations when nee
         starting_location = blueprint.starting_location
         main_character = blueprint.main_character
 
-        # Build system prompt with current context
-        system_prompt = self._build_system_prompt(comic_state)
+        # Build compact system prompt (static info only)
+        system_prompt = self._build_system_prompt()
 
         # Format the initial scene prompt with starting details
         user_message = INITIAL_SCENE_PROMPT.format(
@@ -399,7 +430,7 @@ Remember: Say YES to creative ideas! Introduce new characters/locations when nee
         # Get response from LLM and parse it
         response_text = self._call_llm(messages)  # Opening panel
         response = self._parse_response(response_text)
-        
+
         # Log opening panel separately if logger available
         if self.logger:
             parsed_response = None
@@ -407,7 +438,7 @@ Remember: Say YES to creative ideas! Introduce new characters/locations when nee
                 parsed_response = json.loads(response_text)
             except json.JSONDecodeError:
                 pass
-            
+
             self.logger.log_opening_panel(
                 system_prompt=system_prompt,
                 user_message=user_message,

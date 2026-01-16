@@ -89,10 +89,29 @@ class WorldState(BaseModel):
                 return char
         return None
 
-    def add_location(self, location: DynamicLocation) -> None:
-        """Add a new location to the world."""
-        if not self.get_location_by_id(location.id):
-            self.locations.append(location)
+    def add_location(self, location: DynamicLocation) -> str:
+        """Add a new location to the world.
+
+        Checks for duplicates by both ID and name to prevent the same
+        location from being added twice with different IDs.
+
+        Args:
+            location: The location to add.
+
+        Returns:
+            The ID of the location (existing ID if duplicate, new ID otherwise).
+        """
+        # Check by ID
+        existing = self.get_location_by_id(location.id)
+        if existing:
+            return existing.id
+        # Check by name (case-insensitive) to avoid duplicates like
+        # "Town Square" (starting_location) and "Town Square" (town_square)
+        for existing in self.locations:
+            if existing.name.lower() == location.name.lower():
+                return existing.id
+        self.locations.append(location)
+        return location.id
 
     def add_character(self, character: DynamicCharacter) -> None:
         """Add a new character to the world."""
