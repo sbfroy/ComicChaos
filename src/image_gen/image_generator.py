@@ -160,6 +160,9 @@ class ImageGenerator:
         if render_state.current_action:
             prompt_parts.append(f"Action: {render_state.current_action}")
 
+        # Add instruction to not include borders
+        prompt_parts.append("No borders, no frames, no panel edges.")
+
         # Join all parts into a coherent prompt
         full_prompt = " ".join(prompt_parts)
 
