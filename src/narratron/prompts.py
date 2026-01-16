@@ -22,12 +22,14 @@ NEW ENTITIES (when needed):
 - Location: id (snake_case), name, description (1-2 sentences: setting + atmosphere)
 - Character: id (snake_case), name, description (1-2 sentences: 2-3 visual features + 1 trait)
 
+IMPORTANT: The main character is ALWAYS in the scene - include their id in characters_present_ids and describe them in characters_present.
+
 RESPOND WITH JSON:
 {{"panel_narrative": "1-3 punchy sentences",
 "new_location": {{"id": "x", "name": "X", "description": "..."}} or null,
 "new_character": {{"id": "x", "name": "X", "description": "..."}} or null,
-"state_changes": {{"current_location_id": "x", "current_location_name": "X", "characters_present_ids": ["ids"]}},
-"scene_summary": {{"scene_setting": "where", "characters_present": ["who + brief desc"], "current_action": "what"}},
+"state_changes": {{"current_location_id": "x", "current_location_name": "X", "characters_present_ids": ["main_char_id", "other_ids"]}},
+"scene_summary": {{"scene_setting": "where", "characters_present": ["Main char + desc", "others"], "current_action": "what"}},
 "rolling_summary_update": "1-2 sentence story summary"}}
 """
 
