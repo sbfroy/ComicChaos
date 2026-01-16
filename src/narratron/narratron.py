@@ -28,13 +28,14 @@ from .prompts import NARRATRON_SYSTEM_PROMPT, INITIAL_SCENE_PROMPT, USER_MESSAGE
 
 class NarratronResponse:
     """Structured response from NARRATRON.
-    
+
     This class encapsulates all data returned by the NARRATRON AI engine,
-    including narrative content, new entities, and state changes.
-    
+    including scene description, panel elements, and state changes.
+
     Attributes:
         raw: The raw dictionary response from the LLM.
-        panel_narrative: The narrative text for the comic panel.
+        scene_description: Visual description of what's happening (for image generation).
+        elements: List of panel elements (speech bubbles, etc.) - most pre-filled, one for user input.
         new_location: Dictionary describing a newly introduced location (if any).
         new_character: Dictionary describing a newly introduced character (if any).
         state_changes: Dictionary of changes to apply to the comic state.
@@ -44,14 +45,17 @@ class NarratronResponse:
 
     def __init__(self, raw_response: Dict[str, Any]) -> None:
         """Initialize a NarratronResponse from raw LLM output.
-        
+
         Args:
             raw_response: Dictionary containing the parsed JSON response from the LLM.
         """
         self.raw: Dict[str, Any] = raw_response
 
-        # Core narrative elements
-        self.panel_narrative: str = raw_response.get("panel_narrative", "")
+        # Scene description for image generation
+        self.scene_description: str = raw_response.get("scene_description", "")
+
+        # Panel elements - most pre-filled with text, one marked for user input
+        self.elements: List[Dict[str, Any]] = raw_response.get("elements", [])
 
         # Dynamic entity creation (locations and characters)
         self.new_location: Optional[Dict[str, Any]] = raw_response.get("new_location")
@@ -166,13 +170,13 @@ class Narratron:
 
     def _parse_response(self, response_text: str) -> NarratronResponse:
         """Parse the LLM response into a structured format.
-        
+
         Attempts to parse the JSON response from the LLM. If parsing fails,
         returns a fallback response to gracefully handle errors.
-        
+
         Args:
             response_text: The raw JSON string response from the LLM.
-        
+
         Returns:
             A NarratronResponse object containing the parsed data.
         """
@@ -183,9 +187,12 @@ class Narratron:
             # Fallback response if JSON parsing fails
             return NarratronResponse(
                 {
-                    "panel_narrative": "Something unexpected happened...",
+                    "scene_description": "Something unexpected happened...",
+                    "elements": [
+                        {"type": "narration", "position": "bottom-center", "user_input": True, "placeholder": "What happens next?"}
+                    ],
                     "state_changes": {},
-                    "visual_summary": {},
+                    "scene_summary": {},
                 }
             )
 

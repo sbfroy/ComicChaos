@@ -1,8 +1,5 @@
-"""Comic strip collector and display functionality."""
+"""Comic strip collector and generation functionality."""
 
-import os
-import subprocess
-import sys
 from pathlib import Path
 from datetime import datetime
 from typing import Optional
@@ -13,7 +10,7 @@ from .config import COMIC_STRIPS_DIR
 
 
 class ComicStrip:
-    """Collects comic panels and can display/export them."""
+    """Collects comic panels and generates the final strip."""
 
     def __init__(self, title: str = "My Comic"):
         self.output_dir = Path(COMIC_STRIPS_DIR)
@@ -29,103 +26,6 @@ class ComicStrip:
             "narrative": narrative,
             "panel_number": panel_number
         })
-
-    def show_panel(self, image_path: str | None) -> None:
-        """Display a single panel image immediately."""
-        if not image_path or not Path(image_path).exists():
-            return
-
-        self._open_image(image_path)
-
-    def _open_image(self, image_path: str) -> None:
-        """Open an image with the system viewer."""
-        abs_path = str(Path(image_path).resolve())
-
-        try:
-            if sys.platform == "darwin":
-                subprocess.Popen(["open", abs_path],
-                               stdout=subprocess.DEVNULL,
-                               stderr=subprocess.DEVNULL)
-            elif sys.platform == "win32":
-                os.startfile(abs_path)
-            else:
-                # Linux - check if we're in WSL first
-                is_wsl = False
-                try:
-                    with open("/proc/version", "r") as f:
-                        is_wsl = "microsoft" in f.read().lower()
-                except Exception:
-                    try:
-                        is_wsl = "microsoft" in os.uname().release.lower()
-                    except Exception:
-                        pass
-
-                if is_wsl:
-                    # WSL - try multiple methods to open the image
-                    try:
-                        # Convert to Windows path
-                        result = subprocess.run(
-                            ["wslpath", "-w", abs_path],
-                            capture_output=True, text=True
-                        )
-                        if result.returncode == 0:
-                            win_path = result.stdout.strip()
-
-                            # Method 1: Try wslview if available (from wslu package)
-                            try:
-                                subprocess.Popen(
-                                    ["wslview", abs_path],
-                                    stdout=subprocess.DEVNULL,
-                                    stderr=subprocess.DEVNULL
-                                )
-                                return
-                            except FileNotFoundError:
-                                pass
-
-                            # Method 2: Use powershell with Invoke-Item
-                            try:
-                                # Escape the path for PowerShell
-                                escaped_path = win_path.replace("'", "''")
-                                subprocess.Popen(
-                                    ["powershell.exe", "-NoProfile", "-Command",
-                                     f"Invoke-Item '{escaped_path}'"],
-                                    stdout=subprocess.DEVNULL,
-                                    stderr=subprocess.DEVNULL
-                                )
-                                return
-                            except Exception:
-                                pass
-
-                            # Method 3: Use cmd.exe with start
-                            try:
-                                subprocess.Popen(
-                                    ["cmd.exe", "/c", f'start "" "{win_path}"'],
-                                    stdout=subprocess.DEVNULL,
-                                    stderr=subprocess.DEVNULL,
-                                    shell=True
-                                )
-                                return
-                            except Exception:
-                                pass
-
-                    except Exception:
-                        pass
-
-                # Native Linux - try common viewers
-                for viewer in ["xdg-open", "eog", "feh", "display", "gpicview", "open"]:
-                    try:
-                        subprocess.Popen(
-                            [viewer, abs_path],
-                            stdout=subprocess.DEVNULL,
-                            stderr=subprocess.DEVNULL
-                        )
-                        return
-                    except FileNotFoundError:
-                        continue
-
-        except Exception as e:
-            print(f"Could not open image: {e}")
-            print(f"Image saved at: {abs_path}")
 
     def get_panel_count(self) -> int:
         """Get the number of panels in the comic."""
@@ -146,7 +46,7 @@ class ComicStrip:
         panel_width = 512
         panel_height = 512
         border = 4
-        gap = 2  # Small gap between panels
+        gap = 2
 
         # Load and resize all images
         images = []
@@ -188,34 +88,6 @@ class ComicStrip:
         strip.save(output_path)
 
         return str(output_path)
-
-    def show_final_comic(self, cleanup_panels: bool = True) -> Optional[str]:
-        """Generate and display the final comic strip.
-
-        Args:
-            cleanup_panels: If True, delete individual panel images after generating the strip.
-        """
-        strip_path = self.generate_comic_strip()
-        if strip_path:
-            print(f"\nComic strip saved to: {strip_path}")
-            self._open_image(strip_path)
-
-            if cleanup_panels:
-                self._cleanup_panel_images()
-
-        return strip_path
-
-    def _cleanup_panel_images(self) -> None:
-        """Delete individual panel images to save space."""
-        for panel in self.panels:
-            image_path = panel.get("image_path")
-            if image_path:
-                try:
-                    path = Path(image_path)
-                    if path.exists():
-                        path.unlink()
-                except Exception:
-                    pass  # Ignore cleanup errors
 
     def get_summary(self) -> str:
         """Get a text summary of the comic."""

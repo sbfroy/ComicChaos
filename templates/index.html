@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comic Chaos</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Comic Sans MS', 'Chalkboard', cursive, sans-serif;
+            background: #1e56b8;
+            background-image:
+                radial-gradient(circle, #1e56b8 20%, transparent 20%),
+                radial-gradient(circle, #1e56b8 20%, transparent 20%);
+            background-size: 30px 30px;
+            background-position: 0 0, 15px 15px;
+            background-color: #2563eb;
+            color: #fff;
+            min-height: 100vh;
+        }
+
+        /* Splash Screen */
+        .splash-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #2563eb;
+            background-image:
+                linear-gradient(45deg, #dc2626 25%, transparent 25%),
+                linear-gradient(-45deg, #dc2626 25%, transparent 25%);
+            background-size: 60px 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease-out;
+        }
+
+        .splash-screen.fade-out {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .splash-screen img {
+            max-width: 90%;
+            max-height: 80%;
+            animation: popIn 0.5s ease-out;
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0.5); opacity: 0; }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Comic Selection */
+        .comic-select {
+            background: #fff;
+            border: 4px solid #111;
+            border-radius: 8px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 8px 8px 0 #111;
+        }
+
+        .comic-select h2 {
+            margin-bottom: 20px;
+            color: #dc2626;
+            text-transform: uppercase;
+            font-size: 1.5rem;
+            text-shadow: 2px 2px 0 #fbbf24;
+        }
+
+        .comic-list {
+            display: grid;
+            gap: 15px;
+        }
+
+        .comic-card {
+            background: #fef3c7;
+            border: 3px solid #111;
+            border-radius: 8px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .comic-card:hover {
+            transform: translate(-4px, -4px);
+            box-shadow: 8px 8px 0 #111;
+        }
+
+        .comic-card.selected {
+            background: #fbbf24;
+            transform: translate(-4px, -4px);
+            box-shadow: 8px 8px 0 #111;
+        }
+
+        .comic-card h3 {
+            color: #111;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+        .comic-card p {
+            color: #444;
+            font-size: 0.9rem;
+        }
+
+        .start-btn, .continue-btn, .finish-btn {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            margin-top: 20px;
+            background: #dc2626;
+            color: #fff;
+            border: 4px solid #111;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            font-family: inherit;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transition: all 0.2s;
+            box-shadow: 4px 4px 0 #111;
+        }
+
+        .start-btn:hover:not(:disabled), .continue-btn:hover:not(:disabled) {
+            background: #ef4444;
+            transform: translate(-2px, -2px);
+            box-shadow: 6px 6px 0 #111;
+        }
+
+        .start-btn:disabled, .continue-btn:disabled, .finish-btn:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+            box-shadow: 2px 2px 0 #111;
+        }
+
+        .finish-btn {
+            background: #059669;
+        }
+
+        .finish-btn:hover:not(:disabled) {
+            background: #10b981;
+            transform: translate(-2px, -2px);
+            box-shadow: 6px 6px 0 #111;
+        }
+
+        /* Comic Workspace */
+        .comic-workspace {
+            display: none;
+        }
+
+        .comic-workspace.active {
+            display: block;
+        }
+
+        .comic-title-bar {
+            background: #fbbf24;
+            color: #111;
+            padding: 15px;
+            border-radius: 8px 8px 0 0;
+            border: 4px solid #111;
+            border-bottom: none;
+            text-align: center;
+            position: relative;
+        }
+
+        .comic-title-bar h2 {
+            font-size: 1.8rem;
+            text-transform: uppercase;
+            text-shadow: 2px 2px 0 #dc2626;
+            letter-spacing: 2px;
+        }
+
+        /* Panels Container */
+        .panels-strip {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            background: #fff;
+            border: 4px solid #111;
+            border-radius: 0 0 8px 8px;
+            padding: 20px;
+            box-shadow: 8px 8px 0 #111;
+        }
+
+        /* Individual Panel */
+        .comic-panel {
+            position: relative;
+            background: #fff;
+            border: 4px solid #111;
+            border-radius: 4px;
+            overflow: visible;
+            max-width: 600px;
+            margin: 0 auto;
+            box-shadow: 6px 6px 0 #111;
+        }
+
+        .comic-panel.completed {
+            opacity: 0.9;
+            box-shadow: 4px 4px 0 #111;
+        }
+
+        .panel-header {
+            position: absolute;
+            top: -20px;
+            left: 10px;
+            background: #dc2626;
+            color: #fff;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 0.8rem;
+            border: 3px solid #111;
+            z-index: 20;
+            text-transform: uppercase;
+        }
+
+        .panel-image-container {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 1;
+            background: #e5e7eb;
+        }
+
+        .panel-image-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        /* Comic Elements (bubbles, boxes) */
+        .comic-element {
+            position: absolute;
+            z-index: 10;
+        }
+
+        /* Speech Bubble */
+        .speech-bubble {
+            background: #fff;
+            border: 3px solid #111;
+            border-radius: 20px;
+            padding: 8px 12px;
+            min-width: 100px;
+            max-width: 180px;
+            font-size: 0.85rem;
+            color: #111;
+            line-height: 1.3;
+        }
+
+        .speech-bubble::after {
+            content: '';
+            position: absolute;
+            bottom: -12px;
+            left: 20px;
+            border-width: 12px 8px 0;
+            border-style: solid;
+            border-color: #111 transparent transparent transparent;
+        }
+
+        .speech-bubble::before {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 22px;
+            border-width: 9px 6px 0;
+            border-style: solid;
+            border-color: #fff transparent transparent transparent;
+            z-index: 1;
+        }
+
+        .speech-bubble .char-name {
+            font-weight: bold;
+            font-size: 0.65rem;
+            color: #dc2626;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+        }
+
+        /* Thought Bubble */
+        .thought-bubble {
+            background: #fff;
+            border: 3px solid #111;
+            border-radius: 25px;
+            padding: 8px 12px;
+            min-width: 90px;
+            max-width: 160px;
+            font-size: 0.8rem;
+            font-style: italic;
+            color: #444;
+            line-height: 1.3;
+        }
+
+        .thought-bubble::after {
+            content: '';
+            position: absolute;
+            bottom: -18px;
+            left: 18px;
+            width: 12px;
+            height: 12px;
+            background: #fff;
+            border: 3px solid #111;
+            border-radius: 50%;
+        }
+
+        .thought-bubble::before {
+            content: '';
+            position: absolute;
+            bottom: -28px;
+            left: 12px;
+            width: 8px;
+            height: 8px;
+            background: #fff;
+            border: 3px solid #111;
+            border-radius: 50%;
+        }
+
+        .thought-bubble .char-name {
+            font-weight: bold;
+            font-size: 0.6rem;
+            color: #06b6d4;
+            margin-bottom: 4px;
+            font-style: normal;
+        }
+
+        /* Narration Box */
+        .narration-box {
+            background: #fef3c7;
+            border: 3px solid #111;
+            padding: 8px 12px;
+            min-width: 120px;
+            max-width: 250px;
+            font-size: 0.8rem;
+            color: #111;
+            font-style: italic;
+            line-height: 1.3;
+        }
+
+        /* Sound Effect */
+        .sfx-text {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #dc2626;
+            text-shadow: 3px 3px 0 #fbbf24, 5px 5px 0 #111;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transform: rotate(-8deg);
+            white-space: nowrap;
+        }
+
+        /* User Input Element - highlighted */
+        .comic-element.user-input {
+            box-shadow: 0 0 0 4px #fbbf24, 0 0 20px rgba(251, 191, 36, 0.6);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 4px #fbbf24, 0 0 20px rgba(251, 191, 36, 0.6); }
+            50% { box-shadow: 0 0 0 6px #fbbf24, 0 0 30px rgba(251, 191, 36, 0.8); }
+        }
+
+        .sfx-text.user-input {
+            box-shadow: none;
+            animation: none;
+        }
+
+        .sfx-text.user-input .element-input {
+            background: rgba(255, 255, 255, 0.95);
+            border: 3px solid #fbbf24;
+            box-shadow: 0 0 15px rgba(251, 191, 36, 0.5);
+        }
+
+        /* Input inside user-input elements */
+        .element-input {
+            width: 100%;
+            border: none;
+            background: transparent;
+            font-family: inherit;
+            font-size: inherit;
+            color: inherit;
+            font-style: inherit;
+            resize: none;
+            outline: none;
+            min-height: 50px;
+        }
+
+        .element-input::placeholder {
+            color: #9ca3af;
+        }
+
+        .sfx-text .element-input {
+            background: rgba(255,255,255,0.95);
+            padding: 5px 10px;
+            border-radius: 4px;
+            text-align: center;
+            min-width: 80px;
+            min-height: auto;
+            font-style: normal;
+        }
+
+        /* Static text content */
+        .element-text {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        /* Position classes */
+        .pos-top-left { top: 10px; left: 10px; }
+        .pos-top-center { top: 10px; left: 50%; transform: translateX(-50%); }
+        .pos-top-right { top: 10px; right: 10px; }
+        .pos-center-left { top: 50%; left: 10px; transform: translateY(-50%); }
+        .pos-center { top: 50%; left: 50%; transform: translate(-50%, -50%); }
+        .pos-center-right { top: 50%; right: 10px; transform: translateY(-50%); }
+        .pos-bottom-left { bottom: 25px; left: 10px; }
+        .pos-bottom-center { bottom: 25px; left: 50%; transform: translateX(-50%); }
+        .pos-bottom-right { bottom: 25px; right: 10px; }
+
+        /* Loading */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+            color: #dc2626;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .loading-text {
+            font-size: 1.2rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Controls */
+        .panel-controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .panel-controls button {
+            flex: 1;
+        }
+
+        /* Final Strip */
+        .final-strip {
+            display: none;
+            background: #fff;
+            border: 4px solid #111;
+            border-radius: 8px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 8px 8px 0 #111;
+        }
+
+        .final-strip.active {
+            display: block;
+        }
+
+        .final-strip h2 {
+            color: #dc2626;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            text-shadow: 2px 2px 0 #fbbf24;
+        }
+
+        .final-strip img {
+            max-width: 100%;
+            border: 4px solid #111;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            box-shadow: 6px 6px 0 #111;
+        }
+
+        .new-comic-btn {
+            padding: 15px 30px;
+            background: #dc2626;
+            color: #fff;
+            border: 4px solid #111;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            font-family: inherit;
+            cursor: pointer;
+            text-transform: uppercase;
+            box-shadow: 4px 4px 0 #111;
+        }
+
+        .new-comic-btn:hover {
+            background: #ef4444;
+            transform: translate(-2px, -2px);
+            box-shadow: 6px 6px 0 #111;
+        }
+
+        /* Notification */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            background: #fbbf24;
+            border: 3px solid #111;
+            border-radius: 8px;
+            color: #111;
+            font-weight: bold;
+            opacity: 0;
+            transform: translateX(100%);
+            transition: all 0.3s;
+            z-index: 1000;
+            box-shadow: 4px 4px 0 #111;
+        }
+
+        .notification.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Input hint */
+        .input-hint {
+            text-align: center;
+            color: #111;
+            background: #fbbf24;
+            padding: 10px;
+            border-radius: 8px;
+            border: 3px solid #111;
+            font-size: 0.9rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+<body>
+    <!-- Splash Screen -->
+    <div id="splash" class="splash-screen">
+        <img src="/title_page.png" alt="Comic Chaos" />
+    </div>
+
+    <div class="container">
+        <div id="comic-select" class="comic-select">
+            <h2>Choose Your Comic</h2>
+            <div id="comic-list" class="comic-list"></div>
+            <button id="start-btn" class="start-btn" disabled>Start Creating</button>
+        </div>
+
+        <div id="workspace" class="comic-workspace">
+            <div class="comic-title-bar">
+                <h2 id="comic-title"></h2>
+            </div>
+
+            <div class="panels-strip">
+                <div id="completed-panels"></div>
+
+                <div id="current-panel-container"></div>
+
+                <div id="loading" class="loading">
+                    <p class="loading-text">Creating next panel...</p>
+                </div>
+
+                <p id="input-hint" class="input-hint hidden">Fill in the highlighted bubble!</p>
+
+                <div class="panel-controls">
+                    <button id="continue-btn" class="continue-btn">Continue</button>
+                    <button id="finish-btn" class="finish-btn">Finish</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="final-strip" class="final-strip">
+            <h2>Your Comic Strip!</h2>
+            <img id="strip-image" src="" alt="Comic Strip" />
+            <p id="panel-count"></p>
+            <button class="new-comic-btn" onclick="location.reload()">Create Another</button>
+        </div>
+    </div>
+
+    <div id="notification" class="notification"></div>
+
+    <script>
+        // Hide splash screen after 10 seconds
+        setTimeout(() => {
+            const splash = document.getElementById('splash');
+            splash.classList.add('fade-out');
+            setTimeout(() => splash.remove(), 500);
+        }, 10000);
+
+        const state = {
+            sessionId: null,
+            selectedComic: null,
+            currentPanel: null,
+            completedPanels: []
+        };
+
+        const elements = {
+            comicList: document.getElementById('comic-list'),
+            startBtn: document.getElementById('start-btn'),
+            comicSelect: document.getElementById('comic-select'),
+            workspace: document.getElementById('workspace'),
+            comicTitle: document.getElementById('comic-title'),
+            completedPanels: document.getElementById('completed-panels'),
+            currentPanelContainer: document.getElementById('current-panel-container'),
+            loading: document.getElementById('loading'),
+            inputHint: document.getElementById('input-hint'),
+            continueBtn: document.getElementById('continue-btn'),
+            finishBtn: document.getElementById('finish-btn'),
+            finalStrip: document.getElementById('final-strip'),
+            stripImage: document.getElementById('strip-image'),
+            panelCount: document.getElementById('panel-count'),
+            notification: document.getElementById('notification')
+        };
+
+        function generateSessionId() {
+            return 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        }
+
+        function showNotification(message) {
+            elements.notification.textContent = message;
+            elements.notification.classList.add('show');
+            setTimeout(() => elements.notification.classList.remove('show'), 3000);
+        }
+
+        function setLoading(isLoading) {
+            elements.loading.classList.toggle('active', isLoading);
+            elements.continueBtn.disabled = isLoading;
+            elements.finishBtn.disabled = isLoading;
+            elements.inputHint.classList.toggle('hidden', isLoading);
+        }
+
+        function getPositionClass(position) {
+            const posMap = {
+                'top-left': 'pos-top-left',
+                'top-center': 'pos-top-center',
+                'top-right': 'pos-top-right',
+                'center-left': 'pos-center-left',
+                'center': 'pos-center',
+                'center-right': 'pos-center-right',
+                'bottom-left': 'pos-bottom-left',
+                'bottom-center': 'pos-bottom-center',
+                'bottom-right': 'pos-bottom-right'
+            };
+            return posMap[position] || 'pos-center';
+        }
+
+        function createElement(el, isEditable = false, userInputText = null) {
+            const div = document.createElement('div');
+            div.className = `comic-element ${getPositionClass(el.position)}`;
+
+            const isUserInput = el.user_input === true;
+            let content = '';
+
+            let displayText = '';
+            if (isUserInput) {
+                displayText = userInputText || '';
+            } else {
+                displayText = el.text || '';
+            }
+
+            if (el.type === 'speech') {
+                div.classList.add('speech-bubble');
+                if (isUserInput) div.classList.add('user-input');
+                content = `<div class="char-name">${el.character_name || 'Character'}</div>`;
+                if (isEditable && isUserInput) {
+                    content += `<textarea class="element-input" placeholder="${el.placeholder || 'Say something...'}">${displayText}</textarea>`;
+                } else {
+                    content += `<div class="element-text">${displayText}</div>`;
+                }
+            } else if (el.type === 'thought') {
+                div.classList.add('thought-bubble');
+                if (isUserInput) div.classList.add('user-input');
+                content = `<div class="char-name">${el.character_name || 'Character'}</div>`;
+                if (isEditable && isUserInput) {
+                    content += `<textarea class="element-input" placeholder="${el.placeholder || 'Think something...'}">${displayText}</textarea>`;
+                } else {
+                    content += `<div class="element-text">${displayText}</div>`;
+                }
+            } else if (el.type === 'narration') {
+                div.classList.add('narration-box');
+                if (isUserInput) div.classList.add('user-input');
+                if (isEditable && isUserInput) {
+                    content = `<textarea class="element-input" placeholder="${el.placeholder || 'Narrate...'}">${displayText}</textarea>`;
+                } else {
+                    content = `<div class="element-text">${displayText}</div>`;
+                }
+            } else if (el.type === 'sfx') {
+                div.classList.add('sfx-text');
+                if (isUserInput) div.classList.add('user-input');
+                if (isEditable && isUserInput) {
+                    content = `<input type="text" class="element-input" placeholder="${el.placeholder || 'SOUND!'}" value="${displayText}" />`;
+                } else {
+                    content = displayText;
+                }
+            }
+
+            div.innerHTML = content;
+            return div;
+        }
+
+        function createPanel(panelNumber, imageBase64, panelElements, isEditable = true, userInputText = null) {
+            const panel = document.createElement('div');
+            panel.className = 'comic-panel' + (isEditable ? '' : ' completed');
+            panel.innerHTML = `
+                <div class="panel-header">Panel ${panelNumber}</div>
+                <div class="panel-image-container">
+                    ${imageBase64 ? `<img src="data:image/png;base64,${imageBase64}" alt="Panel ${panelNumber}" />` : '<div style="padding:20px;color:#666;">No image</div>'}
+                </div>
+            `;
+
+            const imageContainer = panel.querySelector('.panel-image-container');
+
+            if (panelElements && panelElements.length > 0) {
+                panelElements.forEach(el => {
+                    const element = createElement(el, isEditable, userInputText);
+                    imageContainer.appendChild(element);
+                });
+            }
+
+            return panel;
+        }
+
+        function getUserInput() {
+            const input = elements.currentPanelContainer.querySelector('.user-input .element-input');
+            return input ? input.value.trim() : '';
+        }
+
+        function moveCurrentToCompleted(userInputText) {
+            if (!state.currentPanel) return;
+
+            const completedPanel = createPanel(
+                state.currentPanel.panel_number,
+                state.currentPanel.image,
+                state.currentPanel.elements,
+                false,
+                userInputText
+            );
+
+            elements.completedPanels.appendChild(completedPanel);
+            elements.currentPanelContainer.innerHTML = '';
+
+            state.completedPanels.push({
+                ...state.currentPanel,
+                user_input_text: userInputText
+            });
+        }
+
+        async function loadComics() {
+            try {
+                const response = await fetch('/api/comics');
+                const comics = await response.json();
+
+                elements.comicList.innerHTML = comics.map(comic => `
+                    <div class="comic-card" data-id="${comic.id}">
+                        <h3>${comic.name}</h3>
+                        <p>${comic.description}</p>
+                    </div>
+                `).join('');
+
+                document.querySelectorAll('.comic-card').forEach(card => {
+                    card.addEventListener('click', () => {
+                        document.querySelectorAll('.comic-card').forEach(c => c.classList.remove('selected'));
+                        card.classList.add('selected');
+                        state.selectedComic = card.dataset.id;
+                        elements.startBtn.disabled = false;
+                    });
+                });
+            } catch (error) {
+                showNotification('Failed to load comics');
+            }
+        }
+
+        async function startComic() {
+            if (!state.selectedComic) return;
+
+            state.sessionId = generateSessionId();
+            setLoading(true);
+            elements.startBtn.disabled = true;
+
+            try {
+                const response = await fetch('/api/start', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        comic_id: state.selectedComic,
+                        session_id: state.sessionId
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.error) {
+                    showNotification(data.error);
+                    setLoading(false);
+                    elements.startBtn.disabled = false;
+                    return;
+                }
+
+                elements.comicSelect.classList.add('hidden');
+                elements.workspace.classList.add('active');
+                elements.comicTitle.textContent = data.title;
+
+                state.currentPanel = {
+                    panel_number: data.panel_number,
+                    image: data.image,
+                    elements: data.elements || []
+                };
+
+                const panel = createPanel(
+                    data.panel_number,
+                    data.image,
+                    data.elements,
+                    true
+                );
+                elements.currentPanelContainer.appendChild(panel);
+
+                setTimeout(() => {
+                    const input = elements.currentPanelContainer.querySelector('.user-input .element-input');
+                    if (input) input.focus();
+                }, 100);
+
+            } catch (error) {
+                showNotification('Failed to start comic');
+                elements.startBtn.disabled = false;
+            }
+
+            setLoading(false);
+        }
+
+        async function continueStory() {
+            const userInput = getUserInput();
+
+            if (!userInput) {
+                showNotification('Fill in the highlighted bubble first!');
+                return;
+            }
+
+            setLoading(true);
+
+            try {
+                const response = await fetch('/api/submit', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        session_id: state.sessionId,
+                        user_input: userInput
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.error) {
+                    showNotification(data.error);
+                    setLoading(false);
+                    return;
+                }
+
+                moveCurrentToCompleted(userInput);
+
+                state.currentPanel = {
+                    panel_number: data.panel_number,
+                    image: data.image,
+                    elements: data.elements || []
+                };
+
+                const panel = createPanel(
+                    data.panel_number,
+                    data.image,
+                    data.elements,
+                    true
+                );
+                elements.currentPanelContainer.appendChild(panel);
+
+                if (data.new_location) {
+                    showNotification(`New location: ${data.new_location}`);
+                }
+                if (data.new_character) {
+                    showNotification(`New character: ${data.new_character}`);
+                }
+
+                panel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                setTimeout(() => {
+                    const input = elements.currentPanelContainer.querySelector('.user-input .element-input');
+                    if (input) input.focus();
+                }, 500);
+
+            } catch (error) {
+                showNotification('Failed to continue story');
+            }
+
+            setLoading(false);
+        }
+
+        async function finishComic() {
+            const userInput = getUserInput();
+
+            if (userInput) {
+                try {
+                    await fetch('/api/submit', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            session_id: state.sessionId,
+                            user_input: userInput
+                        })
+                    });
+                    moveCurrentToCompleted(userInput);
+                } catch (e) {
+                    // Continue anyway
+                }
+            }
+
+            if (state.completedPanels.length < 1) {
+                showNotification('Create at least one panel first!');
+                return;
+            }
+
+            setLoading(true);
+
+            try {
+                const response = await fetch('/api/finish', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ session_id: state.sessionId })
+                });
+
+                const data = await response.json();
+
+                if (data.error) {
+                    showNotification(data.error);
+                    setLoading(false);
+                    return;
+                }
+
+                elements.workspace.classList.remove('active');
+                elements.finalStrip.classList.add('active');
+                elements.stripImage.src = `data:image/png;base64,${data.strip_image}`;
+                elements.panelCount.textContent = `${data.panel_count} panels`;
+
+            } catch (error) {
+                showNotification('Failed to generate comic strip');
+            }
+
+            setLoading(false);
+        }
+
+        // Event listeners
+        elements.startBtn.addEventListener('click', startComic);
+        elements.continueBtn.addEventListener('click', continueStory);
+        elements.finishBtn.addEventListener('click', finishComic);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey && elements.workspace.classList.contains('active')) {
+                const activeEl = document.activeElement;
+                if (activeEl && activeEl.classList.contains('element-input') && activeEl.tagName !== 'TEXTAREA') {
+                    e.preventDefault();
+                    continueStory();
+                }
+            }
+        });
+
+        // Initialize
+        loadComics();
+    </script>
+</body>
+</html>
