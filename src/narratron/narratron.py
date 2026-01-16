@@ -23,6 +23,7 @@ from ..state.comic_state import (
     DynamicCharacter,
 )
 from ..state.static_config import StaticConfig
+from ..logging.interaction_logger import InteractionLogger
 from .prompts import NARRATRON_SYSTEM_PROMPT, INITIAL_SCENE_PROMPT
 
 class NarratronResponse:
@@ -81,17 +82,20 @@ class Narratron:
         self,
         config: StaticConfig,
         api_key: Optional[str] = None,
+        logger: Optional[InteractionLogger] = None,
     ) -> None:
         """Initialize the Narratron engine.
         
         Args:
             config: Static configuration containing blueprint and rules.
             api_key: OpenAI API key. If None, uses OPENAI_API_KEY environment variable.
+            logger: Interaction logger for tracking prompts and responses.
         """
         self.config: StaticConfig = config
         self.client: OpenAI = OpenAI(
             api_key=api_key or os.getenv("OPENAI_API_KEY")
         )
+        self.logger: Optional[InteractionLogger] = logger
 
     def _build_system_prompt(self, comic_state: ComicState) -> str:
         """Build the system prompt with current comic context.
@@ -181,7 +185,31 @@ class Narratron:
             response_format={"type": "json_object"},  # Ensure structured JSON output
         )
 
-        return response.choices[0].message.content
+        response_content = response.choices[0].message.content
+        
+        # Log the interaction if logger is available
+        if self.logger:
+            system_prompt = next((m["content"] for m in messages if m["role"] == "system"), "")
+            user_message = next((m["content"] for m in messages if m["role"] == "user"), "")
+            
+            # Try to parse response for logging
+            parsed_response = None
+            try:
+                parsed_response = json.loads(response_content)
+            except json.JSONDecodeError:
+                pass
+            
+            self.logger.log_narrative_interaction(
+                system_prompt=system_prompt,
+                user_message=user_message,
+                response=response_content,
+                parsed_response=parsed_response,
+                model=LLM_MODEL,
+                temperature=LLM_TEMPERATURE,
+                max_tokens=LLM_MAX_TOKENS
+            )
+        
+        return response_content
 
     def _parse_response(self, response_text: str) -> NarratronResponse:
         """Parse the LLM response into a structured format.
@@ -369,8 +397,26 @@ Remember: Say YES to creative ideas! Introduce new characters/locations when nee
         ]
 
         # Get response from LLM and parse it
-        response_text = self._call_llm(messages)
+        response_text = self._call_llm(messages)  # Opening panel
         response = self._parse_response(response_text)
+        
+        # Log opening panel separately if logger available
+        if self.logger:
+            parsed_response = None
+            try:
+                parsed_response = json.loads(response_text)
+            except json.JSONDecodeError:
+                pass
+            
+            self.logger.log_opening_panel(
+                system_prompt=system_prompt,
+                user_message=user_message,
+                response=response_text,
+                parsed_response=parsed_response,
+                model=LLM_MODEL,
+                temperature=LLM_TEMPERATURE,
+                max_tokens=LLM_MAX_TOKENS
+            )
 
         # Apply state changes to initialize the comic state
         self._apply_state_changes(response, comic_state)

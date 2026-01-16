@@ -25,6 +25,7 @@ from ..config import (
     GENERATED_IMAGES_DIR,
 )
 from ..state.comic_state import RenderState
+from ..logging.interaction_logger import InteractionLogger
 
 
 class ImageGenerator:
@@ -39,11 +40,12 @@ class ImageGenerator:
         output_dir: Path to the directory where generated images are saved.
     """
 
-    def __init__(self, api_key: Optional[str] = None) -> None:
+    def __init__(self, api_key: Optional[str] = None, logger: Optional[InteractionLogger] = None) -> None:
         """Initialize the image generator.
         
         Args:
             api_key: OpenAI API key. If None, uses OPENAI_API_KEY environment variable.
+            logger: Interaction logger for tracking prompts and responses.
         """
         self.client: OpenAI = OpenAI(
             api_key=api_key or os.getenv("OPENAI_API_KEY")
@@ -51,6 +53,7 @@ class ImageGenerator:
         self.output_dir: Path = Path(GENERATED_IMAGES_DIR)
         # Ensure output directory exists, create if necessary
         self.output_dir.mkdir(parents=True, exist_ok=True)
+        self.logger: Optional[InteractionLogger] = logger
 
     def generate_image(
         self, render_state: RenderState, visual_style: str
@@ -94,11 +97,35 @@ class ImageGenerator:
             with open(filepath, "wb") as file:
                 file.write(image_bytes)
 
+            # Log successful generation
+            if self.logger:
+                self.logger.log_image_generation(
+                    prompt=prompt,
+                    image_path=str(filepath),
+                    model=IMAGE_MODEL,
+                    size=IMAGE_SIZE,
+                    quality=IMAGE_QUALITY,
+                    success=True
+                )
+
             return str(filepath)
 
         except Exception as error:
             # Log error and return None on failure
             print(f"Image generation failed: {error}")
+            
+            # Log failed generation
+            if self.logger:
+                self.logger.log_image_generation(
+                    prompt=prompt,
+                    image_path=None,
+                    model=IMAGE_MODEL,
+                    size=IMAGE_SIZE,
+                    quality=IMAGE_QUALITY,
+                    success=False,
+                    error_message=str(error)
+                )
+            
             return None
 
     def _build_prompt(self, render_state: RenderState, visual_style: str) -> str:

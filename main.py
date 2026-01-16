@@ -27,6 +27,7 @@ from settings.setting_registry import SettingRegistry, SettingInfo
 from src.narratron.narratron import Narratron
 from src.image_gen.image_generator import ImageGenerator, MockImageGenerator
 from src.comic_strip import ComicStrip
+from src.logging.interaction_logger import InteractionLogger
 
 
 console = Console()
@@ -58,17 +59,22 @@ class ComicCreator:
         self.state: ComicState | None = None
         self.auto_show_images = auto_show_images
 
+        # Initialize interaction logger
+        title = self.config.blueprint.title
+        self.logger = InteractionLogger(comic_title=title)
+
         # Initialize Narratron
         self.narratron: Narratron | None = None
         if self.api_key:
             self.narratron = Narratron(
                 config=self.config,
-                api_key=self.api_key
+                api_key=self.api_key,
+                logger=self.logger
             )
 
         # Initialize image generator
         if use_real_images and self.api_key:
-            self.image_gen = ImageGenerator(api_key=self.api_key)
+            self.image_gen = ImageGenerator(api_key=self.api_key, logger=self.logger)
         else:
             self.image_gen = MockImageGenerator()
 
@@ -85,7 +91,7 @@ class ComicCreator:
         self.state = ComicState.initialize_from_config(self.config)
 
         # Initialize comic strip collector
-        title = self.config.blueprint.title if self.config.blueprint else "My Comic"
+        title = self.config.blueprint.title
         self.comic_strip = ComicStrip(title=title)
 
         # Generate opening panel
