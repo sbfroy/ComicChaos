@@ -7,7 +7,7 @@ All model parameters, API settings, and paths are defined here.
 # LLM Settings (Narratron)
 # =============================================================================
 LLM_MODEL = "gpt-4o-mini"
-LLM_TEMPERATURE = 0.8
+LLM_TEMPERATURE = 0.6
 LLM_MAX_TOKENS = 1500
 
 # =============================================================================
