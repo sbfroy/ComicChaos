@@ -75,20 +75,24 @@ class ComicSession:
         response = self.narratron.generate_opening_panel(self.state)
 
         # Generate image with elements for bubble detection
-        image_path = self._generate_image(elements=response.elements)
+        image_result = self._generate_image(elements=response.elements)
+        image_path = image_result["image_path"]
+        detected_bubbles = image_result["detected_bubbles"]
 
         # Store panel data
         self.panels_data.append({
             "panel_number": 1,
             "image_path": image_path,
             "elements": response.elements,
-            "user_input_text": None
+            "user_input_text": None,
+            "detected_bubbles": detected_bubbles,
         })
 
         return {
             "panel_number": 1,
             "image": self._image_to_base64(image_path),
             "elements": response.elements,
+            "detected_bubbles": detected_bubbles,
             "title": self.config.blueprint.title,
             "synopsis": self.config.blueprint.synopsis
         }
@@ -120,6 +124,7 @@ class ComicSession:
                 panel_num,
                 elements=current_panel.get("elements"),
                 user_input_text=user_input_text,
+                detected_bubbles=current_panel.get("detected_bubbles"),
             )
 
         # Generate next panel based on user's input
@@ -134,7 +139,9 @@ class ComicSession:
             new_character = response.new_character.get("name")
 
         # Generate image with elements for bubble detection
-        image_path = self._generate_image(elements=response.elements)
+        image_result = self._generate_image(elements=response.elements)
+        image_path = image_result["image_path"]
+        detected_bubbles = image_result["detected_bubbles"]
         next_panel_num = panel_num + 1
 
         # Store next panel data
@@ -142,13 +149,15 @@ class ComicSession:
             "panel_number": next_panel_num,
             "image_path": image_path,
             "elements": response.elements,
-            "user_input_text": None
+            "user_input_text": None,
+            "detected_bubbles": detected_bubbles,
         })
 
         return {
             "panel_number": next_panel_num,
             "image": self._image_to_base64(image_path),
             "elements": response.elements,
+            "detected_bubbles": detected_bubbles,
             "new_location": new_location,
             "new_character": new_character
         }
@@ -200,9 +209,12 @@ class ComicSession:
 
         Args:
             elements: Optional list of elements for bubble generation.
+
+        Returns:
+            Dictionary with image_path and detected_bubbles.
         """
         if not self.state:
-            return None
+            return {"image_path": None, "detected_bubbles": []}
         try:
             return self.image_gen.generate_image(
                 self.state.render,
@@ -210,7 +222,7 @@ class ComicSession:
                 elements=elements,
             )
         except Exception:
-            return None
+            return {"image_path": None, "detected_bubbles": []}
 
     def _image_to_base64(self, image_path):
         """Convert an image file to base64 string."""

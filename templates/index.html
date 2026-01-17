@@ -421,7 +421,7 @@
             word-wrap: break-word;
         }
 
-        /* Position classes */
+        /* Position classes for fallback grid positioning */
         .pos-top-left { top: 10px; left: 10px; }
         .pos-top-center { top: 10px; left: 50%; transform: translateX(-50%); }
         .pos-top-right { top: 10px; right: 10px; }
@@ -431,6 +431,39 @@
         .pos-bottom-left { bottom: 25px; left: 10px; }
         .pos-bottom-center { bottom: 25px; left: 50%; transform: translateX(-50%); }
         .pos-bottom-right { bottom: 25px; right: 10px; }
+
+        /* Narration boxes always go in corners */
+        .narration-corner-top-left { top: 8px; left: 8px; }
+        .narration-corner-top-right { top: 8px; right: 8px; }
+        .narration-corner-bottom-left { bottom: 8px; left: 8px; }
+        .narration-corner-bottom-right { bottom: 8px; right: 8px; }
+
+        /* Detected bubble positioning - uses inline styles for pixel-perfect placement */
+        .detected-bubble {
+            /* Background is transparent since the bubble is in the image */
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none;
+        }
+
+        .detected-bubble::before,
+        .detected-bubble::after {
+            display: none !important;  /* No tails needed - they're in the image */
+        }
+
+        .detected-bubble .element-text,
+        .detected-bubble .element-input {
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+        }
+
+        .detected-bubble.user-input {
+            box-shadow: 0 0 0 3px #fbbf24, 0 0 15px rgba(251, 191, 36, 0.5);
+            border-radius: 10px;
+        }
 
         /* Loading */
         .loading {
@@ -676,9 +709,17 @@
             return posMap[position] || 'pos-center';
         }
 
-        function createElement(el, isEditable = false, userInputText = null) {
+        function getNarrationCornerClass(position) {
+            // Narration boxes always go in corners
+            if (position && position.includes('bottom')) {
+                return position.includes('right') ? 'narration-corner-bottom-right' : 'narration-corner-bottom-left';
+            }
+            return position && position.includes('right') ? 'narration-corner-top-right' : 'narration-corner-top-left';
+        }
+
+        function createElement(el, isEditable = false, userInputText = null, detectedBubble = null) {
             const div = document.createElement('div');
-            div.className = `comic-element ${getPositionClass(el.position)}`;
+            div.className = 'comic-element';
 
             const isUserInput = el.user_input === true;
             let content = '';
@@ -690,26 +731,10 @@
                 displayText = el.text || '';
             }
 
-            if (el.type === 'speech') {
-                div.classList.add('speech-bubble');
-                if (isUserInput) div.classList.add('user-input');
-                content = `<div class="char-name">${el.character_name || 'Character'}</div>`;
-                if (isEditable && isUserInput) {
-                    content += `<textarea class="element-input" placeholder="${el.placeholder || 'Say something...'}">${displayText}</textarea>`;
-                } else {
-                    content += `<div class="element-text">${displayText}</div>`;
-                }
-            } else if (el.type === 'thought') {
-                div.classList.add('thought-bubble');
-                if (isUserInput) div.classList.add('user-input');
-                content = `<div class="char-name">${el.character_name || 'Character'}</div>`;
-                if (isEditable && isUserInput) {
-                    content += `<textarea class="element-input" placeholder="${el.placeholder || 'Think something...'}">${displayText}</textarea>`;
-                } else {
-                    content += `<div class="element-text">${displayText}</div>`;
-                }
-            } else if (el.type === 'narration') {
-                div.classList.add('narration-box');
+            // Handle positioning based on element type
+            if (el.type === 'narration') {
+                // Narration always goes in corners with visible box
+                div.classList.add('narration-box', getNarrationCornerClass(el.position));
                 if (isUserInput) div.classList.add('user-input');
                 if (isEditable && isUserInput) {
                     content = `<textarea class="element-input" placeholder="${el.placeholder || 'Narrate...'}">${displayText}</textarea>`;
@@ -717,12 +742,50 @@
                     content = `<div class="element-text">${displayText}</div>`;
                 }
             } else if (el.type === 'sfx') {
-                div.classList.add('sfx-text');
+                // SFX uses grid positioning
+                div.classList.add('sfx-text', getPositionClass(el.position));
                 if (isUserInput) div.classList.add('user-input');
                 if (isEditable && isUserInput) {
                     content = `<input type="text" class="element-input" placeholder="${el.placeholder || 'SOUND!'}" value="${displayText}" />`;
                 } else {
                     content = displayText;
+                }
+            } else if (el.type === 'speech' || el.type === 'thought') {
+                // Speech/thought bubbles use detected bubble positions if available
+                if (detectedBubble) {
+                    // Position inside the detected bubble
+                    div.classList.add('detected-bubble');
+                    if (isUserInput) div.classList.add('user-input');
+
+                    // Calculate position as percentage of image (images are 1024x1024)
+                    const imgSize = 1024;
+                    const leftPct = (detectedBubble.x / imgSize) * 100;
+                    const topPct = (detectedBubble.y / imgSize) * 100;
+                    const widthPct = (detectedBubble.width / imgSize) * 100;
+                    const heightPct = (detectedBubble.height / imgSize) * 100;
+
+                    div.style.left = `${leftPct}%`;
+                    div.style.top = `${topPct}%`;
+                    div.style.width = `${widthPct}%`;
+                    div.style.height = `${heightPct}%`;
+
+                    if (isEditable && isUserInput) {
+                        content = `<textarea class="element-input" placeholder="${el.placeholder || 'Say something...'}" style="background: transparent; resize: none;">${displayText}</textarea>`;
+                    } else {
+                        content = `<div class="element-text">${displayText}</div>`;
+                    }
+                } else {
+                    // Fallback to grid positioning with visible bubble
+                    div.classList.add(el.type === 'speech' ? 'speech-bubble' : 'thought-bubble');
+                    div.classList.add(getPositionClass(el.position));
+                    if (isUserInput) div.classList.add('user-input');
+
+                    content = `<div class="char-name">${el.character_name || 'Character'}</div>`;
+                    if (isEditable && isUserInput) {
+                        content += `<textarea class="element-input" placeholder="${el.placeholder || 'Say something...'}">${displayText}</textarea>`;
+                    } else {
+                        content += `<div class="element-text">${displayText}</div>`;
+                    }
                 }
             }
 
@@ -730,7 +793,7 @@
             return div;
         }
 
-        function createPanel(panelNumber, imageBase64, panelElements, isEditable = true, userInputText = null) {
+        function createPanel(panelNumber, imageBase64, panelElements, isEditable = true, userInputText = null, detectedBubbles = []) {
             const panel = document.createElement('div');
             panel.className = 'comic-panel' + (isEditable ? '' : ' completed');
             panel.innerHTML = `
@@ -743,8 +806,18 @@
             const imageContainer = panel.querySelector('.panel-image-container');
 
             if (panelElements && panelElements.length > 0) {
+                // Match speech/thought elements to detected bubbles
+                let bubbleIndex = 0;
                 panelElements.forEach(el => {
-                    const element = createElement(el, isEditable, userInputText);
+                    let detectedBubble = null;
+
+                    // Only speech and thought elements use detected bubbles
+                    if ((el.type === 'speech' || el.type === 'thought') && bubbleIndex < detectedBubbles.length) {
+                        detectedBubble = detectedBubbles[bubbleIndex];
+                        bubbleIndex++;
+                    }
+
+                    const element = createElement(el, isEditable, userInputText, detectedBubble);
                     imageContainer.appendChild(element);
                 });
             }
@@ -765,7 +838,8 @@
                 state.currentPanel.image,
                 state.currentPanel.elements,
                 false,
-                userInputText
+                userInputText,
+                state.currentPanel.detected_bubbles || []
             );
 
             elements.completedPanels.appendChild(completedPanel);
@@ -835,14 +909,17 @@
                 state.currentPanel = {
                     panel_number: data.panel_number,
                     image: data.image,
-                    elements: data.elements || []
+                    elements: data.elements || [],
+                    detected_bubbles: data.detected_bubbles || []
                 };
 
                 const panel = createPanel(
                     data.panel_number,
                     data.image,
                     data.elements,
-                    true
+                    true,
+                    null,
+                    data.detected_bubbles || []
                 );
                 elements.currentPanelContainer.appendChild(panel);
 
@@ -892,14 +969,17 @@
                 state.currentPanel = {
                     panel_number: data.panel_number,
                     image: data.image,
-                    elements: data.elements || []
+                    elements: data.elements || [],
+                    detected_bubbles: data.detected_bubbles || []
                 };
 
                 const panel = createPanel(
                     data.panel_number,
                     data.image,
                     data.elements,
-                    true
+                    true,
+                    null,
+                    data.detected_bubbles || []
                 );
                 elements.currentPanelContainer.appendChild(panel);
 

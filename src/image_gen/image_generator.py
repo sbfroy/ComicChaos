@@ -70,13 +70,12 @@ class ImageGenerator:
         render_state: RenderState,
         visual_style: str,
         elements: Optional[List[Dict[str, Any]]] = None,
-    ) -> Optional[str]:
+    ) -> Dict[str, Any]:
         """Generate an image from the render state.
 
         Builds a detailed prompt from the render state and visual style,
-        then calls the API to generate the image. If elements are provided,
-        the prompt will request empty speech bubbles (but text is NOT
-        rendered - that happens when generating the final comic strip).
+        then calls the API to generate the image. After generation,
+        detects bubble regions and returns their positions.
 
         Args:
             render_state: The current render state containing scene information.
@@ -84,7 +83,9 @@ class ImageGenerator:
             elements: Optional list of element dictionaries for bubble generation.
 
         Returns:
-            The absolute path to the generated image file, or None if generation fails.
+            Dictionary with:
+                - image_path: Path to the generated image (or None on failure)
+                - detected_bubbles: List of bubble position dicts with x, y, width, height
         """
         # Build the detailed prompt from render state and visual style
         prompt = self._build_prompt(render_state, visual_style, elements)
@@ -112,6 +113,20 @@ class ImageGenerator:
             with open(filepath, "wb") as file:
                 file.write(image_bytes)
 
+            # Detect bubbles in the generated image
+            detected_bubbles = []
+            if elements:
+                bubbles = self.bubble_detector.detect_bubbles(str(filepath))
+                for bubble in bubbles:
+                    detected_bubbles.append({
+                        "x": bubble.x,
+                        "y": bubble.y,
+                        "width": bubble.width,
+                        "height": bubble.height,
+                        "center_x": bubble.center_x,
+                        "center_y": bubble.center_y,
+                    })
+
             # Log successful generation
             if self.logger:
                 self.logger.log_image_generation(
@@ -123,7 +138,10 @@ class ImageGenerator:
                     success=True
                 )
 
-            return str(filepath)
+            return {
+                "image_path": str(filepath),
+                "detected_bubbles": detected_bubbles,
+            }
 
         except Exception as error:
             # Log error and return None on failure
@@ -141,7 +159,10 @@ class ImageGenerator:
                     error_message=str(error)
                 )
 
-            return None
+            return {
+                "image_path": None,
+                "detected_bubbles": [],
+            }
 
     def process_bubbles(
         self,
@@ -266,68 +287,40 @@ class ImageGenerator:
         return full_prompt
 
     def _build_bubble_instructions(self, elements: List[Dict[str, Any]]) -> str:
-        """Build instructions for generating ONE empty speech bubble.
+        """Build instructions for generating ONE empty speech/thought bubble.
 
-        Only generates a bubble for the user_input element. Pre-filled
-        elements will use HTML overlays or programmatic drawing.
+        Only generates a bubble for speech or thought elements.
+        Narration boxes are NOT included in the image - they're corner overlays.
 
         Args:
-            elements: List of elements that need speech bubbles.
+            elements: List of elements (should be exactly one).
 
         Returns:
             Instruction string for the image generation prompt.
         """
-        # Find the user_input element
-        user_input_el = None
-        for el in elements:
-            if el.get("user_input"):
-                user_input_el = el
-                break
-
-        if not user_input_el:
+        if not elements:
             return ""
 
-        el_type = user_input_el.get("type", "speech")
-        position = user_input_el.get("position", "center")
+        # Get the single element
+        el = elements[0]
+        el_type = el.get("type", "")
 
-        # Map position to natural language
-        position_hints = {
-            "top-left": "in the upper left area",
-            "top-center": "at the top",
-            "top-right": "in the upper right area",
-            "center-left": "on the left side",
-            "center": "in the center",
-            "center-right": "on the right side",
-            "bottom-left": "in the lower left area",
-            "bottom-center": "at the bottom",
-            "bottom-right": "in the lower right area",
-        }
-        position_hint = position_hints.get(position, "")
-
-        # Build bubble instruction for just the user input element
+        # Only speech and thought need bubbles in the image
         if el_type == "speech":
-            bubble_desc = (
-                f"Include ONE empty white oval speech bubble with black outline and a pointed tail "
-                f"{position_hint}. The bubble should be large enough to contain a short sentence, "
-                "completely empty inside with no text whatsoever."
+            return (
+                "Include ONE empty white oval speech bubble with black outline and pointed tail, "
+                "positioned near the main character. The bubble should be large enough to contain "
+                "a short sentence, completely empty inside with no text."
             )
         elif el_type == "thought":
-            bubble_desc = (
-                f"Include ONE empty white cloud-shaped thought bubble with small circular tail dots "
-                f"{position_hint}. The bubble should be large enough to contain a short thought, "
-                "completely empty inside with no text whatsoever."
+            return (
+                "Include ONE empty white cloud-shaped thought bubble with small circular tail dots, "
+                "positioned near the main character's head. The bubble should be large enough to "
+                "contain a short thought, completely empty inside with no text."
             )
-        elif el_type == "narration":
-            bubble_desc = (
-                f"Include ONE empty rectangular caption box with yellow/cream background "
-                f"{position_hint}. The box should be large enough to contain narration text, "
-                "completely empty inside with no text whatsoever."
-            )
-        else:
-            # SFX or unknown - no bubble needed
-            return ""
 
-        return bubble_desc
+        # Narration and other types don't need bubbles in the image
+        return ""
 
 
 class MockImageGenerator(ImageGenerator):
@@ -357,7 +350,7 @@ class MockImageGenerator(ImageGenerator):
         render_state: RenderState,
         visual_style: str = "comic book style",
         elements: Optional[List[Dict[str, Any]]] = None,
-    ) -> Optional[str]:
+    ) -> Dict[str, Any]:
         """Generate a mock image without making API calls.
 
         Creates a text file documenting what would have been sent to the API,
@@ -369,7 +362,7 @@ class MockImageGenerator(ImageGenerator):
             elements: Optional list of element dictionaries with text to render.
 
         Returns:
-            The absolute path to the generated text file.
+            Dictionary with image_path and empty detected_bubbles list.
         """
         # Increment call counter for unique filenames
         self._call_count += 1
@@ -390,8 +383,11 @@ class MockImageGenerator(ImageGenerator):
             file.write(f"Size: {IMAGE_SIZE}\n")
             file.write(f"Quality: {IMAGE_QUALITY}\n")
             if elements:
-                file.write(f"\nElements:\n")
+                file.write("\nElements:\n")
                 for i, el in enumerate(elements):
                     file.write(f"  {i+1}. {el.get('type', 'unknown')}: {el.get('text', el.get('placeholder', ''))}\n")
 
-        return str(filepath)
+        return {
+            "image_path": str(filepath),
+            "detected_bubbles": [],  # Mock doesn't detect bubbles
+        }

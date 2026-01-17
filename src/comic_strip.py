@@ -32,6 +32,7 @@ class ComicStrip:
         panel_number: int,
         elements: List[Dict[str, Any]] | None = None,
         user_input_text: str | None = None,
+        detected_bubbles: List[Dict[str, Any]] | None = None,
     ) -> None:
         """Add a panel to the comic strip.
 
@@ -41,6 +42,7 @@ class ComicStrip:
             panel_number: The panel number.
             elements: Optional list of elements with text content.
             user_input_text: Optional user input text for this panel.
+            detected_bubbles: Optional list of detected bubble positions.
         """
         self.panels.append({
             "image_path": image_path,
@@ -48,6 +50,7 @@ class ComicStrip:
             "panel_number": panel_number,
             "elements": elements or [],
             "user_input_text": user_input_text,
+            "detected_bubbles": detected_bubbles or [],
         })
 
     def get_panel_count(self) -> int:
@@ -127,22 +130,21 @@ class ComicStrip:
         return str(output_path)
 
     def _process_panel_bubbles(self, panel: dict) -> Optional[Image.Image]:
-        """Process a panel to detect bubbles and render text into them.
+        """Process a panel to render text into detected bubbles.
 
-        The generated image has ONE empty bubble for the user_input element.
-        This method:
-        1. Detects that bubble and renders the user's text into it
-        2. Draws programmatic bubbles for all pre-filled elements
+        Speech/thought bubbles are rendered into detected bubble regions.
+        Narration boxes are drawn in corners (not part of the generated image).
 
         Args:
-            panel: Panel dictionary with image_path, elements, and user_input_text.
+            panel: Panel dictionary with image_path, elements, user_input_text, detected_bubbles.
 
         Returns:
-            Processed PIL Image with text rendered into bubbles, or None on failure.
+            Processed PIL Image with text rendered, or None on failure.
         """
         image_path = panel.get("image_path")
         elements = panel.get("elements", [])
         user_input_text = panel.get("user_input_text")
+        stored_bubbles = panel.get("detected_bubbles", [])
 
         if not image_path or not Path(image_path).exists():
             return None
@@ -152,34 +154,49 @@ class ComicStrip:
             img = Image.open(image_path)
             img_width, img_height = img.size
 
-            # Separate user_input element from pre-filled elements
-            user_input_el = None
-            prefilled_elements = []
+            # Convert stored bubble dicts to DetectedBubble objects
+            from .image_gen.bubble_detector import DetectedBubble
+            detected_bubbles = []
+            for b in stored_bubbles:
+                detected_bubbles.append(DetectedBubble(
+                    x=b["x"],
+                    y=b["y"],
+                    width=b["width"],
+                    height=b["height"],
+                    contour=None,
+                ))
+
+            # If no stored bubbles, try to detect them
+            if not detected_bubbles:
+                detected_bubbles = self.bubble_detector.detect_bubbles(image_path)
+
+            # Separate elements by type
+            speech_thought_elements = []
+            narration_elements = []
 
             for el in elements:
+                el_type = el.get("type", "")
+                if el_type in ("speech", "thought"):
+                    speech_thought_elements.append(el)
+                elif el_type == "narration":
+                    narration_elements.append(el)
+                # SFX are skipped for final strip (they're visual in the image)
+
+            # Step 1: Render text into detected bubbles for speech/thought
+            bubble_idx = 0
+            for el in speech_thought_elements:
+                if bubble_idx >= len(detected_bubbles):
+                    break
+
+                bubble = detected_bubbles[bubble_idx]
+                bubble_idx += 1
+
+                # Determine text
                 if el.get("user_input"):
-                    user_input_el = el
+                    text = user_input_text or ""
                 else:
-                    prefilled_elements.append(el)
+                    text = el.get("text", "")
 
-            # Step 1: Detect the ONE bubble and render user's text into it
-            if user_input_el and user_input_text:
-                bubbles = self.bubble_detector.detect_bubbles(image_path)
-
-                if bubbles:
-                    # Use the first (and ideally only) detected bubble
-                    bubble = bubbles[0]
-                    user_text_element = TextElement(
-                        text=user_input_text,
-                        element_type=user_input_el.get("type", "speech"),
-                        character_name=user_input_el.get("character_name"),
-                        position=user_input_el.get("position"),
-                    )
-                    img = self.text_renderer.render_text_on_image(img, bubble, user_text_element)
-
-            # Step 2: Draw programmatic bubbles for pre-filled elements
-            for el in prefilled_elements:
-                text = el.get("text", "")
                 if not text:
                     continue
 
@@ -188,6 +205,27 @@ class ComicStrip:
                     element_type=el.get("type", "speech"),
                     character_name=el.get("character_name"),
                     position=el.get("position"),
+                )
+                img = self.text_renderer.render_text_on_image(img, bubble, text_element)
+
+            # Step 2: Draw narration boxes in corners
+            corner_positions = ["top-left", "top-right", "bottom-left", "bottom-right"]
+            for i, el in enumerate(narration_elements):
+                text = el.get("text", "")
+                if el.get("user_input"):
+                    text = user_input_text or ""
+
+                if not text:
+                    continue
+
+                # Use element's position or assign a corner
+                position = el.get("position", corner_positions[i % len(corner_positions)])
+
+                text_element = TextElement(
+                    text=text,
+                    element_type="narration",
+                    character_name=None,
+                    position=position,
                 )
                 img = self.text_renderer.draw_programmatic_bubble(
                     img, text_element, img_width, img_height
