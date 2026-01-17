@@ -15,7 +15,7 @@ LLM_MAX_TOKENS = 1500
 # =============================================================================
 IMAGE_MODEL = "gpt-image-1-mini"  # Alternative: "dall-e-3"
 IMAGE_SIZE = "1024x1024"
-IMAGE_QUALITY = "low"  # Options: "low", "medium", "high"
+IMAGE_QUALITY = "medium"  # Options: "low", "medium", "high"
 IMAGE_MODERATION = "low"
 
 # =============================================================================

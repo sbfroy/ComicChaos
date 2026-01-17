@@ -2,11 +2,13 @@
 
 from pathlib import Path
 from datetime import datetime
-from typing import Optional
+from typing import Optional, List, Dict, Any
 
 from PIL import Image
 
 from .config import COMIC_STRIPS_DIR
+from .image_gen.bubble_detector import BubbleDetector
+from .image_gen.text_renderer import TextRenderer, TextElement
 
 
 class ComicStrip:
@@ -19,12 +21,33 @@ class ComicStrip:
         self.panels: list[dict] = []
         self.session_id = datetime.now().strftime("%Y%m%d_%H%M%S")
 
-    def add_panel(self, image_path: str | None, narrative: str, panel_number: int) -> None:
-        """Add a panel to the comic strip."""
+        # Initialize bubble detection and text rendering for final strip
+        self.bubble_detector = BubbleDetector()
+        self.text_renderer = TextRenderer()
+
+    def add_panel(
+        self,
+        image_path: str | None,
+        narrative: str,
+        panel_number: int,
+        elements: List[Dict[str, Any]] | None = None,
+        user_input_text: str | None = None,
+    ) -> None:
+        """Add a panel to the comic strip.
+
+        Args:
+            image_path: Path to the panel image.
+            narrative: Text narrative for the panel.
+            panel_number: The panel number.
+            elements: Optional list of elements with text content.
+            user_input_text: Optional user input text for this panel.
+        """
         self.panels.append({
             "image_path": image_path,
             "narrative": narrative,
-            "panel_number": panel_number
+            "panel_number": panel_number,
+            "elements": elements or [],
+            "user_input_text": user_input_text,
         })
 
     def get_panel_count(self) -> int:
@@ -32,7 +55,11 @@ class ComicStrip:
         return len(self.panels)
 
     def generate_comic_strip(self, max_panels_per_row: int = 3) -> Optional[str]:
-        """Generate a single image showing all panels as a comic strip."""
+        """Generate a single image showing all panels as a comic strip.
+
+        This method processes each panel to detect bubbles and render text
+        into them before compositing the final strip.
+        """
         if not self.panels:
             return None
 
@@ -48,14 +75,24 @@ class ComicStrip:
         border = 4
         gap = 2
 
-        # Load and resize all images
+        # Process and load all images
         images = []
         for panel in valid_panels:
             try:
-                img = Image.open(panel["image_path"])
-                img = img.resize((panel_width, panel_height), Image.Resampling.LANCZOS)
-                images.append(img)
-            except Exception:
+                # Process bubbles for this panel
+                processed_img = self._process_panel_bubbles(panel)
+                if processed_img:
+                    processed_img = processed_img.resize(
+                        (panel_width, panel_height), Image.Resampling.LANCZOS
+                    )
+                    images.append(processed_img)
+                else:
+                    # Fall back to raw image
+                    img = Image.open(panel["image_path"])
+                    img = img.resize((panel_width, panel_height), Image.Resampling.LANCZOS)
+                    images.append(img)
+            except Exception as e:
+                print(f"Error processing panel: {e}")
                 continue
 
         if not images:
@@ -88,6 +125,79 @@ class ComicStrip:
         strip.save(output_path)
 
         return str(output_path)
+
+    def _process_panel_bubbles(self, panel: dict) -> Optional[Image.Image]:
+        """Process a panel to detect bubbles and render text into them.
+
+        The generated image has ONE empty bubble for the user_input element.
+        This method:
+        1. Detects that bubble and renders the user's text into it
+        2. Draws programmatic bubbles for all pre-filled elements
+
+        Args:
+            panel: Panel dictionary with image_path, elements, and user_input_text.
+
+        Returns:
+            Processed PIL Image with text rendered into bubbles, or None on failure.
+        """
+        image_path = panel.get("image_path")
+        elements = panel.get("elements", [])
+        user_input_text = panel.get("user_input_text")
+
+        if not image_path or not Path(image_path).exists():
+            return None
+
+        try:
+            # Load the image
+            img = Image.open(image_path)
+            img_width, img_height = img.size
+
+            # Separate user_input element from pre-filled elements
+            user_input_el = None
+            prefilled_elements = []
+
+            for el in elements:
+                if el.get("user_input"):
+                    user_input_el = el
+                else:
+                    prefilled_elements.append(el)
+
+            # Step 1: Detect the ONE bubble and render user's text into it
+            if user_input_el and user_input_text:
+                bubbles = self.bubble_detector.detect_bubbles(image_path)
+
+                if bubbles:
+                    # Use the first (and ideally only) detected bubble
+                    bubble = bubbles[0]
+                    user_text_element = TextElement(
+                        text=user_input_text,
+                        element_type=user_input_el.get("type", "speech"),
+                        character_name=user_input_el.get("character_name"),
+                        position=user_input_el.get("position"),
+                    )
+                    img = self.text_renderer.render_text_on_image(img, bubble, user_text_element)
+
+            # Step 2: Draw programmatic bubbles for pre-filled elements
+            for el in prefilled_elements:
+                text = el.get("text", "")
+                if not text:
+                    continue
+
+                text_element = TextElement(
+                    text=text,
+                    element_type=el.get("type", "speech"),
+                    character_name=el.get("character_name"),
+                    position=el.get("position"),
+                )
+                img = self.text_renderer.draw_programmatic_bubble(
+                    img, text_element, img_width, img_height
+                )
+
+            return img
+
+        except Exception as e:
+            print(f"Error processing panel bubbles: {e}")
+            return None
 
     def get_summary(self) -> str:
         """Get a text summary of the comic."""

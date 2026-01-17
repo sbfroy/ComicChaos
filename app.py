@@ -74,7 +74,8 @@ class ComicSession:
 
         response = self.narratron.generate_opening_panel(self.state)
 
-        image_path = self._generate_image()
+        # Generate image with elements for bubble detection
+        image_path = self._generate_image(elements=response.elements)
 
         # Store panel data
         self.panels_data.append({
@@ -116,7 +117,9 @@ class ComicSession:
             self.comic_strip.add_panel(
                 current_panel["image_path"],
                 narrative_text,
-                panel_num
+                panel_num,
+                elements=current_panel.get("elements"),
+                user_input_text=user_input_text,
             )
 
         # Generate next panel based on user's input
@@ -130,7 +133,8 @@ class ComicSession:
         if response.new_character:
             new_character = response.new_character.get("name")
 
-        image_path = self._generate_image()
+        # Generate image with elements for bubble detection
+        image_path = self._generate_image(elements=response.elements)
         next_panel_num = panel_num + 1
 
         # Store next panel data
@@ -191,14 +195,19 @@ class ComicSession:
             "panel_count": self.comic_strip.get_panel_count()
         }
 
-    def _generate_image(self):
-        """Generate an image for the current state."""
+    def _generate_image(self, elements: list | None = None):
+        """Generate an image for the current state.
+
+        Args:
+            elements: Optional list of elements for bubble generation.
+        """
         if not self.state:
             return None
         try:
             return self.image_gen.generate_image(
                 self.state.render,
-                visual_style=self.config.blueprint.visual_style
+                visual_style=self.config.blueprint.visual_style,
+                elements=elements,
             )
         except Exception:
             return None
