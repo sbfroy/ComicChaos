@@ -21,7 +21,8 @@
             background-position: 0 0, 15px 15px;
             background-color: #2563eb;
             color: #fff;
-            min-height: 100vh;
+            height: 100vh;
+            overflow: hidden;
         }
 
         /* Splash Screen */
@@ -61,9 +62,12 @@
         }
 
         .container {
-            max-width: 1000px;
+            max-width: 1100px;
             margin: 0 auto;
             padding: 20px;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
 
         /* Comic Selection */
@@ -164,70 +168,163 @@
         /* Comic Workspace */
         .comic-workspace {
             display: none;
+            flex: 1;
+            flex-direction: column;
+            overflow: hidden;
         }
 
         .comic-workspace.active {
-            display: block;
+            display: flex;
         }
 
         .comic-title-bar {
             background: #fbbf24;
             color: #111;
-            padding: 15px;
+            padding: 10px 15px;
             border-radius: 8px 8px 0 0;
             border: 4px solid #111;
             border-bottom: none;
-            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
             position: relative;
         }
 
         .comic-title-bar h2 {
-            font-size: 1.8rem;
+            font-size: 1.4rem;
             text-transform: uppercase;
             text-shadow: 2px 2px 0 #dc2626;
             letter-spacing: 2px;
+            margin: 0;
         }
 
-        /* Panels Container */
+        .title-bar-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .finish-btn-small {
+            padding: 8px 16px;
+            background: #059669;
+            color: #fff;
+            border: 3px solid #111;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            font-family: inherit;
+            cursor: pointer;
+            text-transform: uppercase;
+            box-shadow: 3px 3px 0 #111;
+            transition: all 0.2s;
+        }
+
+        .finish-btn-small:hover:not(:disabled) {
+            background: #10b981;
+            transform: translate(-2px, -2px);
+            box-shadow: 5px 5px 0 #111;
+        }
+
+        .finish-btn-small:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+
+        /* Panels Container - now holds single visible page */
         .panels-strip {
+            flex: 1;
             display: flex;
             flex-direction: column;
-            gap: 30px;
+            background: transparent;
+            border: none;
+            border-radius: 0 0 8px 8px;
+            padding: 0;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Pages wrapper - only shows one page at a time */
+        .pages-wrapper {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Comic Page - a single page containing multiple panels */
+        .comic-page {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
             background: #fff;
             border: 4px solid #111;
             border-radius: 0 0 8px 8px;
-            padding: 20px;
+            padding: 15px;
             box-shadow: 8px 8px 0 #111;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
         }
 
-        /* Individual Panel */
+        .comic-page.active {
+            opacity: 1;
+            pointer-events: auto;
+            position: relative;
+            height: 100%;
+        }
+
+        .comic-page-header {
+            grid-column: 1 / -1;
+            text-align: center;
+            font-size: 0.75rem;
+            color: #666;
+            padding-bottom: 8px;
+            border-bottom: 2px dashed #ddd;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Individual Panel - smaller for grid layout */
         .comic-panel {
             position: relative;
             background: #fff;
-            border: 4px solid #111;
+            border: 3px solid #111;
             border-radius: 4px;
             overflow: visible;
-            max-width: 600px;
-            margin: 0 auto;
-            box-shadow: 6px 6px 0 #111;
+            box-shadow: 3px 3px 0 #111;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .comic-panel:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: 5px 5px 0 #111;
+            z-index: 10;
         }
 
         .comic-panel.completed {
-            opacity: 0.9;
-            box-shadow: 4px 4px 0 #111;
+            opacity: 1;
+        }
+
+        .comic-panel.current {
+            box-shadow: 0 0 0 4px #fbbf24, 5px 5px 0 #111;
         }
 
         .panel-header {
             position: absolute;
-            top: -20px;
-            left: 10px;
+            top: -12px;
+            left: 6px;
             background: #dc2626;
             color: #fff;
-            padding: 4px 12px;
-            border-radius: 4px;
+            padding: 2px 8px;
+            border-radius: 3px;
             font-weight: bold;
-            font-size: 0.8rem;
-            border: 3px solid #111;
+            font-size: 0.65rem;
+            border: 2px solid #111;
             z-index: 20;
             text-transform: uppercase;
         }
@@ -252,25 +349,25 @@
             z-index: 10;
         }
 
-        /* Speech Bubble */
+        /* Speech Bubble - smaller for grid layout */
         .speech-bubble {
             background: #fff;
-            border: 3px solid #111;
-            border-radius: 20px;
-            padding: 8px 12px;
-            min-width: 100px;
-            max-width: 180px;
-            font-size: 0.85rem;
+            border: 2px solid #111;
+            border-radius: 12px;
+            padding: 4px 6px;
+            min-width: 50px;
+            max-width: 80%;
+            font-size: 0.55rem;
             color: #111;
-            line-height: 1.3;
+            line-height: 1.2;
         }
 
         .speech-bubble::after {
             content: '';
             position: absolute;
-            bottom: -12px;
-            left: 20px;
-            border-width: 12px 8px 0;
+            bottom: -8px;
+            left: 12px;
+            border-width: 8px 5px 0;
             border-style: solid;
             border-color: #111 transparent transparent transparent;
         }
@@ -278,9 +375,9 @@
         .speech-bubble::before {
             content: '';
             position: absolute;
-            bottom: -8px;
-            left: 22px;
-            border-width: 9px 6px 0;
+            bottom: -5px;
+            left: 14px;
+            border-width: 6px 4px 0;
             border-style: solid;
             border-color: #fff transparent transparent transparent;
             z-index: 1;
@@ -288,92 +385,92 @@
 
         .speech-bubble .char-name {
             font-weight: bold;
-            font-size: 0.65rem;
+            font-size: 0.5rem;
             color: #dc2626;
-            margin-bottom: 4px;
+            margin-bottom: 2px;
             text-transform: uppercase;
         }
 
-        /* Thought Bubble */
+        /* Thought Bubble - smaller for grid layout */
         .thought-bubble {
             background: #fff;
-            border: 3px solid #111;
-            border-radius: 25px;
-            padding: 8px 12px;
-            min-width: 90px;
-            max-width: 160px;
-            font-size: 0.8rem;
+            border: 2px solid #111;
+            border-radius: 15px;
+            padding: 4px 6px;
+            min-width: 45px;
+            max-width: 75%;
+            font-size: 0.5rem;
             font-style: italic;
             color: #444;
-            line-height: 1.3;
+            line-height: 1.2;
         }
 
         .thought-bubble::after {
             content: '';
             position: absolute;
-            bottom: -18px;
-            left: 18px;
-            width: 12px;
-            height: 12px;
+            bottom: -10px;
+            left: 10px;
+            width: 8px;
+            height: 8px;
             background: #fff;
-            border: 3px solid #111;
+            border: 2px solid #111;
             border-radius: 50%;
         }
 
         .thought-bubble::before {
             content: '';
             position: absolute;
-            bottom: -28px;
-            left: 12px;
-            width: 8px;
-            height: 8px;
+            bottom: -18px;
+            left: 6px;
+            width: 5px;
+            height: 5px;
             background: #fff;
-            border: 3px solid #111;
+            border: 2px solid #111;
             border-radius: 50%;
         }
 
         .thought-bubble .char-name {
             font-weight: bold;
-            font-size: 0.6rem;
+            font-size: 0.45rem;
             color: #06b6d4;
-            margin-bottom: 4px;
+            margin-bottom: 2px;
             font-style: normal;
         }
 
-        /* Narration Box */
+        /* Narration Box - smaller for grid layout */
         .narration-box {
             background: #fef3c7;
-            border: 3px solid #111;
-            padding: 8px 12px;
-            min-width: 120px;
-            max-width: 250px;
-            font-size: 0.8rem;
+            border: 2px solid #111;
+            padding: 4px 6px;
+            min-width: 60px;
+            max-width: 80%;
+            font-size: 0.5rem;
             color: #111;
             font-style: italic;
-            line-height: 1.3;
+            line-height: 1.2;
         }
 
-        /* Sound Effect */
+        /* Sound Effect - smaller for grid layout */
         .sfx-text {
-            font-size: 1.5rem;
+            font-size: 0.8rem;
             font-weight: bold;
             color: #dc2626;
-            text-shadow: 3px 3px 0 #fbbf24, 5px 5px 0 #111;
+            text-shadow: 2px 2px 0 #fbbf24, 3px 3px 0 #111;
             text-transform: uppercase;
-            letter-spacing: 2px;
+            letter-spacing: 1px;
             transform: rotate(-8deg);
             white-space: nowrap;
         }
 
         /* User Input Element - highlighted */
         .comic-element.user-input {
-            box-shadow: 0 0 0 4px #fbbf24, 0 0 20px rgba(251, 191, 36, 0.6);
+            box-shadow: 0 0 0 2px #fbbf24, 0 0 10px rgba(251, 191, 36, 0.6);
             animation: pulse 1.5s infinite;
         }
 
         @keyframes pulse {
-            0%, 100% { box-shadow: 0 0 0 4px #fbbf24, 0 0 20px rgba(251, 191, 36, 0.6); }
-            50% { box-shadow: 0 0 0 6px #fbbf24, 0 0 30px rgba(251, 191, 36, 0.8); }
+            0%, 100% { box-shadow: 0 0 0 2px #fbbf24, 0 0 10px rgba(251, 191, 36, 0.6); }
+            50% { box-shadow: 0 0 0 3px #fbbf24, 0 0 15px rgba(251, 191, 36, 0.8); }
         }
 
         .sfx-text.user-input {
@@ -383,8 +480,8 @@
 
         .sfx-text.user-input .element-input {
             background: rgba(255, 255, 255, 0.95);
-            border: 3px solid #fbbf24;
-            box-shadow: 0 0 15px rgba(251, 191, 36, 0.5);
+            border: 2px solid #fbbf24;
+            box-shadow: 0 0 8px rgba(251, 191, 36, 0.5);
         }
 
         /* Input inside user-input elements */
@@ -398,19 +495,20 @@
             font-style: inherit;
             resize: none;
             outline: none;
-            min-height: 50px;
+            min-height: 25px;
         }
 
         .element-input::placeholder {
             color: #9ca3af;
+            font-size: 0.5rem;
         }
 
         .sfx-text .element-input {
             background: rgba(255,255,255,0.95);
-            padding: 5px 10px;
-            border-radius: 4px;
+            padding: 3px 6px;
+            border-radius: 3px;
             text-align: center;
-            min-width: 80px;
+            min-width: 50px;
             min-height: auto;
             font-style: normal;
         }
@@ -458,11 +556,13 @@
             align-items: center;
             justify-content: center;
             height: 100%;
+            font-size: 0.45rem;
+            line-height: 1.1;
         }
 
         .detected-bubble.user-input {
-            box-shadow: 0 0 0 3px #fbbf24, 0 0 15px rgba(251, 191, 36, 0.5);
-            border-radius: 10px;
+            box-shadow: 0 0 0 2px #fbbf24, 0 0 8px rgba(251, 191, 36, 0.5);
+            border-radius: 6px;
         }
 
         /* Loading */
@@ -489,33 +589,92 @@
             50% { opacity: 0.5; }
         }
 
-        /* Controls */
-        .panel-controls {
+        /* Page Navigation - positioned at bottom */
+        .page-navigation {
             display: flex;
-            gap: 10px;
-            margin-top: 10px;
-            max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
+            gap: 15px;
+            justify-content: center;
+            align-items: center;
+            padding: 12px;
+            background: #fff;
+            border: 4px solid #111;
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+            box-shadow: 8px 8px 0 #111;
         }
 
-        .panel-controls button {
-            flex: 1;
+        .nav-btn {
+            padding: 10px 20px;
+            background: #2563eb;
+            color: #fff;
+            border: 3px solid #111;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: bold;
+            font-family: inherit;
+            cursor: pointer;
+            text-transform: uppercase;
+            box-shadow: 3px 3px 0 #111;
+            transition: all 0.2s;
+        }
+
+        .nav-btn:hover:not(:disabled) {
+            background: #3b82f6;
+            transform: translate(-2px, -2px);
+            box-shadow: 5px 5px 0 #111;
+        }
+
+        .nav-btn:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+            box-shadow: 2px 2px 0 #111;
+        }
+
+        /* Page indicator */
+        .page-indicator {
+            color: #111;
+            font-weight: bold;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            min-width: 150px;
+            text-align: center;
+        }
+
+        /* Input hint - now floating */
+        .input-hint {
+            position: absolute;
+            bottom: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #111;
+            background: #fbbf24;
+            padding: 8px 15px;
+            border-radius: 8px;
+            border: 3px solid #111;
+            font-size: 0.75rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            z-index: 100;
+            box-shadow: 3px 3px 0 #111;
         }
 
         /* Final Strip */
         .final-strip {
             display: none;
+            flex: 1;
+            flex-direction: column;
             background: #fff;
             border: 4px solid #111;
             border-radius: 8px;
             padding: 25px;
             text-align: center;
             box-shadow: 8px 8px 0 #111;
+            overflow: auto;
         }
 
         .final-strip.active {
-            display: block;
+            display: flex;
         }
 
         .final-strip h2 {
@@ -523,10 +682,13 @@
             margin-bottom: 20px;
             text-transform: uppercase;
             text-shadow: 2px 2px 0 #fbbf24;
+            flex-shrink: 0;
         }
 
         .final-strip img {
             max-width: 100%;
+            max-height: calc(100vh - 200px);
+            object-fit: contain;
             border: 4px solid #111;
             border-radius: 4px;
             margin-bottom: 20px;
@@ -580,21 +742,97 @@
             display: none !important;
         }
 
-        /* Input hint */
-        .input-hint {
-            text-align: center;
-            color: #111;
-            background: #fbbf24;
-            padding: 10px;
-            border-radius: 8px;
+        /* Loading/streaming panel */
+        .streaming-panel {
+            position: relative;
+            background: #e5e7eb;
             border: 3px solid #111;
-            font-size: 0.9rem;
-            font-weight: bold;
-            margin-bottom: 10px;
-            max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
+            border-radius: 4px;
+            overflow: hidden;
+            box-shadow: 3px 3px 0 #111;
+        }
+
+        .streaming-panel .panel-image-container {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 1;
+            background: #e5e7eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .streaming-panel img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: opacity 0.3s ease;
+        }
+
+        .streaming-panel .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 0.7rem;
             text-transform: uppercase;
+            font-weight: bold;
+        }
+
+        .streaming-indicator {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .streaming-dots {
+            display: flex;
+            gap: 4px;
+        }
+
+        .streaming-dots span {
+            width: 8px;
+            height: 8px;
+            background: #fbbf24;
+            border-radius: 50%;
+            animation: streamPulse 1.4s infinite;
+        }
+
+        .streaming-dots span:nth-child(2) { animation-delay: 0.2s; }
+        .streaming-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes streamPulse {
+            0%, 100% { opacity: 0.3; transform: scale(0.8); }
+            50% { opacity: 1; transform: scale(1); }
+        }
+
+        /* Empty panel slot */
+        .empty-slot {
+            background: #f3f4f6;
+            border: 2px dashed #d1d5db;
+            border-radius: 4px;
+            min-height: 100px;
+            opacity: 0.5;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .comic-page {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .comic-page {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
@@ -614,22 +852,18 @@
         <div id="workspace" class="comic-workspace">
             <div class="comic-title-bar">
                 <h2 id="comic-title"></h2>
+                <div class="title-bar-controls">
+                    <button id="finish-btn" class="finish-btn-small" disabled>Finish Comic</button>
+                </div>
             </div>
 
             <div class="panels-strip">
-                <div id="completed-panels"></div>
-
-                <div id="current-panel-container"></div>
-
-                <div id="loading" class="loading">
-                    <p class="loading-text">Creating next panel...</p>
-                </div>
-
-                <p id="input-hint" class="input-hint hidden">Fill in the highlighted bubble!</p>
-
-                <div class="panel-controls">
-                    <button id="continue-btn" class="continue-btn">Continue</button>
-                    <button id="finish-btn" class="finish-btn">Finish</button>
+                <div id="pages-container" class="pages-wrapper"></div>
+                <p id="input-hint" class="input-hint hidden">Press Enter after filling the bubble</p>
+                <div class="page-navigation">
+                    <button id="prev-page-btn" class="nav-btn" disabled>◀ Prev</button>
+                    <div id="page-indicator" class="page-indicator">Page 1 of 1</div>
+                    <button id="next-page-btn" class="nav-btn" disabled>Next ▶</button>
                 </div>
             </div>
         </div>
@@ -652,11 +886,19 @@
             setTimeout(() => splash.remove(), 500);
         }, 5000);
 
+        const PANELS_PER_PAGE = 6; // 3 columns x 2 rows
+
         const state = {
             sessionId: null,
             selectedComic: null,
             currentPanel: null,
-            completedPanels: []
+            completedPanels: [],
+            pages: [],
+            currentPageIndex: 0,
+            viewingPageIndex: 0,
+            panelsOnCurrentPage: 0,
+            isGenerating: false,
+            streamingPanelEl: null
         };
 
         const elements = {
@@ -665,16 +907,16 @@
             comicSelect: document.getElementById('comic-select'),
             workspace: document.getElementById('workspace'),
             comicTitle: document.getElementById('comic-title'),
-            completedPanels: document.getElementById('completed-panels'),
-            currentPanelContainer: document.getElementById('current-panel-container'),
-            loading: document.getElementById('loading'),
+            pagesContainer: document.getElementById('pages-container'),
             inputHint: document.getElementById('input-hint'),
-            continueBtn: document.getElementById('continue-btn'),
             finishBtn: document.getElementById('finish-btn'),
             finalStrip: document.getElementById('final-strip'),
             stripImage: document.getElementById('strip-image'),
             panelCount: document.getElementById('panel-count'),
-            notification: document.getElementById('notification')
+            notification: document.getElementById('notification'),
+            pageIndicator: document.getElementById('page-indicator'),
+            prevPageBtn: document.getElementById('prev-page-btn'),
+            nextPageBtn: document.getElementById('next-page-btn')
         };
 
         function generateSessionId() {
@@ -688,10 +930,134 @@
         }
 
         function setLoading(isLoading) {
-            elements.loading.classList.toggle('active', isLoading);
-            elements.continueBtn.disabled = isLoading;
+            state.isGenerating = isLoading;
             elements.finishBtn.disabled = isLoading;
             elements.inputHint.classList.toggle('hidden', isLoading);
+            updateNavButtons();
+        }
+
+        function createPage(pageNumber) {
+            const page = document.createElement('div');
+            page.className = 'comic-page';
+            page.dataset.pageNumber = pageNumber;
+            page.innerHTML = `<div class="comic-page-header">Page ${pageNumber}</div>`;
+            return page;
+        }
+
+        function showPage(index) {
+            state.viewingPageIndex = index;
+            state.pages.forEach((page, i) => {
+                page.classList.toggle('active', i === index);
+            });
+            updateNavButtons();
+            updatePageIndicator();
+        }
+
+        function getCurrentPage() {
+            if (state.pages.length === 0) {
+                const page = createPage(1);
+                page.classList.add('active');
+                elements.pagesContainer.appendChild(page);
+                state.pages.push(page);
+                state.currentPageIndex = 0;
+                state.viewingPageIndex = 0;
+                state.panelsOnCurrentPage = 0;
+            }
+            return state.pages[state.currentPageIndex];
+        }
+
+        function getLastPage() {
+            return state.pages[state.pages.length - 1];
+        }
+
+        function addPanelToPage(panel) {
+            // Remove streaming panel if exists
+            const streamingPanel = document.querySelector('.streaming-panel');
+            if (streamingPanel) {
+                streamingPanel.remove();
+            }
+
+            const currentPage = getCurrentPage();
+            const panelCount = currentPage.querySelectorAll('.comic-panel').length;
+
+            if (panelCount >= PANELS_PER_PAGE) {
+                // Create new page
+                const newPage = createPage(state.pages.length + 1);
+                elements.pagesContainer.appendChild(newPage);
+                state.pages.push(newPage);
+                state.currentPageIndex = state.pages.length - 1;
+                state.panelsOnCurrentPage = 0;
+                newPage.appendChild(panel);
+            } else {
+                currentPage.appendChild(panel);
+            }
+
+            state.panelsOnCurrentPage++;
+
+            // Show the page with the new panel
+            showPage(state.currentPageIndex);
+            updatePageIndicator();
+        }
+
+        function createStreamingPanel() {
+            const panel = document.createElement('div');
+            panel.className = 'streaming-panel';
+            panel.innerHTML = `
+                <div class="panel-image-container">
+                    <img src="" alt="Generating..." style="opacity: 0;" />
+                    <div class="loading-overlay">
+                        <div class="streaming-indicator">
+                            <div class="streaming-dots">
+                                <span></span><span></span><span></span>
+                            </div>
+                            <span>Generating panel...</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+            return panel;
+        }
+
+        function addStreamingPanel() {
+            const currentPage = getCurrentPage();
+            const panelCount = currentPage.querySelectorAll('.comic-panel').length;
+
+            // If current page is full, create new page first
+            if (panelCount >= PANELS_PER_PAGE) {
+                const newPage = createPage(state.pages.length + 1);
+                elements.pagesContainer.appendChild(newPage);
+                state.pages.push(newPage);
+                state.currentPageIndex = state.pages.length - 1;
+                state.panelsOnCurrentPage = 0;
+            }
+
+            const streamingPanel = createStreamingPanel();
+            state.streamingPanelEl = streamingPanel;
+            getCurrentPage().appendChild(streamingPanel);
+
+            // Make sure we're viewing this page
+            showPage(state.currentPageIndex);
+            return streamingPanel;
+        }
+
+        function updateStreamingImage(base64Image) {
+            if (state.streamingPanelEl) {
+                const img = state.streamingPanelEl.querySelector('img');
+                if (img) {
+                    img.src = `data:image/png;base64,${base64Image}`;
+                    img.style.opacity = '1';
+                }
+            }
+        }
+
+        function updateNavButtons() {
+            elements.prevPageBtn.disabled = state.viewingPageIndex <= 0 || state.isGenerating;
+            elements.nextPageBtn.disabled = state.viewingPageIndex >= state.pages.length - 1 || state.isGenerating;
+        }
+
+        function updatePageIndicator() {
+            const totalPanels = state.completedPanels.length + (state.currentPanel ? 1 : 0);
+            elements.pageIndicator.textContent = `Page ${state.viewingPageIndex + 1} of ${state.pages.length} • ${totalPanels} panels`;
         }
 
         function getPositionClass(position) {
@@ -795,9 +1161,10 @@
 
         function createPanel(panelNumber, imageBase64, panelElements, isEditable = true, userInputText = null, detectedBubbles = []) {
             const panel = document.createElement('div');
-            panel.className = 'comic-panel' + (isEditable ? '' : ' completed');
+            panel.className = 'comic-panel' + (isEditable ? ' current' : ' completed');
+            panel.dataset.panelNumber = panelNumber;
             panel.innerHTML = `
-                <div class="panel-header">Panel ${panelNumber}</div>
+                <div class="panel-header">${panelNumber}</div>
                 <div class="panel-image-container">
                     ${imageBase64 ? `<img src="data:image/png;base64,${imageBase64}" alt="Panel ${panelNumber}" />` : '<div style="padding:20px;color:#666;">No image</div>'}
                 </div>
@@ -826,24 +1193,36 @@
         }
 
         function getUserInput() {
-            const input = elements.currentPanelContainer.querySelector('.user-input .element-input');
+            const currentPanel = document.querySelector('.comic-panel.current');
+            if (!currentPanel) return '';
+            const input = currentPanel.querySelector('.user-input .element-input');
             return input ? input.value.trim() : '';
         }
 
-        function moveCurrentToCompleted(userInputText) {
+        function markCurrentAsCompleted(userInputText) {
             if (!state.currentPanel) return;
 
-            const completedPanel = createPanel(
-                state.currentPanel.panel_number,
-                state.currentPanel.image,
-                state.currentPanel.elements,
-                false,
-                userInputText,
-                state.currentPanel.detected_bubbles || []
-            );
+            // Find the current panel and convert it to completed
+            const currentPanelEl = document.querySelector('.comic-panel.current');
+            if (currentPanelEl) {
+                currentPanelEl.classList.remove('current');
+                currentPanelEl.classList.add('completed');
 
-            elements.completedPanels.appendChild(completedPanel);
-            elements.currentPanelContainer.innerHTML = '';
+                // Replace input with static text
+                const inputEl = currentPanelEl.querySelector('.user-input .element-input');
+                if (inputEl) {
+                    const textDiv = document.createElement('div');
+                    textDiv.className = 'element-text';
+                    textDiv.textContent = userInputText;
+                    inputEl.replaceWith(textDiv);
+                }
+
+                // Remove user-input highlight
+                const userInputEl = currentPanelEl.querySelector('.user-input');
+                if (userInputEl) {
+                    userInputEl.classList.remove('user-input');
+                }
+            }
 
             state.completedPanels.push({
                 ...state.currentPanel,
@@ -880,11 +1259,28 @@
             if (!state.selectedComic) return;
 
             state.sessionId = generateSessionId();
-            setLoading(true);
             elements.startBtn.disabled = true;
 
+            // Show workspace and prepare for streaming
+            elements.comicSelect.classList.add('hidden');
+            elements.workspace.classList.add('active');
+
+            // Reset state
+            state.pages = [];
+            state.currentPageIndex = 0;
+            state.viewingPageIndex = 0;
+            state.panelsOnCurrentPage = 0;
+            state.completedPanels = [];
+            elements.pagesContainer.innerHTML = '';
+
+            addStreamingPanel();
+            setLoading(true);
+
+            let pendingElements = [];
+            let pendingPanelNumber = 1;
+
             try {
-                const response = await fetch('/api/start', {
+                const response = await fetch('/api/start-stream', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -893,61 +1289,105 @@
                     })
                 });
 
-                const data = await response.json();
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let buffer = '';
 
-                if (data.error) {
-                    showNotification(data.error);
-                    setLoading(false);
-                    elements.startBtn.disabled = false;
-                    return;
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+
+                    buffer += decoder.decode(value, { stream: true });
+                    const lines = buffer.split('\n');
+                    buffer = lines.pop() || '';
+
+                    for (const line of lines) {
+                        if (line.startsWith('data: ')) {
+                            try {
+                                const data = JSON.parse(line.slice(6));
+
+                                if (data.type === 'error') {
+                                    showNotification(data.error);
+                                    setLoading(false);
+                                    elements.startBtn.disabled = false;
+                                    elements.workspace.classList.remove('active');
+                                    elements.comicSelect.classList.remove('hidden');
+                                    return;
+                                }
+
+                                if (data.type === 'init') {
+                                    elements.comicTitle.textContent = data.title || '';
+                                    pendingElements = data.elements || [];
+                                    pendingPanelNumber = data.panel_number || 1;
+                                }
+
+                                if (data.type === 'partial') {
+                                    updateStreamingImage(data.image_base64);
+                                }
+
+                                if (data.type === 'complete') {
+                                    state.currentPanel = {
+                                        panel_number: pendingPanelNumber,
+                                        image: data.image_base64,
+                                        elements: pendingElements,
+                                        detected_bubbles: data.detected_bubbles || []
+                                    };
+
+                                    const panel = createPanel(
+                                        pendingPanelNumber,
+                                        data.image_base64,
+                                        pendingElements,
+                                        true,
+                                        null,
+                                        data.detected_bubbles || []
+                                    );
+
+                                    addPanelToPage(panel);
+                                    elements.finishBtn.disabled = false;
+
+                                    setTimeout(() => {
+                                        const input = panel.querySelector('.user-input .element-input');
+                                        if (input) input.focus();
+                                    }, 100);
+                                }
+                            } catch (e) {
+                                console.error('Parse error:', e);
+                            }
+                        }
+                    }
                 }
-
-                elements.comicSelect.classList.add('hidden');
-                elements.workspace.classList.add('active');
-                elements.comicTitle.textContent = data.title;
-
-                state.currentPanel = {
-                    panel_number: data.panel_number,
-                    image: data.image,
-                    elements: data.elements || [],
-                    detected_bubbles: data.detected_bubbles || []
-                };
-
-                const panel = createPanel(
-                    data.panel_number,
-                    data.image,
-                    data.elements,
-                    true,
-                    null,
-                    data.detected_bubbles || []
-                );
-                elements.currentPanelContainer.appendChild(panel);
-
-                setTimeout(() => {
-                    const input = elements.currentPanelContainer.querySelector('.user-input .element-input');
-                    if (input) input.focus();
-                }, 100);
-
             } catch (error) {
                 showNotification('Failed to start comic');
                 elements.startBtn.disabled = false;
+                elements.workspace.classList.remove('active');
+                elements.comicSelect.classList.remove('hidden');
             }
 
             setLoading(false);
         }
 
         async function continueStory() {
+            if (state.isGenerating) return;
+
             const userInput = getUserInput();
 
             if (!userInput) {
-                showNotification('Fill in the highlighted bubble first!');
+                showNotification('Fill in the bubble first!');
                 return;
             }
 
+            // Mark current as completed
+            markCurrentAsCompleted(userInput);
+
+            // Add streaming panel
+            addStreamingPanel();
             setLoading(true);
 
+            let pendingElements = [];
+            let pendingPanelNumber = state.completedPanels.length + 1;
+
             try {
-                const response = await fetch('/api/submit', {
+                const response = await fetch('/api/submit-stream', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -956,78 +1396,103 @@
                     })
                 });
 
-                const data = await response.json();
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let buffer = '';
 
-                if (data.error) {
-                    showNotification(data.error);
-                    setLoading(false);
-                    return;
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+
+                    buffer += decoder.decode(value, { stream: true });
+                    const lines = buffer.split('\n');
+                    buffer = lines.pop() || '';
+
+                    for (const line of lines) {
+                        if (line.startsWith('data: ')) {
+                            try {
+                                const data = JSON.parse(line.slice(6));
+
+                                if (data.type === 'error') {
+                                    showNotification(data.error);
+                                    const streamingPanel = document.querySelector('.streaming-panel');
+                                    if (streamingPanel) streamingPanel.remove();
+                                    setLoading(false);
+                                    return;
+                                }
+
+                                if (data.type === 'init') {
+                                    pendingElements = data.elements || [];
+                                    pendingPanelNumber = data.panel_number || (state.completedPanels.length + 1);
+
+                                    if (data.new_location) {
+                                        showNotification(`New location: ${data.new_location}`);
+                                    }
+                                    if (data.new_character) {
+                                        showNotification(`New character: ${data.new_character}`);
+                                    }
+                                }
+
+                                if (data.type === 'partial') {
+                                    updateStreamingImage(data.image_base64);
+                                }
+
+                                if (data.type === 'complete') {
+                                    state.currentPanel = {
+                                        panel_number: pendingPanelNumber,
+                                        image: data.image_base64,
+                                        elements: pendingElements,
+                                        detected_bubbles: data.detected_bubbles || []
+                                    };
+
+                                    const panel = createPanel(
+                                        pendingPanelNumber,
+                                        data.image_base64,
+                                        pendingElements,
+                                        true,
+                                        null,
+                                        data.detected_bubbles || []
+                                    );
+
+                                    addPanelToPage(panel);
+
+                                    setTimeout(() => {
+                                        const input = panel.querySelector('.user-input .element-input');
+                                        if (input) input.focus();
+                                    }, 100);
+                                }
+                            } catch (e) {
+                                console.error('Parse error:', e);
+                            }
+                        }
+                    }
                 }
-
-                moveCurrentToCompleted(userInput);
-
-                state.currentPanel = {
-                    panel_number: data.panel_number,
-                    image: data.image,
-                    elements: data.elements || [],
-                    detected_bubbles: data.detected_bubbles || []
-                };
-
-                const panel = createPanel(
-                    data.panel_number,
-                    data.image,
-                    data.elements,
-                    true,
-                    null,
-                    data.detected_bubbles || []
-                );
-                elements.currentPanelContainer.appendChild(panel);
-
-                if (data.new_location) {
-                    showNotification(`New location: ${data.new_location}`);
-                }
-                if (data.new_character) {
-                    showNotification(`New character: ${data.new_character}`);
-                }
-
-                panel.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                setTimeout(() => {
-                    const input = elements.currentPanelContainer.querySelector('.user-input .element-input');
-                    if (input) input.focus();
-                }, 500);
-
             } catch (error) {
                 showNotification('Failed to continue story');
+                const streamingPanel = document.querySelector('.streaming-panel');
+                if (streamingPanel) streamingPanel.remove();
             }
 
             setLoading(false);
         }
 
         async function finishComic() {
+            if (state.isGenerating) return;
+
             const userInput = getUserInput();
 
             if (userInput) {
-                try {
-                    await fetch('/api/submit', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            session_id: state.sessionId,
-                            user_input: userInput
-                        })
-                    });
-                    moveCurrentToCompleted(userInput);
-                } catch (e) {
-                    // Continue anyway
-                }
+                markCurrentAsCompleted(userInput);
             }
 
-            if (state.completedPanels.length < 1) {
+            const totalPanels = state.completedPanels.length;
+            if (totalPanels < 1) {
                 showNotification('Create at least one panel first!');
                 return;
             }
 
             setLoading(true);
+            showNotification('Generating your comic strip...');
 
             try {
                 const response = await fetch('/api/finish', {
@@ -1056,17 +1521,57 @@
             setLoading(false);
         }
 
+        function goToPrevPage() {
+            if (state.viewingPageIndex > 0) {
+                showPage(state.viewingPageIndex - 1);
+            }
+        }
+
+        function goToNextPage() {
+            if (state.viewingPageIndex < state.pages.length - 1) {
+                showPage(state.viewingPageIndex + 1);
+            }
+        }
+
         // Event listeners
         elements.startBtn.addEventListener('click', startComic);
-        elements.continueBtn.addEventListener('click', continueStory);
         elements.finishBtn.addEventListener('click', finishComic);
+        elements.prevPageBtn.addEventListener('click', goToPrevPage);
+        elements.nextPageBtn.addEventListener('click', goToNextPage);
 
+        // Submit on Enter key
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' && !e.shiftKey && elements.workspace.classList.contains('active')) {
+            if (e.key === 'Enter' && elements.workspace.classList.contains('active')) {
                 const activeEl = document.activeElement;
+
+                // For single-line inputs, Enter submits
                 if (activeEl && activeEl.classList.contains('element-input') && activeEl.tagName !== 'TEXTAREA') {
                     e.preventDefault();
                     continueStory();
+                    return;
+                }
+
+                // For textareas, Enter also submits (Shift+Enter for newline)
+                if (!e.shiftKey && activeEl && activeEl.classList.contains('element-input') && activeEl.tagName === 'TEXTAREA') {
+                    e.preventDefault();
+                    continueStory();
+                    return;
+                }
+            }
+
+            // Page navigation with arrow keys when not focused on input
+            if (elements.workspace.classList.contains('active')) {
+                const activeEl = document.activeElement;
+                const isInput = activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA');
+
+                if (!isInput) {
+                    if (e.key === 'ArrowLeft') {
+                        e.preventDefault();
+                        goToPrevPage();
+                    } else if (e.key === 'ArrowRight') {
+                        e.preventDefault();
+                        goToNextPage();
+                    }
                 }
             }
         });

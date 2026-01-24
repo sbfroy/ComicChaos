@@ -13,7 +13,7 @@ import base64
 import os
 from datetime import datetime
 from pathlib import Path
-from typing import Optional, List, Dict, Any
+from typing import Optional, List, Dict, Any, Generator
 
 from openai import OpenAI
 from PIL import Image
@@ -162,6 +162,116 @@ class ImageGenerator:
             return {
                 "image_path": None,
                 "detected_bubbles": [],
+            }
+
+    def generate_image_streaming(
+        self,
+        render_state: RenderState,
+        visual_style: str,
+        elements: Optional[List[Dict[str, Any]]] = None,
+        partial_images: int = 2,
+    ) -> Generator[Dict[str, Any], None, None]:
+        """Generate an image with streaming partial images.
+
+        Yields partial images as they are generated, then the final image
+        with bubble detection.
+
+        Args:
+            render_state: The current render state containing scene information.
+            visual_style: The visual style description for the comic.
+            elements: Optional list of element dictionaries for bubble generation.
+            partial_images: Number of partial images to generate (0-3).
+
+        Yields:
+            Dictionary with:
+                - type: "partial" or "complete"
+                - image_base64: Base64-encoded image data
+                - partial_index: Index of partial image (for partial type)
+                - image_path: Path to saved image (for complete type)
+                - detected_bubbles: List of bubble positions (for complete type)
+        """
+        prompt = self._build_prompt(render_state, visual_style, elements)
+
+        try:
+            stream = self.client.images.generate(
+                model=IMAGE_MODEL,
+                prompt=prompt,
+                size=IMAGE_SIZE,
+                quality=IMAGE_QUALITY,
+                moderation=IMAGE_MODERATION,
+                stream=True,
+                partial_images=partial_images,
+            )
+
+            final_image_base64 = None
+
+            for event in stream:
+                if event.type == "image_generation.partial_image":
+                    yield {
+                        "type": "partial",
+                        "image_base64": event.b64_json,
+                        "partial_index": event.partial_image_index,
+                    }
+                elif event.type == "image_generation.completed":
+                    final_image_base64 = event.b64_json
+
+            if final_image_base64:
+                # Save the final image
+                timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                filename = f"image_{timestamp}.png"
+                filepath = self.output_dir / filename
+
+                image_bytes = base64.b64decode(final_image_base64)
+                with open(filepath, "wb") as file:
+                    file.write(image_bytes)
+
+                # Detect bubbles
+                detected_bubbles = []
+                if elements:
+                    bubbles = self.bubble_detector.detect_bubbles(str(filepath))
+                    for bubble in bubbles:
+                        detected_bubbles.append({
+                            "x": bubble.x,
+                            "y": bubble.y,
+                            "width": bubble.width,
+                            "height": bubble.height,
+                            "center_x": bubble.center_x,
+                            "center_y": bubble.center_y,
+                        })
+
+                # Log successful generation
+                if self.logger:
+                    self.logger.log_image_generation(
+                        prompt=prompt,
+                        image_path=str(filepath),
+                        model=IMAGE_MODEL,
+                        size=IMAGE_SIZE,
+                        quality=IMAGE_QUALITY,
+                        success=True
+                    )
+
+                yield {
+                    "type": "complete",
+                    "image_base64": final_image_base64,
+                    "image_path": str(filepath),
+                    "detected_bubbles": detected_bubbles,
+                }
+
+        except Exception as error:
+            print(f"Streaming image generation failed: {error}")
+            if self.logger:
+                self.logger.log_image_generation(
+                    prompt=prompt,
+                    image_path=None,
+                    model=IMAGE_MODEL,
+                    size=IMAGE_SIZE,
+                    quality=IMAGE_QUALITY,
+                    success=False,
+                    error_message=str(error)
+                )
+            yield {
+                "type": "error",
+                "error": str(error),
             }
 
     def process_bubbles(

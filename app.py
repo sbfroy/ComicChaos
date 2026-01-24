@@ -2,11 +2,12 @@
 """Comic Chaos - Web Interface with Interactive Panels"""
 
 import os
+import json
 import base64
 from pathlib import Path
 
 from dotenv import load_dotenv
-from flask import Flask, render_template, request, jsonify, send_from_directory
+from flask import Flask, render_template, request, jsonify, send_from_directory, Response
 
 from src.config import GENERATED_IMAGES_DIR, COMIC_STRIPS_DIR, SETTINGS_DIR
 from src.state.static_config import StaticConfig
@@ -224,6 +225,158 @@ class ComicSession:
         except Exception:
             return {"image_path": None, "detected_bubbles": []}
 
+    def _generate_image_streaming(self, elements: list | None = None):
+        """Generate an image with streaming for the current state.
+
+        Yields partial and complete image events.
+        """
+        if not self.state:
+            yield {"type": "error", "error": "No state"}
+            return
+
+        try:
+            for event in self.image_gen.generate_image_streaming(
+                self.state.render,
+                visual_style=self.config.blueprint.visual_style,
+                elements=elements,
+            ):
+                yield event
+        except Exception as e:
+            yield {"type": "error", "error": str(e)}
+
+    def start_streaming(self):
+        """Start the comic session with streaming image generation."""
+        self.state = ComicState.initialize_from_config(self.config)
+        self.comic_strip = ComicStrip(title=self.config.blueprint.title)
+
+        if not self.narratron:
+            yield json.dumps({"type": "error", "error": "API key not configured"})
+            return
+
+        response = self.narratron.generate_opening_panel(self.state)
+
+        # Send initial data
+        yield json.dumps({
+            "type": "init",
+            "panel_number": 1,
+            "elements": response.elements,
+            "title": self.config.blueprint.title,
+            "synopsis": self.config.blueprint.synopsis
+        })
+
+        # Generate image with streaming
+        image_path = None
+        detected_bubbles = []
+
+        for event in self._generate_image_streaming(elements=response.elements):
+            if event["type"] == "partial":
+                yield json.dumps({
+                    "type": "partial",
+                    "image_base64": event["image_base64"],
+                    "partial_index": event["partial_index"],
+                })
+            elif event["type"] == "complete":
+                image_path = event["image_path"]
+                detected_bubbles = event["detected_bubbles"]
+                yield json.dumps({
+                    "type": "complete",
+                    "image_base64": event["image_base64"],
+                    "detected_bubbles": detected_bubbles,
+                })
+            elif event["type"] == "error":
+                yield json.dumps({"type": "error", "error": event["error"]})
+                return
+
+        # Store panel data
+        self.panels_data.append({
+            "panel_number": 1,
+            "image_path": image_path,
+            "elements": response.elements,
+            "user_input_text": None,
+            "detected_bubbles": detected_bubbles,
+        })
+
+    def submit_panel_streaming(self, user_input_text: str):
+        """Submit user's input and stream the next panel generation."""
+        if not self.state or not self.narratron:
+            yield json.dumps({"type": "error", "error": "Session not started"})
+            return
+
+        # Update current panel with user's input
+        if self.panels_data:
+            self.panels_data[-1]["user_input_text"] = user_input_text
+
+        # Build narrative from current panel's elements + user input
+        current_panel = self.panels_data[-1]
+        narrative_text = self._build_narrative(current_panel["elements"], user_input_text)
+
+        # Add to comic strip
+        panel_num = len(self.panels_data)
+        self.state.add_panel(narrative_text, current_panel["image_path"])
+        if self.comic_strip:
+            self.comic_strip.add_panel(
+                current_panel["image_path"],
+                narrative_text,
+                panel_num,
+                elements=current_panel.get("elements"),
+                user_input_text=user_input_text,
+                detected_bubbles=current_panel.get("detected_bubbles"),
+            )
+
+        # Generate next panel based on user's input
+        response = self.narratron.process_input(user_input_text, self.state)
+
+        new_location = None
+        new_character = None
+
+        if response.new_location:
+            new_location = response.new_location.get("name")
+        if response.new_character:
+            new_character = response.new_character.get("name")
+
+        next_panel_num = panel_num + 1
+
+        # Send initial data for next panel
+        yield json.dumps({
+            "type": "init",
+            "panel_number": next_panel_num,
+            "elements": response.elements,
+            "new_location": new_location,
+            "new_character": new_character,
+        })
+
+        # Generate image with streaming
+        image_path = None
+        detected_bubbles = []
+
+        for event in self._generate_image_streaming(elements=response.elements):
+            if event["type"] == "partial":
+                yield json.dumps({
+                    "type": "partial",
+                    "image_base64": event["image_base64"],
+                    "partial_index": event["partial_index"],
+                })
+            elif event["type"] == "complete":
+                image_path = event["image_path"]
+                detected_bubbles = event["detected_bubbles"]
+                yield json.dumps({
+                    "type": "complete",
+                    "image_base64": event["image_base64"],
+                    "detected_bubbles": detected_bubbles,
+                })
+            elif event["type"] == "error":
+                yield json.dumps({"type": "error", "error": event["error"]})
+                return
+
+        # Store next panel data
+        self.panels_data.append({
+            "panel_number": next_panel_num,
+            "image_path": image_path,
+            "elements": response.elements,
+            "user_input_text": None,
+            "detected_bubbles": detected_bubbles,
+        })
+
     def _image_to_base64(self, image_path):
         """Convert an image file to base64 string."""
         if not image_path or not Path(image_path).exists():
@@ -319,6 +472,66 @@ def finish_comic():
         return jsonify(result)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/start-stream", methods=["POST"])
+def start_comic_stream():
+    """Start a new comic session with streaming image generation."""
+    data = request.get_json()
+    comic_id = data.get("comic_id")
+    session_id = data.get("session_id")
+
+    if not comic_id or not session_id:
+        return jsonify({"error": "Missing comic_id or session_id"}), 400
+
+    try:
+        session = ComicSession(comic_id)
+        sessions[session_id] = session
+
+        def generate():
+            for event in session.start_streaming():
+                yield f"data: {event}\n\n"
+
+        return Response(
+            generate(),
+            mimetype="text/event-stream",
+            headers={
+                "Cache-Control": "no-cache",
+                "Connection": "keep-alive",
+                "X-Accel-Buffering": "no",
+            }
+        )
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/submit-stream", methods=["POST"])
+def submit_panel_stream():
+    """Submit user's input and stream the next panel generation."""
+    data = request.get_json()
+    session_id = data.get("session_id")
+    user_input_text = data.get("user_input", "")
+
+    if not session_id:
+        return jsonify({"error": "Missing session_id"}), 400
+
+    session = sessions.get(session_id)
+    if not session:
+        return jsonify({"error": "Session not found"}), 404
+
+    def generate():
+        for event in session.submit_panel_streaming(user_input_text):
+            yield f"data: {event}\n\n"
+
+    return Response(
+        generate(),
+        mimetype="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no",
+        }
+    )
 
 
 @app.route("/assets/<path:filename>")
