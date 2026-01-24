@@ -39,3 +39,4 @@ Thumbs.db
 htmlcov/
 /assets
 /logs
+/notebooks
