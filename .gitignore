@@ -37,6 +37,6 @@ Thumbs.db
 .pytest_cache/
 .coverage
 htmlcov/
-/assets
 /logs
 /notebooks
+/output

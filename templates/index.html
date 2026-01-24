@@ -645,12 +645,12 @@
     <div id="notification" class="notification"></div>
 
     <script>
-        // Hide splash screen after 10 seconds
+        // Hide splash screen after 5 seconds
         setTimeout(() => {
             const splash = document.getElementById('splash');
             splash.classList.add('fade-out');
             setTimeout(() => splash.remove(), 500);
-        }, 10000);
+        }, 5000);
 
         const state = {
             sessionId: null,
