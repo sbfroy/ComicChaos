@@ -57,7 +57,6 @@ class ImageGenerator:
             api_key=api_key or os.getenv("OPENAI_API_KEY")
         )
         self.output_dir: Path = Path(GENERATED_IMAGES_DIR)
-        # Ensure output directory exists, create if necessary
         self.output_dir.mkdir(parents=True, exist_ok=True)
         self.logger: Optional[InteractionLogger] = logger
 
@@ -451,7 +450,6 @@ class MockImageGenerator(ImageGenerator):
         Note: Does not call parent __init__ to avoid creating an OpenAI client.
         """
         self.output_dir: Path = Path(GENERATED_IMAGES_DIR)
-        # Ensure output directory exists, create if necessary
         self.output_dir.mkdir(parents=True, exist_ok=True)
         self._call_count: int = 0
 

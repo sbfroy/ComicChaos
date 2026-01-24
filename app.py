@@ -9,7 +9,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 from flask import Flask, render_template, request, jsonify, send_from_directory, Response
 
-from src.config import GENERATED_IMAGES_DIR, COMIC_STRIPS_DIR, SETTINGS_DIR
+from src.config import GENERATED_IMAGES_DIR, COMIC_STRIPS_DIR, SETTINGS_DIR, LOGS_DIR
 from src.state.static_config import StaticConfig
 from src.state.comic_state import ComicState
 from settings.setting_registry import SettingRegistry

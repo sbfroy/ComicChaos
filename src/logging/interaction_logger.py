@@ -5,11 +5,13 @@ between the system and LLM services (narrative generation and image generation).
 The logs are saved in JSON format for easy analysis and review.
 """
 
+
 import json
 import os
 from datetime import datetime
 from pathlib import Path
 from typing import Optional, Dict, Any, List
+from src.config import LOGS_DIR
 
 
 class InteractionLogger:
@@ -25,15 +27,15 @@ class InteractionLogger:
         interactions: List of all logged interactions in this session.
     """
 
-    def __init__(self, comic_title: str = "comic", log_dir: str = "logs"):
+    def __init__(self, comic_title: str = "comic", log_dir: str = None):
         """Initialize the interaction logger.
         
         Args:
             comic_title: Title of the comic being created (used in filename).
-            log_dir: Directory to save log files (created if doesn't exist).
+            log_dir: Directory to save log files (created if doesn't exist). If None, uses LOGS_DIR from config.
         """
         self.session_id = datetime.now().strftime("%Y%m%d_%H%M%S")
-        self.log_dir = Path(log_dir)
+        self.log_dir = Path(log_dir) if log_dir is not None else Path(LOGS_DIR)
         self.log_dir.mkdir(parents=True, exist_ok=True)
         
         # Sanitize title for filename

@@ -18,11 +18,13 @@ IMAGE_SIZE = "1024x1024"
 IMAGE_QUALITY = "medium"  # Options: "low", "medium", "high"
 IMAGE_MODERATION = "low"
 
+
 # =============================================================================
-# Output Directories
+# Output Directories (now under 'output/')
 # =============================================================================
-GENERATED_IMAGES_DIR = "assets/generated"
-COMIC_STRIPS_DIR = "assets/comics"
+GENERATED_IMAGES_DIR = "output/generated"
+COMIC_STRIPS_DIR = "output/comics"
+LOGS_DIR = "output/logs"
 
 # =============================================================================
 # Settings Directory

@@ -14,6 +14,7 @@ from .image_gen.text_renderer import TextRenderer, TextElement
 class ComicStrip:
     """Collects comic panels and generates the final strip."""
 
+
     def __init__(self, title: str = "My Comic"):
         self.output_dir = Path(COMIC_STRIPS_DIR)
         self.output_dir.mkdir(parents=True, exist_ok=True)

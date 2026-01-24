@@ -14,6 +14,8 @@ def main():
     """Entry point - starts the web server."""
     Path(GENERATED_IMAGES_DIR).mkdir(parents=True, exist_ok=True)
     Path(COMIC_STRIPS_DIR).mkdir(parents=True, exist_ok=True)
+    from src.config import LOGS_DIR
+    Path(LOGS_DIR).mkdir(parents=True, exist_ok=True)
 
     print("Starting Comic Chaos...")
     print("Open http://localhost:5000 in your browser")
