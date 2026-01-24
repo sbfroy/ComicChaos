@@ -37,10 +37,11 @@ class BubbleDetector:
     """Detects empty speech bubbles in comic images using OpenCV."""
     def __init__(
         self,
-        min_bubble_area: int = 7000,
-        max_bubble_area: int = 500000,
-        white_threshold: int = 220,
-        min_circularity: float = 0.4,
+        min_bubble_area: int = 75000,
+        max_bubble_area: int = 250000,
+        white_threshold: int = 180,
+        min_circularity: float = 0.52,
+        kernel_size: int = 3,
     ):
         """Initialize the bubble detector.
 
@@ -54,6 +55,7 @@ class BubbleDetector:
         self.max_bubble_area = max_bubble_area
         self.white_threshold = white_threshold
         self.min_circularity = min_circularity
+        self.kernel_size = kernel_size
 
     def detect_bubbles(self, image_path: str) -> List[DetectedBubble]:
         """Detect speech bubbles in an image.
@@ -107,12 +109,15 @@ class BubbleDetector:
         _, binary = cv2.threshold(gray, self.white_threshold, 255, cv2.THRESH_BINARY)
 
         # Apply morphological operations to clean up the mask
-        kernel = np.ones((5, 5), np.uint8)
-        binary = cv2.morphologyEx(binary, cv2.MORPH_CLOSE, kernel)
-        binary = cv2.morphologyEx(binary, cv2.MORPH_OPEN, kernel)
+        kernel = np.ones((self.kernel_size, self.kernel_size), np.uint8)
 
+        inverse = cv2.bitwise_not(binary)
+
+        # 
+        after_close = cv2.morphologyEx(inverse, cv2.MORPH_CLOSE, kernel, iterations=2)
+        
         # Find contours
-        contours, _ = cv2.findContours(binary, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        contours, _ = cv2.findContours(after_close, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
         bubbles = []
 
