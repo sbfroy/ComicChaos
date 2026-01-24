@@ -37,7 +37,7 @@ class BubbleDetector:
     """Detects empty speech bubbles in comic images using OpenCV."""
     def __init__(
         self,
-        min_bubble_area: int = 75000,
+        min_bubble_area: int = 70000,
         max_bubble_area: int = 250000,
         white_threshold: int = 180,
         min_circularity: float = 0.52,

@@ -407,6 +407,7 @@ class Narratron:
         Raises:
             ValueError: If the blueprint is not configured.
         """
+        # TODO: The opening panel should be more grand! Maybe generate one classic opening panel and then generate the next ones at the same time?
         if not self.config.blueprint:
             raise ValueError("Cannot generate opening without blueprint")
 
