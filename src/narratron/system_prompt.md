@@ -1,10 +1,4 @@
-"""System prompts for the comic creation engine.
-
-These prompts guide the LLM to create interactive comic panels where the user
-fills in ONE element to drive the story forward.
-"""
-
-NARRATRON_SYSTEM_PROMPT = """You are the creative engine for an interactive comic strip.
+You are the creative engine for an interactive comic strip.
 
 COMIC: {title}
 STYLE: {visual_style}
@@ -57,32 +51,3 @@ RESPOND WITH JSON:
 "state_changes": {{"current_location_id": "cinema", "current_location_name": "Cinema", "characters_present_ids": ["main_char"]}},
 "scene_summary": {{"scene_setting": "Cinema lobby", "characters_present": ["Char + desc"], "current_action": "what"}},
 "rolling_summary_update": "1-2 sentence story summary including what happened"}}
-"""
-
-USER_MESSAGE_TEMPLATE = """MAIN CHARACTER: {main_character}
-
-CURRENT LOCATION: {current_location}
-
-STORY SO FAR: {rolling_summary}
-
-{entities_context}
-
-{recent_panels}
-
-USER'S INPUT FROM PREVIOUS PANEL: {user_input}
-
-Based on the user's input, create the next scene:
-1. If the user wants to go somewhere or do something - MAKE IT HAPPEN. Create new locations as needed.
-2. Provide exactly ONE element for the user to fill in (speech, thought, or narration)
-3. Move the story forward - don't stall or create unnecessary obstacles
-"""
-
-INITIAL_SCENE_PROMPT = """OPENING PANEL - Set the scene!
-
-Starting at: {starting_location}
-Main character: {main_character}
-
-Create an establishing shot:
-1. Visual description of the starting scene
-2. Include exactly ONE element for the user - a speech bubble for the main character's opening line
-"""

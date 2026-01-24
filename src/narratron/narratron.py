@@ -15,6 +15,8 @@ from typing import Optional, Dict, List, Any
 
 from openai import OpenAI
 
+from pathlib import Path
+
 from ..config import LLM_MODEL, LLM_TEMPERATURE, LLM_MAX_TOKENS
 from ..state.comic_state import (
     ComicState,
@@ -24,7 +26,9 @@ from ..state.comic_state import (
 )
 from ..state.static_config import StaticConfig
 from ..logging.interaction_logger import InteractionLogger
-from .prompts import NARRATRON_SYSTEM_PROMPT, INITIAL_SCENE_PROMPT, USER_MESSAGE_TEMPLATE
+from ..prompt_loader import load_prompt, load_json
+
+_DIR = Path(__file__).parent
 
 class NarratronResponse:
     """Structured response from NARRATRON.
@@ -116,7 +120,8 @@ class Narratron:
         # Format rules compactly
         rules = " | ".join(self.config.blueprint.rules) if self.config.blueprint.rules else "None"
 
-        return NARRATRON_SYSTEM_PROMPT.format(
+        return load_prompt(
+            _DIR / "system_prompt.md",
             title=blueprint.title,
             visual_style=blueprint.visual_style,
             rules=rules,
@@ -185,16 +190,8 @@ class Narratron:
             return NarratronResponse(data)
         except json.JSONDecodeError:
             # Fallback response if JSON parsing fails
-            return NarratronResponse(
-                {
-                    "scene_description": "Something unexpected happened...",
-                    "elements": [
-                        {"type": "narration", "position": "bottom-center", "user_input": True, "placeholder": "What happens next?"}
-                    ],
-                    "state_changes": {},
-                    "scene_summary": {},
-                }
-            )
+            fallback_data = load_json(_DIR / "error_fallback.json")
+            return NarratronResponse(fallback_data)
 
     def process_input(
         self, user_input: str, comic_state: ComicState
@@ -303,7 +300,8 @@ class Narratron:
                 panel_lines.append(f"P{panel.panel_number}: {narrative}")
             recent_panels = "RECENT:\n" + "\n".join(panel_lines)
 
-        return USER_MESSAGE_TEMPLATE.format(
+        return load_prompt(
+            _DIR / "user_message.md",
             main_character=main_char,
             current_location=current_location,
             rolling_summary=comic_state.narrative.rolling_summary,
@@ -421,10 +419,9 @@ class Narratron:
         system_prompt = self._build_system_prompt()
 
         # Format the initial scene prompt with starting details
-        user_message = INITIAL_SCENE_PROMPT.format(
-            starting_location=(
-                f"{starting_location.name}: {starting_location.description}"
-            ),
+        user_message = load_prompt(
+            _DIR / "opening_panel.md",
+            starting_location=f"{starting_location.name}: {starting_location.description}",
             main_character=f"{main_character.name}: {main_character.description}",
         )
 
