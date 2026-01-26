@@ -4,7 +4,7 @@ Usage:
     from pathlib import Path
     from src.prompt_loader import load_prompt
 
-    prompt = load_prompt(Path(__file__).parent / "system_prompt.md", title="My Comic")
+    prompt = load_prompt(Path(__file__).parent / "narratron.system.md", title="My Comic")
 """
 
 import json

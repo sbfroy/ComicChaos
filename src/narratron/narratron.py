@@ -29,6 +29,7 @@ from ..logging.interaction_logger import InteractionLogger
 from ..prompt_loader import load_prompt, load_json
 
 _DIR = Path(__file__).parent
+_PROMPTS_DIR = _DIR.parent / "prompts"
 
 class NarratronResponse:
     """Structured response from NARRATRON.
@@ -121,7 +122,7 @@ class Narratron:
         rules = " | ".join(self.config.blueprint.rules) if self.config.blueprint.rules else "None"
 
         return load_prompt(
-            _DIR / "system_prompt.md",
+            _PROMPTS_DIR / "narratron.system.md",
             title=blueprint.title,
             visual_style=blueprint.visual_style,
             rules=rules,
@@ -301,7 +302,7 @@ class Narratron:
             recent_panels = "RECENT:\n" + "\n".join(panel_lines)
 
         return load_prompt(
-            _DIR / "user_message.md",
+            _PROMPTS_DIR / "panel.user.md",
             main_character=main_char,
             current_location=current_location,
             rolling_summary=comic_state.narrative.rolling_summary,
@@ -421,7 +422,7 @@ class Narratron:
 
         # Format the initial scene prompt with starting details
         user_message = load_prompt(
-            _DIR / "opening_panel.md",
+            _PROMPTS_DIR / "opening.user.md",
             starting_location=f"{starting_location.name}: {starting_location.description}",
             main_character=f"{main_character.name}: {main_character.description}",
         )
