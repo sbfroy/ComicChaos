@@ -13,7 +13,8 @@ from src.config import GENERATED_IMAGES_DIR, COMIC_STRIPS_DIR, SETTINGS_DIR, LOG
 from src.state.static_config import StaticConfig
 from src.state.comic_state import ComicState
 from settings.setting_registry import SettingRegistry
-from src.narratron.narratron import Narratron
+from src.narratron.narratron import Narratron, TitleCardPanel
+from src.state.comic_state import RenderState
 from src.image_gen.image_generator import ImageGenerator, MockImageGenerator
 from src.comic_strip import ComicStrip
 from src.logging.interaction_logger import InteractionLogger
@@ -63,7 +64,10 @@ class ComicSession:
         self.panels_data = []
 
     def start(self):
-        """Start the comic session and generate opening panel."""
+        """Start the comic session with grand opening sequence.
+
+        Generates both a title card panel and the first interactive panel.
+        """
         self.state = ComicState.initialize_from_config(self.config)
         self.comic_strip = ComicStrip(title=self.config.blueprint.title)
 
@@ -73,30 +77,82 @@ class ComicSession:
                 "image": None
             }
 
-        response = self.narratron.generate_opening_panel(self.state)
+        # Generate opening sequence (title card + first panel)
+        response = self.narratron.generate_opening_sequence(self.state)
 
-        # Generate image with elements for bubble detection
-        image_result = self._generate_image(elements=response.elements)
-        image_path = image_result["image_path"]
-        detected_bubbles = image_result["detected_bubbles"]
+        # Generate title card image (no bubble detection)
+        title_card_image = self._generate_title_card_image(
+            response.title_card,
+            self.config.blueprint.visual_style
+        )
 
-        # Store panel data
+        # Store title card panel data (panel 0)
+        self.panels_data.append({
+            "panel_number": 0,
+            "image_path": title_card_image["image_path"],
+            "elements": [],
+            "user_input_text": None,
+            "detected_bubbles": [],
+            "is_title_card": True,
+        })
+
+        # Generate first interactive panel (with bubble detection)
+        first_panel_image = self._generate_image(elements=response.first_panel.elements)
+
+        # Store first panel data (panel 1)
         self.panels_data.append({
             "panel_number": 1,
-            "image_path": image_path,
-            "elements": response.elements,
+            "image_path": first_panel_image["image_path"],
+            "elements": response.first_panel.elements,
             "user_input_text": None,
-            "detected_bubbles": detected_bubbles,
+            "detected_bubbles": first_panel_image["detected_bubbles"],
+            "is_title_card": False,
         })
 
         return {
-            "panel_number": 1,
-            "image": self._image_to_base64(image_path),
-            "elements": response.elements,
-            "detected_bubbles": detected_bubbles,
+            "panels": [
+                {
+                    "panel_number": 0,
+                    "image": self._image_to_base64(title_card_image["image_path"]),
+                    "elements": [],
+                    "detected_bubbles": [],
+                    "is_title_card": True,
+                    "title": self.config.blueprint.title,
+                    "atmosphere": response.title_card.atmosphere,
+                },
+                {
+                    "panel_number": 1,
+                    "image": self._image_to_base64(first_panel_image["image_path"]),
+                    "elements": response.first_panel.elements,
+                    "detected_bubbles": first_panel_image["detected_bubbles"],
+                    "is_title_card": False,
+                },
+            ],
             "title": self.config.blueprint.title,
             "synopsis": self.config.blueprint.synopsis
         }
+
+    def _generate_title_card_image(self, title_card: TitleCardPanel, visual_style: str):
+        """Generate title card image without bubble detection.
+
+        Args:
+            title_card: The title card panel data.
+            visual_style: The visual style for the comic.
+
+        Returns:
+            Dictionary with image_path and empty detected_bubbles.
+        """
+        render_state = RenderState(
+            scene_setting=title_card.scene_description,
+            characters_present=[],
+            current_action=title_card.atmosphere,
+        )
+
+        return self.image_gen.generate_image(
+            render_state,
+            visual_style=visual_style,
+            elements=None,  # No bubbles for title card
+        )
 
     def submit_panel(self, user_input_text: str):
         """Submit user's input for the current panel and generate next panel.
@@ -244,8 +300,32 @@ class ComicSession:
         except Exception as e:
             yield {"type": "error", "error": str(e)}
 
+    def _generate_title_card_streaming(self, title_card: TitleCardPanel, visual_style: str):
+        """Generate title card image with streaming.
+
+        Yields partial and complete image events for the title card.
+        """
+        render_state = RenderState(
+            scene_setting=title_card.scene_description,
+            characters_present=[],
+            current_action=title_card.atmosphere,
+        )
+
+        try:
+            for event in self.image_gen.generate_image_streaming(
+                render_state,
+                visual_style=visual_style,
+                elements=None,  # No bubbles for title card
+            ):
+                yield event
+        except Exception as e:
+            yield {"type": "error", "error": str(e)}
+
     def start_streaming(self):
-        """Start the comic session with streaming image generation."""
+        """Start the comic session with streaming for grand opening sequence.
+
+        Generates both title card and first interactive panel with streaming.
+        """
         self.state = ComicState.initialize_from_config(self.config)
         self.comic_strip = ComicStrip(title=self.config.blueprint.title)
 
@@ -253,47 +333,98 @@ class ComicSession:
             yield json.dumps({"type": "error", "error": "API key not configured"})
             return
 
-        response = self.narratron.generate_opening_panel(self.state)
+        # Generate opening sequence (title card + first panel)
+        response = self.narratron.generate_opening_sequence(self.state)
 
-        # Send initial data
+        # === TITLE CARD ===
         yield json.dumps({
-            "type": "init",
-            "panel_number": 1,
-            "elements": response.elements,
+            "type": "init_title_card",
+            "panel_number": 0,
             "title": self.config.blueprint.title,
-            "synopsis": self.config.blueprint.synopsis
+            "atmosphere": response.title_card.atmosphere,
+            "is_title_card": True,
         })
 
-        # Generate image with streaming
-        image_path = None
-        detected_bubbles = []
+        # Generate title card image with streaming
+        title_card_path = None
 
-        for event in self._generate_image_streaming(elements=response.elements):
+        for event in self._generate_title_card_streaming(
+            response.title_card,
+            self.config.blueprint.visual_style
+        ):
             if event["type"] == "partial":
                 yield json.dumps({
                     "type": "partial",
+                    "panel_number": 0,
                     "image_base64": event["image_base64"],
                     "partial_index": event["partial_index"],
                 })
             elif event["type"] == "complete":
-                image_path = event["image_path"]
-                detected_bubbles = event["detected_bubbles"]
+                title_card_path = event["image_path"]
                 yield json.dumps({
-                    "type": "complete",
+                    "type": "complete_title_card",
+                    "panel_number": 0,
                     "image_base64": event["image_base64"],
-                    "detected_bubbles": detected_bubbles,
+                    "is_title_card": True,
                 })
             elif event["type"] == "error":
                 yield json.dumps({"type": "error", "error": event["error"]})
                 return
 
-        # Store panel data
+        # Store title card panel data
+        self.panels_data.append({
+            "panel_number": 0,
+            "image_path": title_card_path,
+            "elements": [],
+            "user_input_text": None,
+            "detected_bubbles": [],
+            "is_title_card": True,
+        })
+
+        # === FIRST INTERACTIVE PANEL ===
+        yield json.dumps({
+            "type": "init",
+            "panel_number": 1,
+            "elements": response.first_panel.elements,
+            "title": self.config.blueprint.title,
+            "synopsis": self.config.blueprint.synopsis,
+            "is_title_card": False,
+        })
+
+        # Generate first panel image with streaming
+        first_panel_path = None
+        first_panel_bubbles = []
+
+        for event in self._generate_image_streaming(elements=response.first_panel.elements):
+            if event["type"] == "partial":
+                yield json.dumps({
+                    "type": "partial",
+                    "panel_number": 1,
+                    "image_base64": event["image_base64"],
+                    "partial_index": event["partial_index"],
+                })
+            elif event["type"] == "complete":
+                first_panel_path = event["image_path"]
+                first_panel_bubbles = event["detected_bubbles"]
+                yield json.dumps({
+                    "type": "complete",
+                    "panel_number": 1,
+                    "image_base64": event["image_base64"],
+                    "detected_bubbles": first_panel_bubbles,
+                    "is_title_card": False,
+                })
+            elif event["type"] == "error":
+                yield json.dumps({"type": "error", "error": event["error"]})
+                return
+
+        # Store first panel data
         self.panels_data.append({
             "panel_number": 1,
-            "image_path": image_path,
-            "elements": response.elements,
+            "image_path": first_panel_path,
+            "elements": response.first_panel.elements,
             "user_input_text": None,
-            "detected_bubbles": detected_bubbles,
+            "detected_bubbles": first_panel_bubbles,
+            "is_title_card": False,
         })
 
     def submit_panel_streaming(self, user_input_text: str):

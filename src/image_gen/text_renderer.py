@@ -29,8 +29,8 @@ class TextRenderer:
     def __init__(
         self,
         font_path: Optional[str] = None,
-        default_font_size: int = 20,
-        min_font_size: int = 12,
+        default_font_size: int = 28,
+        min_font_size: int = 16,
         padding_ratio: float = 0.15,
         line_spacing: float = 1.2,
     ):
@@ -168,10 +168,16 @@ class TextRenderer:
         usable_width = bubble.width - (2 * padding_x)
         usable_height = bubble.height - (2 * padding_y)
 
+        # Scale starting font size based on bubble size
+        # Use the smaller dimension to determine base size
+        bubble_min_dim = min(bubble.width, bubble.height)
+        # Start with font size proportional to bubble (roughly 1/4 of height)
+        scaled_start_size = max(self.min_font_size, min(int(bubble_min_dim * 0.25), 48))
+
         # Account for character name if present
         name_height = 0
 
-        for font_size in range(self.default_font_size, self.min_font_size - 1, -1):
+        for font_size in range(scaled_start_size, self.min_font_size - 1, -1):
             font = self._get_font(font_size)
             name_font = self._get_font(max(font_size - 4, 10), bold=True)
 

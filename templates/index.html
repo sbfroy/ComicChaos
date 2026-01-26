@@ -254,6 +254,7 @@
         .comic-page {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: auto 1fr 1fr;  /* Header + 2 equal rows */
             gap: 8px;
             background: #fff;
             border: 4px solid #111;
@@ -289,7 +290,7 @@
             letter-spacing: 1px;
         }
 
-        /* Individual Panel - smaller for grid layout */
+        /* Individual Panel - square, fits within grid cell */
         .comic-panel {
             position: relative;
             background: #fff;
@@ -298,6 +299,11 @@
             overflow: visible;
             box-shadow: 3px 3px 0 #111;
             transition: transform 0.2s, box-shadow 0.2s;
+            justify-self: center;
+            align-self: center;
+            width: 100%;
+            max-width: 100%;
+            max-height: 100%;
         }
 
         .comic-panel:hover {
@@ -331,15 +337,19 @@
 
         .panel-image-container {
             position: relative;
-            width: 100%;
             aspect-ratio: 1;
             background: #e5e7eb;
+            overflow: hidden;
+            /* Size based on available height, not width */
+            height: 100%;
+            width: auto;
+            max-width: 100%;
         }
 
         .panel-image-container img {
             width: 100%;
             height: 100%;
-            object-fit: cover;
+            object-fit: contain;
             display: block;
         }
 
@@ -555,9 +565,13 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            width: 100%;
             height: 100%;
             font-size: 0.45rem;
             line-height: 1.1;
+            color: #111;  /* Explicit black text */
+            padding: 8%;  /* Padding to keep text inside bubble */
+            box-sizing: border-box;
         }
 
         .detected-bubble.user-input {
@@ -750,12 +764,19 @@
             border-radius: 4px;
             overflow: hidden;
             box-shadow: 3px 3px 0 #111;
+            justify-self: center;
+            align-self: center;
+            width: 100%;
+            max-width: 100%;
+            max-height: 100%;
         }
 
         .streaming-panel .panel-image-container {
             position: relative;
-            width: 100%;
             aspect-ratio: 1;
+            height: 100%;
+            width: auto;
+            max-width: 100%;
             background: #e5e7eb;
             display: flex;
             align-items: center;
@@ -820,6 +841,12 @@
             border-radius: 4px;
             min-height: 100px;
             opacity: 0.5;
+        }
+
+        /* Title Card Panel - same size as other panels, different header color */
+        .title-card-panel .panel-header {
+            background: #fbbf24;
+            color: #111;
         }
 
         /* Responsive adjustments */
@@ -1159,6 +1186,20 @@
             return div;
         }
 
+        function createTitleCardPanel(imageBase64) {
+            const panel = document.createElement('div');
+            panel.className = 'comic-panel title-card-panel completed';
+            panel.dataset.panelNumber = 0;
+            panel.dataset.isTitleCard = 'true';
+            panel.innerHTML = `
+                <div class="panel-header">TITLE</div>
+                <div class="panel-image-container">
+                    ${imageBase64 ? `<img src="data:image/png;base64,${imageBase64}" alt="Title Card" />` : '<div style="padding:20px;color:#666;">No image</div>'}
+                </div>
+            `;
+            return panel;
+        }
+
         function createPanel(panelNumber, imageBase64, panelElements, isEditable = true, userInputText = null, detectedBubbles = []) {
             const panel = document.createElement('div');
             panel.className = 'comic-panel' + (isEditable ? ' current' : ' completed');
@@ -1278,6 +1319,7 @@
 
             let pendingElements = [];
             let pendingPanelNumber = 1;
+            let pendingIsTitleCard = false;
 
             try {
                 const response = await fetch('/api/start-stream', {
@@ -1315,17 +1357,46 @@
                                     return;
                                 }
 
-                                if (data.type === 'init') {
+                                // Title card initialization
+                                if (data.type === 'init_title_card') {
                                     elements.comicTitle.textContent = data.title || '';
+                                    pendingPanelNumber = 0;
+                                    pendingIsTitleCard = true;
+                                }
+
+                                // First interactive panel initialization
+                                if (data.type === 'init') {
+                                    if (!pendingIsTitleCard) {
+                                        elements.comicTitle.textContent = data.title || '';
+                                    }
                                     pendingElements = data.elements || [];
                                     pendingPanelNumber = data.panel_number || 1;
+                                    pendingIsTitleCard = false;
+
+                                    // Add streaming panel for first interactive panel
+                                    addStreamingPanel();
                                 }
 
                                 if (data.type === 'partial') {
                                     updateStreamingImage(data.image_base64);
                                 }
 
-                                if (data.type === 'complete') {
+                                // Title card complete
+                                if (data.type === 'complete_title_card') {
+                                    const titleCardPanel = createTitleCardPanel(data.image_base64);
+
+                                    addPanelToPage(titleCardPanel);
+
+                                    // Title card is auto-completed (no user input)
+                                    state.completedPanels.push({
+                                        panel_number: 0,
+                                        is_title_card: true,
+                                        image: data.image_base64
+                                    });
+                                }
+
+                                // First interactive panel complete
+                                if (data.type === 'complete' && !data.is_title_card) {
                                     state.currentPanel = {
                                         panel_number: pendingPanelNumber,
                                         image: data.image_base64,

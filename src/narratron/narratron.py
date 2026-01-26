@@ -6,11 +6,14 @@ and characters while maintaining consistency with the comic's blueprint and rule
 
 Classes:
     NarratronResponse: Structured response container from NARRATRON.
+    TitleCardPanel: Title card panel data for the grand opening.
+    OpeningSequenceResponse: Combined response for title card + first panel.
     Narratron: The AI engine that orchestrates comic creation.
 """
 
 import json
 import os
+from dataclasses import dataclass
 from typing import Optional, Dict, List, Any
 
 from openai import OpenAI
@@ -70,6 +73,57 @@ class NarratronResponse:
         self.state_changes: Dict[str, Any] = raw_response.get("state_changes", {})
         self.scene_summary: Dict[str, Any] = raw_response.get("scene_summary", {})
         self.rolling_summary_update: str = raw_response.get("rolling_summary_update", "")
+
+
+@dataclass
+class TitleCardPanel:
+    """Title card panel data - visual intro with no user interaction.
+
+    Attributes:
+        scene_description: Visual description for image generation (cinematic, atmospheric).
+        title_treatment: How the title should appear visually in the scene.
+        atmosphere: The mood and feeling of the opening.
+    """
+
+    scene_description: str
+    title_treatment: str
+    atmosphere: str
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "TitleCardPanel":
+        """Create a TitleCardPanel from a dictionary."""
+        return cls(
+            scene_description=data.get("scene_description", ""),
+            title_treatment=data.get("title_treatment", ""),
+            atmosphere=data.get("atmosphere", ""),
+        )
+
+
+@dataclass
+class OpeningSequenceResponse:
+    """Combined response for grand opening sequence.
+
+    Contains both the title card panel and the first interactive panel
+    generated in a single LLM call for efficiency and consistency.
+
+    Attributes:
+        title_card: The dramatic title card panel (non-interactive).
+        first_panel: The first interactive panel where the story begins.
+    """
+
+    title_card: TitleCardPanel
+    first_panel: NarratronResponse
+
+    @classmethod
+    def from_raw(cls, raw_response: Dict[str, Any]) -> "OpeningSequenceResponse":
+        """Create an OpeningSequenceResponse from raw LLM output."""
+        title_card_data = raw_response.get("title_card", {})
+        first_panel_data = raw_response.get("first_panel", {})
+
+        return cls(
+            title_card=TitleCardPanel.from_dict(title_card_data),
+            first_panel=NarratronResponse(first_panel_data),
+        )
 
 
 class Narratron:
@@ -408,7 +462,6 @@ class Narratron:
         Raises:
             ValueError: If the blueprint is not configured.
         """
-        # TODO: The opening panel should be more grand! Maybe generate one classic opening panel and then generate the next ones at the same time?
         if not self.config.blueprint:
             raise ValueError("Cannot generate opening without blueprint")
 
@@ -457,5 +510,87 @@ class Narratron:
 
         # Apply state changes to initialize the comic state
         self._apply_state_changes(response, comic_state)
+
+        return response
+
+    def generate_opening_sequence(
+        self, comic_state: ComicState
+    ) -> OpeningSequenceResponse:
+        """Generate the grand opening sequence: title card + first interactive panel.
+
+        Creates a dramatic title card panel featuring the comic title and atmosphere,
+        followed by the first interactive panel where the story begins. Both panels
+        are generated in a single LLM call for efficiency and consistency.
+
+        Args:
+            comic_state: The current (initial) state of the comic.
+
+        Returns:
+            OpeningSequenceResponse containing both the title card and first panel.
+
+        Raises:
+            ValueError: If the blueprint is not configured.
+        """
+        if not self.config.blueprint:
+            raise ValueError("Cannot generate opening without blueprint")
+
+        blueprint = self.config.blueprint
+
+        # Build system prompt
+        system_prompt = self._build_system_prompt()
+
+        # Build user message for opening sequence
+        user_message = load_prompt(
+            _PROMPTS_DIR / "opening_sequence.user.md",
+            title=blueprint.title,
+            synopsis=blueprint.synopsis,
+            visual_style=blueprint.visual_style,
+            starting_location=f"{blueprint.starting_location.name}: {blueprint.starting_location.description}",
+            main_character=f"{blueprint.main_character.name}: {blueprint.main_character.description}",
+        )
+
+        messages = [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_message},
+        ]
+
+        response_text = self._call_llm(messages)
+
+        # Log the opening sequence interaction
+        if self.logger:
+            parsed_response = None
+            try:
+                parsed_response = json.loads(response_text)
+            except json.JSONDecodeError:
+                pass
+
+            self.logger.log_opening_panel(
+                system_prompt=system_prompt,
+                user_message=user_message,
+                response=response_text,
+                parsed_response=parsed_response,
+                model=LLM_MODEL,
+                temperature=LLM_TEMPERATURE,
+                max_tokens=LLM_MAX_TOKENS,
+            )
+
+        # Parse the response
+        try:
+            data = json.loads(response_text)
+            response = OpeningSequenceResponse.from_raw(data)
+        except json.JSONDecodeError:
+            # Fallback response if parsing fails
+            fallback_data = load_json(_DIR / "error_fallback.json")
+            response = OpeningSequenceResponse(
+                title_card=TitleCardPanel(
+                    scene_description=f"A dramatic establishing shot for {blueprint.title}",
+                    title_treatment=blueprint.title,
+                    atmosphere=blueprint.synopsis,
+                ),
+                first_panel=NarratronResponse(fallback_data),
+            )
+
+        # Apply state changes from first panel
+        self._apply_state_changes(response.first_panel, comic_state)
 
         return response
