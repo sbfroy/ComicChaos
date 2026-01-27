@@ -1496,12 +1496,6 @@
                                     pendingElements = data.elements || [];
                                     pendingPanelNumber = data.panel_number || (state.completedPanels.length + 1);
 
-                                    if (data.new_location) {
-                                        showNotification(`New location: ${data.new_location}`);
-                                    }
-                                    if (data.new_character) {
-                                        showNotification(`New character: ${data.new_character}`);
-                                    }
                                 }
 
                                 if (data.type === 'partial') {

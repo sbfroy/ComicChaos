@@ -1,9 +1,7 @@
 """Static configuration for comic worlds.
 
-The blueprint provides the foundation for a comic world, but the LLM
-dynamically creates locations and characters as the story evolves.
-Locations and characters can be pre-defined in the blueprint - the first
-location is the starting location and the first character is the main character.
+The blueprint provides the foundation for a comic world.
+The first location is the starting location and the first character is the main character.
 """
 
 import json
@@ -28,9 +26,8 @@ class Character(BaseModel):
 class Blueprint(BaseModel):
     """The comic setting definition.
 
-    This sets up the world's foundation. The first location is the starting
-    location and the first character is the main character. Additional
-    locations and characters can be pre-defined or created dynamically by the LLM.
+    The first location is the starting location and the first character
+    is the main character.
     """
 
     title: str = Field(description="Comic title")
@@ -64,11 +61,7 @@ class Blueprint(BaseModel):
 
 
 class StaticConfig(BaseModel):
-    """Complete comic configuration.
-
-    This holds only the initial blueprint - the foundation of the world.
-    Dynamic content (new locations, characters) is stored in ComicState.
-    """
+    """Complete comic configuration."""
 
     blueprint: Blueprint | None = None
 

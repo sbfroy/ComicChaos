@@ -33,11 +33,9 @@ RESPOND WITH JSON:
   "first_panel": {{
     "scene_description": "Visual description for first story panel - show the main character clearly in the starting location",
     "elements": [
-      {{"type": "speech|thought|narration", "character_id": "main_char", "character_name": "CharacterName", "position": "center", "user_input": true, "placeholder": "What do you say/think?"}}
+      {{"type": "speech|thought|narration", "character_name": "CharacterName", "position": "center", "user_input": true, "placeholder": "What do you say/think?"}}
     ],
-    "new_location": null,
-    "new_character": null,
-    "state_changes": {{"current_location_id": "starting_loc", "current_location_name": "LocationName", "characters_present_ids": ["main_char"]}},
+    "state_changes": {{}},
     "scene_summary": {{"scene_setting": "Brief setting description", "characters_present": ["Character + brief desc"], "current_action": "What's happening"}},
     "rolling_summary_update": "The story begins: brief setup of the scene"
   }}

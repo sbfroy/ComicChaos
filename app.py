@@ -187,14 +187,6 @@ class ComicSession:
         # Generate next panel based on user's input
         response = self.narratron.process_input(user_input_text, self.state)
 
-        new_location = None
-        new_character = None
-
-        if response.new_location:
-            new_location = response.new_location.get("name")
-        if response.new_character:
-            new_character = response.new_character.get("name")
-
         # Generate image with elements for bubble detection
         image_result = self._generate_image(elements=response.elements)
         image_path = image_result["image_path"]
@@ -215,8 +207,6 @@ class ComicSession:
             "image": self._image_to_base64(image_path),
             "elements": response.elements,
             "detected_bubbles": detected_bubbles,
-            "new_location": new_location,
-            "new_character": new_character
         }
 
     def _build_narrative(self, elements: list, user_input_text: str) -> str:
@@ -457,14 +447,6 @@ class ComicSession:
         # Generate next panel based on user's input
         response = self.narratron.process_input(user_input_text, self.state)
 
-        new_location = None
-        new_character = None
-
-        if response.new_location:
-            new_location = response.new_location.get("name")
-        if response.new_character:
-            new_character = response.new_character.get("name")
-
         next_panel_num = panel_num + 1
 
         # Send initial data for next panel
@@ -472,8 +454,6 @@ class ComicSession:
             "type": "init",
             "panel_number": next_panel_num,
             "elements": response.elements,
-            "new_location": new_location,
-            "new_character": new_character,
         })
 
         # Generate image with streaming
