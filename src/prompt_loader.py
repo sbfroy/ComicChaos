@@ -7,10 +7,9 @@ Usage:
     prompt = load_prompt(Path(__file__).parent / "narratron.system.md", title="My Comic")
 """
 
-import json
 from functools import lru_cache
 from pathlib import Path
-from typing import Any, Dict, Union
+from typing import Any, Union
 
 
 @lru_cache(maxsize=32)
@@ -32,11 +31,6 @@ def load_prompt(filepath: Union[str, Path], **kwargs: Any) -> str:
     content = _read_file(str(filepath))
     return content.format(**kwargs) if kwargs else content
 
-
-def load_json(filepath: Union[str, Path]) -> Dict[str, Any]:
-    """Load JSON from a file."""
-    content = _read_file(str(filepath))
-    return json.loads(content)
 
 
 def clear_cache() -> None:
