@@ -33,22 +33,12 @@ _DIR = Path(__file__).parent
 _PROMPTS_DIR = _DIR.parent / "prompts"
 
 class NarratronResponse:
-    """Structured response from NARRATRON.
-
-    Attributes:
-        raw: The raw dictionary response from the LLM.
-        scene_description: Visual description of what's happening (for image generation).
-        elements: List of panel elements (speech bubbles, etc.) - most pre-filled, one for user input.
-        state_changes: Dictionary of changes to apply to the comic state.
-        scene_summary: Summary of the current scene for rendering.
-        rolling_summary_update: Updated summary of the story so far.
-    """
+    """Structured response from NARRATRON."""
 
     def __init__(self, raw_response: Dict[str, Any]) -> None:
         self.raw: Dict[str, Any] = raw_response
         self.scene_description: str = raw_response.get("scene_description", "")
         self.elements: List[Dict[str, Any]] = raw_response.get("elements", [])
-        self.state_changes: Dict[str, Any] = raw_response.get("state_changes", {})
         self.scene_summary: Dict[str, Any] = raw_response.get("scene_summary", {})
         self.rolling_summary_update: str = raw_response.get("rolling_summary_update", "")
 
@@ -221,52 +211,6 @@ class Narratron:
                     "current_action", comic_state.render.current_action
                 ),
             )
-
-    def generate_opening_panel(self, comic_state: ComicState) -> NarratronResponse:
-        """Generate the opening panel of the comic."""
-        if not self.config.blueprint:
-            raise ValueError("Cannot generate opening without blueprint")
-
-        blueprint = self.config.blueprint
-        starting_location = blueprint.starting_location
-        main_character = blueprint.main_character
-
-        system_prompt = self._build_system_prompt()
-
-        user_message = load_prompt(
-            _PROMPTS_DIR / "opening.user.md",
-            starting_location=f"{starting_location.name}: {starting_location.description}",
-            main_character=f"{main_character.name}: {main_character.description}",
-        )
-
-        messages = [
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": user_message},
-        ]
-
-        response_text = self._call_llm(messages)
-        response = self._parse_response(response_text)
-
-        if self.logger:
-            parsed_response = None
-            try:
-                parsed_response = json.loads(response_text)
-            except json.JSONDecodeError:
-                pass
-
-            self.logger.log_opening_panel(
-                system_prompt=system_prompt,
-                user_message=user_message,
-                response=response_text,
-                parsed_response=parsed_response,
-                model=LLM_MODEL,
-                temperature=LLM_TEMPERATURE,
-                max_tokens=LLM_MAX_TOKENS
-            )
-
-        self._apply_state_changes(response, comic_state)
-
-        return response
 
     def generate_opening_sequence(
         self, comic_state: ComicState

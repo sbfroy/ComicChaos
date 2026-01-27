@@ -37,6 +37,5 @@ RESPOND WITH JSON:
 "elements": [
   {{"type": "speech", "character_name": "MainChar", "position": "center", "user_input": true, "placeholder": "What do you say?"}}
 ],
-"state_changes": {{}},
 "scene_summary": {{"scene_setting": "Brief setting", "characters_present": ["Char + desc"], "current_action": "what"}},
 "rolling_summary_update": "1-2 sentence story summary including what happened"}}

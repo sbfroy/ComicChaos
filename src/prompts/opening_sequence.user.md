@@ -35,7 +35,6 @@ RESPOND WITH JSON:
     "elements": [
       {{"type": "speech|thought|narration", "character_name": "CharacterName", "position": "center", "user_input": true, "placeholder": "What do you say/think?"}}
     ],
-    "state_changes": {{}},
     "scene_summary": {{"scene_setting": "Brief setting description", "characters_present": ["Character + brief desc"], "current_action": "What's happening"}},
     "rolling_summary_update": "The story begins: brief setup of the scene"
   }}

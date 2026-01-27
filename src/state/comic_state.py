@@ -25,8 +25,8 @@ class NarrativeState(BaseModel):
 
     panels: list[ComicPanel] = Field(default_factory=list)
     rolling_summary: str = Field(
-        default="The story has just begun.",
-        description="Condensed summary of the story so far"
+        default="The comic has just begun.",
+        description="Short summary of the comic so far"
     )
 
 
