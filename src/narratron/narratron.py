@@ -27,10 +27,23 @@ from ..state.comic_state import (
 )
 from ..state.static_config import StaticConfig
 from ..logging.interaction_logger import InteractionLogger
-from ..prompt_loader import load_prompt, load_json
+from ..prompt_loader import load_prompt
 
-_DIR = Path(__file__).parent
-_PROMPTS_DIR = _DIR.parent / "prompts"
+_PROMPTS_DIR = Path(__file__).resolve().parent.parent / "prompts"
+
+_FALLBACK_RESPONSE = {
+    "scene_description": "Something unexpected happened...",
+    "elements": [
+        {
+            "type": "narration",
+            "position": "bottom-center",
+            "user_input": True,
+            "placeholder": "What happens next?",
+        }
+    ],
+    "scene_summary": {},
+}
+
 
 class NarratronResponse:
     """Structured response from NARRATRON."""
@@ -105,7 +118,10 @@ class Narratron:
         )
 
     def _call_llm(self, messages: List[Dict[str, str]]) -> str:
-        """Make an API call to the LLM."""
+        """Make an API call to the LLM.
+
+        Raises on API errors so callers can fall back gracefully.
+        """
         response = self.client.chat.completions.create(
             model=LLM_MODEL,
             messages=messages,
@@ -144,8 +160,7 @@ class Narratron:
             data = json.loads(response_text)
             return NarratronResponse(data)
         except json.JSONDecodeError:
-            fallback_data = load_json(_DIR / "error_fallback.json")
-            return NarratronResponse(fallback_data)
+            return NarratronResponse(_FALLBACK_RESPONSE)
 
     def process_input(
         self, user_input: str, comic_state: ComicState
@@ -159,8 +174,11 @@ class Narratron:
             {"role": "user", "content": user_message},
         ]
 
-        response_text = self._call_llm(messages)
-        response = self._parse_response(response_text)
+        try:
+            response_text = self._call_llm(messages)
+            response = self._parse_response(response_text)
+        except Exception:
+            response = NarratronResponse(_FALLBACK_RESPONSE)
 
         self._apply_state_changes(response, comic_state)
 
@@ -237,37 +255,36 @@ class Narratron:
             {"role": "user", "content": user_message},
         ]
 
-        response_text = self._call_llm(messages)
-
-        if self.logger:
-            parsed_response = None
-            try:
-                parsed_response = json.loads(response_text)
-            except json.JSONDecodeError:
-                pass
-
-            self.logger.log_opening_panel(
-                system_prompt=system_prompt,
-                user_message=user_message,
-                response=response_text,
-                parsed_response=parsed_response,
-                model=LLM_MODEL,
-                temperature=LLM_TEMPERATURE,
-                max_tokens=LLM_MAX_TOKENS,
-            )
-
         try:
+            response_text = self._call_llm(messages)
+
+            if self.logger:
+                parsed_response = None
+                try:
+                    parsed_response = json.loads(response_text)
+                except json.JSONDecodeError:
+                    pass
+
+                self.logger.log_opening_panel(
+                    system_prompt=system_prompt,
+                    user_message=user_message,
+                    response=response_text,
+                    parsed_response=parsed_response,
+                    model=LLM_MODEL,
+                    temperature=LLM_TEMPERATURE,
+                    max_tokens=LLM_MAX_TOKENS,
+                )
+
             data = json.loads(response_text)
             response = OpeningSequenceResponse.from_raw(data)
-        except json.JSONDecodeError:
-            fallback_data = load_json(_DIR / "error_fallback.json")
+        except Exception:
             response = OpeningSequenceResponse(
                 title_card=TitleCardPanel(
                     scene_description=f"A dramatic establishing shot for {blueprint.title}",
                     title_treatment=blueprint.title,
                     atmosphere=blueprint.synopsis,
                 ),
-                first_panel=NarratronResponse(fallback_data),
+                first_panel=NarratronResponse(_FALLBACK_RESPONSE),
             )
 
         self._apply_state_changes(response.first_panel, comic_state)
