@@ -502,11 +502,6 @@ def index():
     return render_template("index.html")
 
 
-@app.route("/title_page.png")
-def title_page():
-    """Serve the title page image."""
-    return send_from_directory(".", "title_page.png")
-
 
 @app.route("/api/comics")
 def list_comics():

@@ -32,16 +32,13 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: #2563eb;
-            background-image:
-                linear-gradient(45deg, #dc2626 25%, transparent 25%),
-                linear-gradient(-45deg, #dc2626 25%, transparent 25%);
-            background-size: 60px 60px;
+            background: #1765B9;
             display: flex;
             align-items: center;
             justify-content: center;
             z-index: 9999;
             transition: opacity 0.5s ease-out;
+            overflow: hidden;
         }
 
         .splash-screen.fade-out {
@@ -49,10 +46,62 @@
             pointer-events: none;
         }
 
-        .splash-screen img {
-            max-width: 90%;
-            max-height: 80%;
-            animation: popIn 0.5s ease-out;
+        .splash-stripes {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 300vmax;
+            height: 300vmax;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            background: repeating-conic-gradient(
+                #111 0deg 0.5deg,
+                #c42c1e 0.5deg 7deg,
+                #111 7deg 7.5deg,
+                transparent 7.5deg 14deg,
+                #111 14deg 14.5deg,
+                #c42c1e 14.5deg 18deg,
+                #111 18deg 18.5deg,
+                transparent 18.5deg 28deg,
+                #111 28deg 28.5deg,
+                #c42c1e 28.5deg 36deg,
+                #111 36deg 36.5deg,
+                transparent 36.5deg 45deg
+            );
+            animation: stripesRotate 40s linear infinite;
+        }
+
+        .splash-vignette {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(
+                ellipse 50% 50% at center,
+                #1765B9 0%,
+                #1765B9 30%,
+                transparent 70%
+            );
+            z-index: 1;
+        }
+
+        .splash-logo {
+            position: relative;
+            z-index: 2;
+            max-width: 85%;
+            max-height: 70%;
+            animation: popIn 0.3s ease-out, logoPulse 1.8s ease-in-out 0.5s infinite;
+        }
+
+        @keyframes logoPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        @keyframes stripesRotate {
+            from { transform: translate(-50%, -50%) rotate(0deg); }
+            to { transform: translate(-50%, -50%) rotate(360deg); }
         }
 
         @keyframes popIn {
@@ -866,7 +915,9 @@
 <body>
     <!-- Splash Screen -->
     <div id="splash" class="splash-screen">
-        <img src="/title_page.png" alt="Comic Chaos" />
+        <div class="splash-stripes"></div>
+        <div class="splash-vignette"></div>
+        <img src="/static/images/logo.webp" class="splash-logo" alt="Comic Chaos" />
     </div>
 
     <div class="container">
