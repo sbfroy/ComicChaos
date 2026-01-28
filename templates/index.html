@@ -527,61 +527,7 @@
         }
 
         .workspace-stripes {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 200vmax;
-            height: 200vmax;
-            transform: translate(-50%, -50%);
-            background: conic-gradient(
-                transparent 0deg 1deg,
-                #111 1deg 1.5deg, #c42c1e 1.5deg 9deg, #111 9deg 9.5deg,
-                transparent 9.5deg 16deg,
-                #111 16deg 16.5deg, #c42c1e 16.5deg 22deg, #111 22deg 22.5deg,
-                transparent 22.5deg 31deg,
-                #111 31deg 31.5deg, #c42c1e 31.5deg 42deg, #111 42deg 42.5deg,
-                transparent 42.5deg 47deg,
-                #111 47deg 47.5deg, #c42c1e 47.5deg 54deg, #111 54deg 54.5deg,
-                transparent 54.5deg 64deg,
-                #111 64deg 64.5deg, #c42c1e 64.5deg 76deg, #111 76deg 76.5deg,
-                transparent 76.5deg 82deg,
-                #111 82deg 82.5deg, #c42c1e 82.5deg 88deg, #111 88deg 88.5deg,
-                transparent 88.5deg 97deg,
-                #111 97deg 97.5deg, #c42c1e 97.5deg 108deg, #111 108deg 108.5deg,
-                transparent 108.5deg 113deg,
-                #111 113deg 113.5deg, #c42c1e 113.5deg 119deg, #111 119deg 119.5deg,
-                transparent 119.5deg 129deg,
-                #111 129deg 129.5deg, #c42c1e 129.5deg 140deg, #111 140deg 140.5deg,
-                transparent 140.5deg 146deg,
-                #111 146deg 146.5deg, #c42c1e 146.5deg 153deg, #111 153deg 153.5deg,
-                transparent 153.5deg 161deg,
-                #111 161deg 161.5deg, #c42c1e 161.5deg 173deg, #111 173deg 173.5deg,
-                transparent 173.5deg 180deg,
-                #111 180deg 180.5deg, #c42c1e 180.5deg 186deg, #111 186deg 186.5deg,
-                transparent 186.5deg 194deg,
-                #111 194deg 194.5deg, #c42c1e 194.5deg 205deg, #111 205deg 205.5deg,
-                transparent 205.5deg 211deg,
-                #111 211deg 211.5deg, #c42c1e 211.5deg 218deg, #111 218deg 218.5deg,
-                transparent 218.5deg 227deg,
-                #111 227deg 227.5deg, #c42c1e 227.5deg 239deg, #111 239deg 239.5deg,
-                transparent 239.5deg 244deg,
-                #111 244deg 244.5deg, #c42c1e 244.5deg 250deg, #111 250deg 250.5deg,
-                transparent 250.5deg 260deg,
-                #111 260deg 260.5deg, #c42c1e 260.5deg 271deg, #111 271deg 271.5deg,
-                transparent 271.5deg 277deg,
-                #111 277deg 277.5deg, #c42c1e 277.5deg 284deg, #111 284deg 284.5deg,
-                transparent 284.5deg 293deg,
-                #111 293deg 293.5deg, #c42c1e 293.5deg 304deg, #111 304deg 304.5deg,
-                transparent 304.5deg 309deg,
-                #111 309deg 309.5deg, #c42c1e 309.5deg 316deg, #111 316deg 316.5deg,
-                transparent 316.5deg 325deg,
-                #111 325deg 325.5deg, #c42c1e 325.5deg 337deg, #111 337deg 337.5deg,
-                transparent 337.5deg 343deg,
-                #111 343deg 343.5deg, #c42c1e 343.5deg 350deg, #111 350deg 350.5deg,
-                transparent 350.5deg 360deg
-            );
-            animation: stripesRotate 80s linear infinite;
-            opacity: 0.5;
+            display: none;
         }
 
         .workspace-vignette {
@@ -602,26 +548,30 @@
         .workspace-content {
             position: relative;
             z-index: 2;
-            display: flex;
-            flex-direction: column;
-            height: 100%;
+            display: block;
             max-width: 1100px;
             margin: 0 auto;
             padding: 15px 20px;
+            line-height: 0;
         }
 
         .comic-title-bar {
-            background: #fbbf24;
+            background: #FCE900;
             color: #111;
             padding: 10px 15px;
+            margin: 0;
             border-radius: 8px 8px 0 0;
-            border: 4px solid #111;
+            border-left: 4px solid #111;
+            border-right: 4px solid #111;
+            border-top: 4px solid #111;
             border-bottom: none;
             display: flex;
             align-items: center;
             justify-content: space-between;
             position: relative;
-            box-shadow: 0 -4px 15px rgba(0,0,0,0.2);
+            line-height: normal;
+            vertical-align: top;
+            box-shadow: 8px 8px 0 rgba(0,0,0,0.4);
         }
 
         .comic-title-bar h2 {
@@ -666,65 +616,57 @@
 
         /* Panels Container - now holds single visible page */
         .panels-strip {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
+            display: block;
             background: transparent;
             border: none;
-            border-radius: 0 0 8px 8px;
             padding: 0;
-            overflow: hidden;
+            margin: 0;
             position: relative;
+            font-size: 0;
+            line-height: 0;
+            vertical-align: top;
         }
 
         /* Pages wrapper - only shows one page at a time */
         .pages-wrapper {
-            flex: 1;
             position: relative;
-            overflow: hidden;
+            height: 560px;  /* Fixed height for 2 rows of 240px panels + gaps + padding */
+            display: block;
+            background: #fff;
+            border-left: 4px solid #111;
+            border-right: 4px solid #111;
+            margin: 0;
+            padding: 0;
+            vertical-align: top;
+            box-shadow: 8px 8px 0 rgba(0,0,0,0.4);
         }
 
         /* Comic Page - a single page containing multiple panels */
         .comic-page {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            grid-template-rows: auto 1fr 1fr;  /* Header + 2 equal rows */
+            display: none;
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: 240px 240px;  /* 2 fixed rows for panels */
             gap: 8px;
-            background: #fff;
-            border: 4px solid #111;
-            border-radius: 0 0 8px 8px;
             padding: 15px;
-            box-shadow: 8px 8px 0 rgba(0,0,0,0.4);
             position: absolute;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s ease;
+            overflow: visible;
         }
 
         .comic-page.active {
-            opacity: 1;
-            pointer-events: auto;
-            position: relative;
+            display: grid;
+            position: absolute;
             height: 100%;
         }
 
         .comic-page-header {
-            grid-column: 1 / -1;
-            text-align: center;
-            font-size: 0.75rem;
-            color: #666;
-            padding-bottom: 8px;
-            border-bottom: 2px dashed #ddd;
-            margin-bottom: 8px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            display: none;
         }
 
-        /* Individual Panel - square, fits within grid cell */
+        /* Individual Panel - square, fixed size */
         .comic-panel {
             position: relative;
             background: #fff;
@@ -735,9 +677,8 @@
             transition: transform 0.2s, box-shadow 0.2s;
             justify-self: center;
             align-self: center;
-            width: 100%;
-            max-width: 100%;
-            max-height: 100%;
+            width: 240px;
+            height: 240px;
         }
 
         .comic-panel:hover {
@@ -751,33 +692,20 @@
         }
 
         .comic-panel.current {
-            box-shadow: 0 0 0 4px #fbbf24, 5px 5px 0 #111;
+            box-shadow: 0 0 0 4px #FCE900, 5px 5px 0 #111;
         }
 
         .panel-header {
-            position: absolute;
-            top: -12px;
-            left: 6px;
-            background: #dc2626;
-            color: #fff;
-            padding: 2px 8px;
-            border-radius: 3px;
-            font-weight: bold;
-            font-size: 0.65rem;
-            border: 2px solid #111;
-            z-index: 20;
-            text-transform: uppercase;
+            display: none;
         }
 
         .panel-image-container {
             position: relative;
-            aspect-ratio: 1;
             background: #e5e7eb;
             overflow: hidden;
-            /* Size based on available height, not width */
+            /* Fill the panel completely */
+            width: 100%;
             height: 100%;
-            width: auto;
-            max-width: 100%;
         }
 
         .panel-image-container img {
@@ -899,7 +827,7 @@
             font-size: 0.8rem;
             font-weight: bold;
             color: #dc2626;
-            text-shadow: 2px 2px 0 #fbbf24, 3px 3px 0 #111;
+            text-shadow: 2px 2px 0 #FCE900, 3px 3px 0 #111;
             text-transform: uppercase;
             letter-spacing: 1px;
             transform: rotate(-8deg);
@@ -908,13 +836,13 @@
 
         /* User Input Element - highlighted */
         .comic-element.user-input {
-            box-shadow: 0 0 0 2px #fbbf24, 0 0 10px rgba(251, 191, 36, 0.6);
+            box-shadow: 0 0 0 2px #FCE900, 0 0 10px rgba(251, 191, 36, 0.6);
             animation: pulse 1.5s infinite;
         }
 
         @keyframes pulse {
-            0%, 100% { box-shadow: 0 0 0 2px #fbbf24, 0 0 10px rgba(251, 191, 36, 0.6); }
-            50% { box-shadow: 0 0 0 3px #fbbf24, 0 0 15px rgba(251, 191, 36, 0.8); }
+            0%, 100% { box-shadow: 0 0 0 2px #FCE900, 0 0 10px rgba(251, 191, 36, 0.6); }
+            50% { box-shadow: 0 0 0 3px #FCE900, 0 0 15px rgba(251, 191, 36, 0.8); }
         }
 
         .sfx-text.user-input {
@@ -924,7 +852,7 @@
 
         .sfx-text.user-input .element-input {
             background: rgba(255, 255, 255, 0.95);
-            border: 2px solid #fbbf24;
+            border: 2px solid #FCE900;
             box-shadow: 0 0 8px rgba(251, 191, 36, 0.5);
         }
 
@@ -1009,7 +937,7 @@
         }
 
         .detected-bubble.user-input {
-            box-shadow: 0 0 0 2px #fbbf24, 0 0 8px rgba(251, 191, 36, 0.5);
+            box-shadow: 0 0 0 2px #FCE900, 0 0 8px rgba(251, 191, 36, 0.5);
             border-radius: 6px;
         }
 
@@ -1043,49 +971,55 @@
             gap: 15px;
             justify-content: center;
             align-items: center;
-            padding: 12px 20px;
+            padding: 10px 20px;
+            margin: 0;
+            line-height: normal;
             background: rgba(23, 101, 185, 0.85);
-            border: 3px solid #111;
+            border-left: 4px solid #111;
+            border-right: 4px solid #111;
+            border-bottom: 4px solid #111;
             border-top: none;
             border-radius: 0 0 8px 8px;
             backdrop-filter: blur(4px);
+            box-shadow: 8px 8px 0 rgba(0,0,0,0.4);
         }
 
         .nav-btn {
-            padding: 10px 20px;
-            background: #dc2626;
+            padding: 8px 16px;
+            background: #9ca3af;
             color: #fff;
             border: 3px solid #111;
-            border-radius: 6px;
-            font-size: 1rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
             font-weight: bold;
             font-family: inherit;
             cursor: pointer;
             text-transform: uppercase;
-            box-shadow: 3px 3px 0 #111;
+            box-shadow: 2px 2px 0 #111;
             transition: all 0.2s;
         }
 
         .nav-btn:hover:not(:disabled) {
-            background: #ef4444;
-            transform: translate(-2px, -2px);
-            box-shadow: 5px 5px 0 #111;
+            background: #6b7280;
+            transform: translate(-1px, -1px);
+            box-shadow: 3px 3px 0 #111;
         }
 
         .nav-btn:disabled {
-            background: #4a5568;
+            background: #d1d5db;
             cursor: not-allowed;
             box-shadow: 2px 2px 0 #111;
+            opacity: 0.5;
         }
 
         /* Page indicator */
         .page-indicator {
             color: #fff;
             font-weight: bold;
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             text-transform: uppercase;
             letter-spacing: 1px;
-            min-width: 150px;
+            min-width: 120px;
             text-align: center;
             text-shadow: 1px 1px 0 rgba(0,0,0,0.3);
         }
@@ -1093,11 +1027,11 @@
         /* Input hint - now floating */
         .input-hint {
             position: absolute;
-            bottom: 60px;
+            bottom: 65px;
             left: 50%;
             transform: translateX(-50%);
             color: #111;
-            background: #fbbf24;
+            background: #FCE900;
             padding: 8px 15px;
             border-radius: 8px;
             border: 3px solid #111;
@@ -1106,6 +1040,7 @@
             text-transform: uppercase;
             z-index: 100;
             box-shadow: 3px 3px 0 #111;
+            pointer-events: none;
         }
 
         /* Final Strip */
@@ -1211,7 +1146,7 @@
         }
 
         .final-content h2 {
-            color: #fbbf24;
+            color: #FCE900;
             margin-bottom: 20px;
             text-transform: uppercase;
             text-shadow: 2px 2px 0 #dc2626, 4px 4px 0 #111;
@@ -1264,7 +1199,7 @@
             top: 20px;
             right: 20px;
             padding: 15px 25px;
-            background: #fbbf24;
+            background: #FCE900;
             border: 3px solid #111;
             border-radius: 8px;
             color: #111;
@@ -1295,17 +1230,14 @@
             box-shadow: 3px 3px 0 #111;
             justify-self: center;
             align-self: center;
-            width: 100%;
-            max-width: 100%;
-            max-height: 100%;
+            width: 240px;
+            height: 240px;
         }
 
         .streaming-panel .panel-image-container {
             position: relative;
-            aspect-ratio: 1;
+            width: 100%;
             height: 100%;
-            width: auto;
-            max-width: 100%;
             background: #e5e7eb;
             display: flex;
             align-items: center;
@@ -1350,7 +1282,7 @@
         .streaming-dots span {
             width: 8px;
             height: 8px;
-            background: #fbbf24;
+            background: #FCE900;
             border-radius: 50%;
             animation: streamPulse 1.4s infinite;
         }
@@ -1368,17 +1300,26 @@
             background: #f3f4f6;
             border: 2px dashed #d1d5db;
             border-radius: 4px;
-            min-height: 100px;
+            width: 240px;
+            height: 240px;
+            justify-self: center;
+            align-self: center;
             opacity: 0.5;
         }
 
         /* Title Card Panel - same size as other panels, different header color */
         .title-card-panel .panel-header {
-            background: #fbbf24;
+            background: #FCE900;
             color: #111;
         }
 
         /* Responsive adjustments */
+        @media (max-width: 1000px) {
+            .comic-page {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
         @media (max-width: 768px) {
             .comic-page {
                 grid-template-columns: repeat(2, 1fr);
@@ -1486,7 +1427,7 @@
             splash.classList.remove('fade-out');
         });
 
-        const PANELS_PER_PAGE = 6; // 3 columns x 2 rows
+        const PANELS_PER_PAGE = 8; // 4 columns x 2 rows
 
         const state = {
             sessionId: null,
@@ -1528,11 +1469,37 @@
             setTimeout(() => elements.notification.classList.remove('show'), 3000);
         }
 
+        let hintTimer = null;
+
         function setLoading(isLoading) {
             state.isGenerating = isLoading;
             elements.finishBtn.disabled = isLoading;
-            elements.inputHint.classList.toggle('hidden', isLoading);
+            if (isLoading) {
+                hideInputHint();
+            }
             updateNavButtons();
+        }
+
+        function showInputHint() {
+            elements.inputHint.classList.remove('hidden');
+        }
+
+        function hideInputHint() {
+            elements.inputHint.classList.add('hidden');
+            if (hintTimer) {
+                clearTimeout(hintTimer);
+                hintTimer = null;
+            }
+        }
+
+        function startHintTimer() {
+            hideInputHint();
+            if (hintTimer) {
+                clearTimeout(hintTimer);
+            }
+            hintTimer = setTimeout(() => {
+                showInputHint();
+            }, 5000); // Show hint after 5 seconds of inactivity
         }
 
         function createPage(pageNumber) {
@@ -1655,8 +1622,7 @@
         }
 
         function updatePageIndicator() {
-            const totalPanels = state.completedPanels.length + (state.currentPanel ? 1 : 0);
-            elements.pageIndicator.textContent = `Page ${state.viewingPageIndex + 1} of ${state.pages.length} • ${totalPanels} panels`;
+            elements.pageIndicator.textContent = `Page ${state.viewingPageIndex + 1} of ${state.pages.length}`;
         }
 
         function getPositionClass(position) {
@@ -2000,7 +1966,12 @@
 
                                     setTimeout(() => {
                                         const input = panel.querySelector('.user-input .element-input');
-                                        if (input) input.focus();
+                                        if (input) {
+                                            input.focus();
+                                            startHintTimer();
+                                            input.addEventListener('input', hideInputHint);
+                                            input.addEventListener('blur', hideInputHint);
+                                        }
                                     }, 100);
                                 }
                             } catch (e) {
@@ -2105,7 +2076,12 @@
 
                                     setTimeout(() => {
                                         const input = panel.querySelector('.user-input .element-input');
-                                        if (input) input.focus();
+                                        if (input) {
+                                            input.focus();
+                                            startHintTimer();
+                                            input.addEventListener('input', hideInputHint);
+                                            input.addEventListener('blur', hideInputHint);
+                                        }
                                     }, 100);
                                 }
                             } catch (e) {
