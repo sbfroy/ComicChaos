@@ -371,6 +371,17 @@ class ComicSession:
             "is_title_card": True,
         })
 
+        # Add title card to comic strip
+        if self.comic_strip and title_card_path:
+            self.comic_strip.add_panel(
+                title_card_path,
+                f"{self.config.blueprint.title} - {response.title_card.atmosphere}",
+                0,
+                elements=[],
+                user_input_text=None,
+                detected_bubbles=[],
+            )
+
         # === FIRST INTERACTIVE PANEL ===
         yield json.dumps({
             "type": "init",
