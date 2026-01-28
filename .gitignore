@@ -24,7 +24,7 @@ assets/generated/*.png
 assets/generated/*.txt
 
 # Saves
-saves/
+/output
 
 # OS
 .DS_Store
@@ -37,7 +37,5 @@ Thumbs.db
 .pytest_cache/
 .coverage
 htmlcov/
-/logs
+
 /notebooks
-/output
-/assets
