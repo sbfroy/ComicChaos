@@ -419,13 +419,13 @@ class ImageGenerator:
             return (
                 "Include ONE empty white oval speech bubble with black outline and pointed tail, "
                 "positioned near the main character. The bubble should be large enough to contain "
-                "a short sentence, completely empty inside with no text."
+                "a short sentence, completely empty inside with no text. The whole bubble must be visible."
             )
         elif el_type == "thought":
             return (
                 "Include ONE empty white cloud-shaped thought bubble with small circular tail dots, "
                 "positioned near the main character's head. The bubble should be large enough to "
-                "contain a short thought, completely empty inside with no text."
+                "contain a short thought, completely empty inside with no text. The whole bubble must be visible."
             )
 
         # Narration and other types don't need bubbles in the image
