@@ -29,8 +29,8 @@ class TextRenderer:
     def __init__(
         self,
         font_path: Optional[str] = None,
-        default_font_size: int = 28,
-        min_font_size: int = 16,
+        default_font_size: int = 20,
+        min_font_size: int = 12,
         padding_ratio: float = 0.15,
         line_spacing: float = 1.2,
     ):
@@ -119,6 +119,39 @@ class TextRenderer:
 
         return lines if lines else [text]
 
+    def _truncate_text_to_fit(
+        self, text: str, font: ImageFont.FreeTypeFont, max_width: int, max_height: int
+    ) -> List[str]:
+        """Truncate text from the end to fit within dimensions.
+
+        This keeps the oldest (beginning) text and truncates the newest (ending) text.
+
+        Args:
+            text: Text to truncate.
+            font: Font to use for measurement.
+            max_width: Maximum width in pixels.
+            max_height: Maximum height in pixels.
+
+        Returns:
+            List of wrapped lines that fit, with ellipsis if truncated.
+        """
+        words = text.split()
+
+        # Try progressively fewer words until it fits
+        for word_count in range(len(words), 0, -1):
+            truncated_text = " ".join(words[:word_count])
+            if word_count < len(words):
+                truncated_text += "..."
+
+            lines = self._wrap_text(truncated_text, font, max_width)
+            _, text_height = self._calculate_text_bounds(lines, font)
+
+            if text_height <= max_height:
+                return lines
+
+        # If even one word doesn't fit, return it anyway
+        return [words[0] + "..." if len(words) > 1 else words[0]] if words else ["..."]
+
     def _calculate_text_bounds(
         self,
         lines: List[str],
@@ -168,11 +201,30 @@ class TextRenderer:
         usable_width = bubble.width - (2 * padding_x)
         usable_height = bubble.height - (2 * padding_y)
 
-        # Scale starting font size based on bubble size
-        # Use the smaller dimension to determine base size
+        # Scale starting font size based on text length, matching frontend
+        # Images are 1024x1024, bubbles are typically 150-250px in that space
+        # In the 512x512 final strip, that's 75-125px
+        # We want fonts around 13px for short text, scaling down
+
+        text_length = len(text)
+
+        # Use text length as primary factor (matching frontend exactly)
+        if text_length < 15:
+            target_size = 26  # Will scale down to ~13px at 512x512
+        elif text_length < 30:
+            target_size = 24  # ~12px
+        elif text_length < 50:
+            target_size = 22  # ~11px
+        elif text_length < 70:
+            target_size = 20  # ~10px
+        else:
+            target_size = 18  # ~9px
+
+        # Cap based on bubble size to avoid overflow
         bubble_min_dim = min(bubble.width, bubble.height)
-        # Start with font size proportional to bubble (roughly 1/4 of height)
-        scaled_start_size = max(self.min_font_size, min(int(bubble_min_dim * 0.25), 48))
+        max_size = int(bubble_min_dim * 0.15)
+
+        scaled_start_size = max(self.min_font_size, min(target_size, max_size))
 
         # Account for character name if present
         name_height = 0
@@ -197,9 +249,16 @@ class TextRenderer:
             if text_width <= usable_width and text_height <= available_height:
                 return font, lines, name_height
 
-        # Return minimum size even if it doesn't fit
+        # If text doesn't fit even at minimum size, truncate from end
         font = self._get_font(self.min_font_size)
-        lines = self._wrap_text(text, font, usable_width)
+        name_font = self._get_font(max(self.min_font_size - 4, 10), bold=True)
+
+        if character_name:
+            name_bbox = name_font.getbbox(character_name.upper())
+            name_height = int((name_bbox[3] - name_bbox[1]) * 1.5)
+
+        available_height = usable_height - name_height
+        lines = self._truncate_text_to_fit(text, font, usable_width, available_height)
         return font, lines, name_height
 
     def render_text_on_image(

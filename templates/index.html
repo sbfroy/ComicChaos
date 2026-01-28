@@ -729,7 +729,7 @@
             padding: 4px 6px;
             min-width: 50px;
             max-width: 80%;
-            font-size: 0.55rem;
+            font-size: 14px;
             color: #111;
             line-height: 1.2;
         }
@@ -771,7 +771,7 @@
             padding: 4px 6px;
             min-width: 45px;
             max-width: 75%;
-            font-size: 0.5rem;
+            font-size: 13px;
             font-style: italic;
             color: #444;
             line-height: 1.2;
@@ -913,7 +913,9 @@
             /* Background is transparent since the bubble is in the image */
             background: transparent !important;
             border: none !important;
-            box-shadow: none;
+            box-shadow: none !important;
+            overflow: hidden;
+            border-radius: 50%;
         }
 
         .detected-bubble::before,
@@ -929,16 +931,29 @@
             justify-content: center;
             width: 100%;
             height: 100%;
-            font-size: 0.45rem;
-            line-height: 1.1;
-            color: #111;  /* Explicit black text */
-            padding: 8%;  /* Padding to keep text inside bubble */
+            font-size: 13px;
+            line-height: 1.2;
+            color: #111;
+            padding: 15%;
             box-sizing: border-box;
+            background: transparent !important;
+            border: none !important;
+            outline: none !important;
+            resize: none;
+            overflow: hidden;
+            word-wrap: break-word;
+            text-overflow: clip;
         }
 
         .detected-bubble.user-input {
-            box-shadow: 0 0 0 2px #FCE900, 0 0 8px rgba(251, 191, 36, 0.5);
-            border-radius: 6px;
+            box-shadow: none !important;
+            border: none !important;
+            animation: bubblePulse 2s ease-in-out infinite;
+        }
+
+        @keyframes bubblePulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.85; }
         }
 
         /* Loading */
@@ -1502,6 +1517,36 @@
             }, 5000); // Show hint after 5 seconds of inactivity
         }
 
+        function adjustBubbleTextSize(input) {
+            if (!input) return;
+
+            const text = input.value;
+            const length = text.length;
+
+            // Dynamic font sizing based on character count
+            let fontSize;
+            if (length < 15) {
+                fontSize = 13; // Starting size
+            } else if (length < 30) {
+                fontSize = 12;
+            } else if (length < 50) {
+                fontSize = 11;
+            } else if (length < 70) {
+                fontSize = 10;
+            } else {
+                fontSize = 9; // Minimum
+            }
+
+            input.style.fontSize = fontSize + 'px';
+
+            // Scroll to end to show newest text (oldest text disappears)
+            if (input.tagName === 'TEXTAREA') {
+                input.scrollTop = input.scrollHeight;
+            } else {
+                input.scrollLeft = input.scrollWidth;
+            }
+        }
+
         function createPage(pageNumber) {
             const page = document.createElement('div');
             page.className = 'comic-page';
@@ -1703,7 +1748,21 @@
                     if (isEditable && isUserInput) {
                         content = `<textarea class="element-input" placeholder="${el.placeholder || 'Say something...'}" style="background: transparent; resize: none;">${displayText}</textarea>`;
                     } else {
-                        content = `<div class="element-text">${displayText}</div>`;
+                        // Calculate font size for static text based on length
+                        const textLength = displayText.length;
+                        let fontSize;
+                        if (textLength < 15) {
+                            fontSize = 13;
+                        } else if (textLength < 30) {
+                            fontSize = 12;
+                        } else if (textLength < 50) {
+                            fontSize = 11;
+                        } else if (textLength < 70) {
+                            fontSize = 10;
+                        } else {
+                            fontSize = 9;
+                        }
+                        content = `<div class="element-text" style="font-size: ${fontSize}px;">${displayText}</div>`;
                     }
                 } else {
                     // Fallback to grid positioning with visible bubble
@@ -1715,7 +1774,21 @@
                     if (isEditable && isUserInput) {
                         content += `<textarea class="element-input" placeholder="${el.placeholder || 'Say something...'}">${displayText}</textarea>`;
                     } else {
-                        content += `<div class="element-text">${displayText}</div>`;
+                        // Calculate font size for static text based on length
+                        const textLength = displayText.length;
+                        let fontSize;
+                        if (textLength < 15) {
+                            fontSize = 14;
+                        } else if (textLength < 30) {
+                            fontSize = 13;
+                        } else if (textLength < 50) {
+                            fontSize = 12;
+                        } else if (textLength < 70) {
+                            fontSize = 11;
+                        } else {
+                            fontSize = 10;
+                        }
+                        content += `<div class="element-text" style="font-size: ${fontSize}px;">${displayText}</div>`;
                     }
                 }
             }
@@ -1969,7 +2042,11 @@
                                         if (input) {
                                             input.focus();
                                             startHintTimer();
-                                            input.addEventListener('input', hideInputHint);
+                                            adjustBubbleTextSize(input);
+                                            input.addEventListener('input', () => {
+                                                hideInputHint();
+                                                adjustBubbleTextSize(input);
+                                            });
                                             input.addEventListener('blur', hideInputHint);
                                         }
                                     }, 100);
@@ -2079,7 +2156,11 @@
                                         if (input) {
                                             input.focus();
                                             startHintTimer();
-                                            input.addEventListener('input', hideInputHint);
+                                            adjustBubbleTextSize(input);
+                                            input.addEventListener('input', () => {
+                                                hideInputHint();
+                                                adjustBubbleTextSize(input);
+                                            });
                                             input.addEventListener('blur', hideInputHint);
                                         }
                                     }, 100);
