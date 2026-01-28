@@ -53,20 +53,96 @@
             width: 300vmax;
             height: 300vmax;
             transform: translate(-50%, -50%);
-            border-radius: 50%;
-            background: repeating-conic-gradient(
-                #111 0deg 0.5deg,
-                #c42c1e 0.5deg 7deg,
-                #111 7deg 7.5deg,
-                transparent 7.5deg 14deg,
-                #111 14deg 14.5deg,
-                #c42c1e 14.5deg 18deg,
-                #111 18deg 18.5deg,
-                transparent 18.5deg 28deg,
-                #111 28deg 28.5deg,
-                #c42c1e 28.5deg 36deg,
-                #111 36deg 36.5deg,
-                transparent 36.5deg 45deg
+            background: conic-gradient(
+                /* wedge 1 */
+                transparent 0deg 1deg,
+                #111 1deg 1.5deg, #c42c1e 1.5deg 9deg, #111 9deg 9.5deg,
+                /* gap */
+                transparent 9.5deg 16deg,
+                /* wedge 2 */
+                #111 16deg 16.5deg, #c42c1e 16.5deg 22deg, #111 22deg 22.5deg,
+                /* gap */
+                transparent 22.5deg 31deg,
+                /* wedge 3 */
+                #111 31deg 31.5deg, #c42c1e 31.5deg 42deg, #111 42deg 42.5deg,
+                /* gap */
+                transparent 42.5deg 47deg,
+                /* wedge 4 */
+                #111 47deg 47.5deg, #c42c1e 47.5deg 54deg, #111 54deg 54.5deg,
+                /* gap */
+                transparent 54.5deg 64deg,
+                /* wedge 5 */
+                #111 64deg 64.5deg, #c42c1e 64.5deg 76deg, #111 76deg 76.5deg,
+                /* gap */
+                transparent 76.5deg 82deg,
+                /* wedge 6 */
+                #111 82deg 82.5deg, #c42c1e 82.5deg 88deg, #111 88deg 88.5deg,
+                /* gap */
+                transparent 88.5deg 97deg,
+                /* wedge 7 */
+                #111 97deg 97.5deg, #c42c1e 97.5deg 108deg, #111 108deg 108.5deg,
+                /* gap */
+                transparent 108.5deg 113deg,
+                /* wedge 8 */
+                #111 113deg 113.5deg, #c42c1e 113.5deg 119deg, #111 119deg 119.5deg,
+                /* gap */
+                transparent 119.5deg 129deg,
+                /* wedge 9 */
+                #111 129deg 129.5deg, #c42c1e 129.5deg 140deg, #111 140deg 140.5deg,
+                /* gap */
+                transparent 140.5deg 146deg,
+                /* wedge 10 */
+                #111 146deg 146.5deg, #c42c1e 146.5deg 153deg, #111 153deg 153.5deg,
+                /* gap */
+                transparent 153.5deg 161deg,
+                /* wedge 11 */
+                #111 161deg 161.5deg, #c42c1e 161.5deg 173deg, #111 173deg 173.5deg,
+                /* gap */
+                transparent 173.5deg 180deg,
+                /* wedge 12 */
+                #111 180deg 180.5deg, #c42c1e 180.5deg 186deg, #111 186deg 186.5deg,
+                /* gap */
+                transparent 186.5deg 194deg,
+                /* wedge 13 */
+                #111 194deg 194.5deg, #c42c1e 194.5deg 205deg, #111 205deg 205.5deg,
+                /* gap */
+                transparent 205.5deg 211deg,
+                /* wedge 14 */
+                #111 211deg 211.5deg, #c42c1e 211.5deg 218deg, #111 218deg 218.5deg,
+                /* gap */
+                transparent 218.5deg 227deg,
+                /* wedge 15 */
+                #111 227deg 227.5deg, #c42c1e 227.5deg 239deg, #111 239deg 239.5deg,
+                /* gap */
+                transparent 239.5deg 244deg,
+                /* wedge 16 */
+                #111 244deg 244.5deg, #c42c1e 244.5deg 250deg, #111 250deg 250.5deg,
+                /* gap */
+                transparent 250.5deg 260deg,
+                /* wedge 17 */
+                #111 260deg 260.5deg, #c42c1e 260.5deg 271deg, #111 271deg 271.5deg,
+                /* gap */
+                transparent 271.5deg 277deg,
+                /* wedge 18 */
+                #111 277deg 277.5deg, #c42c1e 277.5deg 284deg, #111 284deg 284.5deg,
+                /* gap */
+                transparent 284.5deg 293deg,
+                /* wedge 19 */
+                #111 293deg 293.5deg, #c42c1e 293.5deg 304deg, #111 304deg 304.5deg,
+                /* gap */
+                transparent 304.5deg 309deg,
+                /* wedge 20 */
+                #111 309deg 309.5deg, #c42c1e 309.5deg 316deg, #111 316deg 316.5deg,
+                /* gap */
+                transparent 316.5deg 325deg,
+                /* wedge 21 */
+                #111 325deg 325.5deg, #c42c1e 325.5deg 337deg, #111 337deg 337.5deg,
+                /* gap */
+                transparent 337.5deg 343deg,
+                /* wedge 22 */
+                #111 343deg 343.5deg, #c42c1e 343.5deg 350deg, #111 350deg 350.5deg,
+                /* trailing gap */
+                transparent 350.5deg 360deg
             );
             animation: stripesRotate 40s linear infinite;
         }
@@ -91,7 +167,12 @@
             z-index: 2;
             max-width: 85%;
             max-height: 70%;
-            animation: popIn 0.3s ease-out, logoPulse 1.8s ease-in-out 0.5s infinite;
+            cursor: pointer;
+            animation: popIn 0.3s ease-out;
+        }
+
+        .splash-logo.pulsing {
+            animation: popIn 0.3s ease-out, logoPulse 1.8s ease-in-out infinite;
         }
 
         @keyframes logoPulse {
@@ -119,58 +200,272 @@
             flex-direction: column;
         }
 
-        /* Comic Selection */
+        /* Comic Selection - full screen */
         .comic-select {
-            background: #fff;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #1765B9;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            overflow: hidden;
+        }
+
+        .comic-select .select-stripes {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 200vmax;
+            height: 200vmax;
+            transform: translate(-50%, -50%);
+            background: conic-gradient(
+                transparent 0deg 1deg,
+                #111 1deg 1.5deg, #c42c1e 1.5deg 9deg, #111 9deg 9.5deg,
+                transparent 9.5deg 16deg,
+                #111 16deg 16.5deg, #c42c1e 16.5deg 22deg, #111 22deg 22.5deg,
+                transparent 22.5deg 31deg,
+                #111 31deg 31.5deg, #c42c1e 31.5deg 42deg, #111 42deg 42.5deg,
+                transparent 42.5deg 47deg,
+                #111 47deg 47.5deg, #c42c1e 47.5deg 54deg, #111 54deg 54.5deg,
+                transparent 54.5deg 64deg,
+                #111 64deg 64.5deg, #c42c1e 64.5deg 76deg, #111 76deg 76.5deg,
+                transparent 76.5deg 82deg,
+                #111 82deg 82.5deg, #c42c1e 82.5deg 88deg, #111 88deg 88.5deg,
+                transparent 88.5deg 97deg,
+                #111 97deg 97.5deg, #c42c1e 97.5deg 108deg, #111 108deg 108.5deg,
+                transparent 108.5deg 113deg,
+                #111 113deg 113.5deg, #c42c1e 113.5deg 119deg, #111 119deg 119.5deg,
+                transparent 119.5deg 129deg,
+                #111 129deg 129.5deg, #c42c1e 129.5deg 140deg, #111 140deg 140.5deg,
+                transparent 140.5deg 146deg,
+                #111 146deg 146.5deg, #c42c1e 146.5deg 153deg, #111 153deg 153.5deg,
+                transparent 153.5deg 161deg,
+                #111 161deg 161.5deg, #c42c1e 161.5deg 173deg, #111 173deg 173.5deg,
+                transparent 173.5deg 180deg,
+                #111 180deg 180.5deg, #c42c1e 180.5deg 186deg, #111 186deg 186.5deg,
+                transparent 186.5deg 194deg,
+                #111 194deg 194.5deg, #c42c1e 194.5deg 205deg, #111 205deg 205.5deg,
+                transparent 205.5deg 211deg,
+                #111 211deg 211.5deg, #c42c1e 211.5deg 218deg, #111 218deg 218.5deg,
+                transparent 218.5deg 227deg,
+                #111 227deg 227.5deg, #c42c1e 227.5deg 239deg, #111 239deg 239.5deg,
+                transparent 239.5deg 244deg,
+                #111 244deg 244.5deg, #c42c1e 244.5deg 250deg, #111 250deg 250.5deg,
+                transparent 250.5deg 260deg,
+                #111 260deg 260.5deg, #c42c1e 260.5deg 271deg, #111 271deg 271.5deg,
+                transparent 271.5deg 277deg,
+                #111 277deg 277.5deg, #c42c1e 277.5deg 284deg, #111 284deg 284.5deg,
+                transparent 284.5deg 293deg,
+                #111 293deg 293.5deg, #c42c1e 293.5deg 304deg, #111 304deg 304.5deg,
+                transparent 304.5deg 309deg,
+                #111 309deg 309.5deg, #c42c1e 309.5deg 316deg, #111 316deg 316.5deg,
+                transparent 316.5deg 325deg,
+                #111 325deg 325.5deg, #c42c1e 325.5deg 337deg, #111 337deg 337.5deg,
+                transparent 337.5deg 343deg,
+                #111 343deg 343.5deg, #c42c1e 343.5deg 350deg, #111 350deg 350.5deg,
+                transparent 350.5deg 360deg
+            );
+            animation: stripesRotate 60s linear infinite;
+            opacity: 0.7;
+        }
+
+        .comic-select .select-vignette {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(
+                ellipse 55% 55% at center,
+                #1765B9 0%,
+                #1765B9 25%,
+                transparent 70%
+            );
+            z-index: 1;
+        }
+
+        .select-content {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            height: 100%;
+        }
+
+        .select-logo {
+            width: 160px;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            margin-top: 20px;
+            flex-shrink: 0;
+        }
+
+        .select-logo:hover {
+            transform: scale(1.08);
+        }
+
+        .bubbles-area {
+            flex: 1;
+            position: relative;
+            width: 100%;
+            max-width: 900px;
+        }
+
+        .comic-bubble {
+            position: absolute;
+            width: 340px;
+            height: 290px;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.3s ease, filter 0.3s ease;
+            opacity: 0;
+            animation: bubblePopIn 0.5s ease-out forwards;
+        }
+
+        .comic-bubble:nth-child(1) {
+            top: 5%;
+            left: 5%;
+            animation-delay: 0.1s;
+        }
+
+        .comic-bubble:nth-child(2) {
+            top: 15%;
+            right: 5%;
+            left: auto;
+            animation-delay: 0.3s;
+        }
+
+        .comic-bubble:nth-child(3) {
+            bottom: 10%;
+            left: 10%;
+            top: auto;
+            animation-delay: 0.5s;
+        }
+
+        @keyframes bubblePopIn {
+            0% { transform: scale(0.3); opacity: 0; }
+            60% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .comic-bubble.landed {
+            animation: bubblePopIn 0.5s ease-out forwards, bubbleFloat 3s ease-in-out infinite;
+        }
+
+        .comic-bubble:nth-child(1).landed {
+            animation: bubblePopIn 0.5s ease-out forwards, bubbleFloat 3s ease-in-out 0.6s infinite;
+        }
+
+        .comic-bubble:nth-child(2).landed {
+            animation: bubblePopIn 0.5s ease-out forwards, bubbleFloat2 3.5s ease-in-out 0.8s infinite;
+        }
+
+        .comic-bubble:nth-child(3).landed {
+            animation: bubblePopIn 0.5s ease-out forwards, bubbleFloat3 4s ease-in-out 1.0s infinite;
+        }
+
+        @keyframes bubbleFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-12px); }
+        }
+
+        @keyframes bubbleFloat2 {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @keyframes bubbleFloat3 {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+
+        .comic-bubble:hover {
+            transform: scale(1.08) !important;
+            filter: brightness(1.1);
+        }
+
+        .comic-bubble.selected {
+            filter: brightness(1.15) drop-shadow(0 0 15px rgba(251, 191, 36, 0.8));
+        }
+
+        .comic-bubble.coming-soon {
+            cursor: default;
+            opacity: 0;
+            animation: bubblePopIn 0.5s ease-out forwards;
+        }
+
+        .comic-bubble.coming-soon:hover {
+            transform: scale(1.04) !important;
+            filter: brightness(1.0);
+        }
+
+        .bubble-text {
+            text-align: center;
+            padding: 30px 40px;
+            pointer-events: none;
+        }
+
+        .bubble-text h3 {
+            color: #111;
+            text-transform: uppercase;
+            font-size: 1.1rem;
+            margin-bottom: 6px;
+            text-shadow: 1px 1px 0 rgba(255,255,255,0.5);
+        }
+
+        .bubble-text p {
+            color: #333;
+            font-size: 0.8rem;
+            line-height: 1.3;
+        }
+
+        .bubble-text.muted h3,
+        .bubble-text.muted p {
+            color: #888;
+        }
+
+        .select-start-btn {
+            position: relative;
+            z-index: 2;
+            padding: 15px 50px;
+            margin-bottom: 30px;
+            background: #dc2626;
+            color: #fff;
             border: 4px solid #111;
             border-radius: 8px;
-            padding: 25px;
-            margin-bottom: 30px;
-            box-shadow: 8px 8px 0 #111;
-        }
-
-        .comic-select h2 {
-            margin-bottom: 20px;
-            color: #dc2626;
-            text-transform: uppercase;
-            font-size: 1.5rem;
-            text-shadow: 2px 2px 0 #fbbf24;
-        }
-
-        .comic-list {
-            display: grid;
-            gap: 15px;
-        }
-
-        .comic-card {
-            background: #fef3c7;
-            border: 3px solid #111;
-            border-radius: 8px;
-            padding: 20px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            font-family: inherit;
             cursor: pointer;
-            transition: all 0.2s;
-            position: relative;
-        }
-
-        .comic-card:hover {
-            transform: translate(-4px, -4px);
-            box-shadow: 8px 8px 0 #111;
-        }
-
-        .comic-card.selected {
-            background: #fbbf24;
-            transform: translate(-4px, -4px);
-            box-shadow: 8px 8px 0 #111;
-        }
-
-        .comic-card h3 {
-            color: #111;
-            margin-bottom: 8px;
             text-transform: uppercase;
+            letter-spacing: 2px;
+            transition: all 0.2s;
+            box-shadow: 4px 4px 0 #111;
+            flex-shrink: 0;
         }
-        .comic-card p {
-            color: #444;
-            font-size: 0.9rem;
+
+        .select-start-btn:hover:not(:disabled) {
+            background: #ef4444;
+            transform: translate(-2px, -2px);
+            box-shadow: 6px 6px 0 #111;
+        }
+
+        .select-start-btn:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+            box-shadow: 2px 2px 0 #111;
         }
 
         .start-btn, .continue-btn, .finish-btn {
@@ -922,9 +1217,23 @@
 
     <div class="container">
         <div id="comic-select" class="comic-select">
-            <h2>Choose Your Comic</h2>
-            <div id="comic-list" class="comic-list"></div>
-            <button id="start-btn" class="start-btn" disabled>Start Creating</button>
+            <div class="select-stripes"></div>
+            <div class="select-vignette"></div>
+            <div class="select-content">
+                <img src="/static/images/logo.webp" id="back-to-splash" class="select-logo" alt="Comic Chaos" />
+                <div class="bubbles-area">
+                    <div class="comic-bubble" id="bubble-0" style="background-image: url('/static/images/bubble_1.webp')">
+                        <div class="bubble-text"><h3>Loading...</h3><p></p></div>
+                    </div>
+                    <div class="comic-bubble coming-soon" id="bubble-1" style="background-image: url('/static/images/bubble_2.webp')">
+                        <div class="bubble-text muted"><h3>Coming Soon...</h3><p></p></div>
+                    </div>
+                    <div class="comic-bubble coming-soon" id="bubble-2" style="background-image: url('/static/images/bubble_3.webp')">
+                        <div class="bubble-text muted"><h3>Coming Soon...</h3><p></p></div>
+                    </div>
+                </div>
+                <button id="start-btn" class="select-start-btn" disabled>Start Creating</button>
+            </div>
         </div>
 
         <div id="workspace" class="comic-workspace">
@@ -957,12 +1266,32 @@
     <div id="notification" class="notification"></div>
 
     <script>
-        // Hide splash screen after 5 seconds
-        setTimeout(() => {
+        // Splash logo hover: start pulse, ease out on leave
+        const splashLogo = document.querySelector('.splash-logo');
+        splashLogo.addEventListener('mouseenter', () => {
+            splashLogo.classList.add('pulsing');
+        });
+        splashLogo.addEventListener('mouseleave', () => {
+            const onIteration = () => {
+                splashLogo.classList.remove('pulsing');
+                splashLogo.removeEventListener('animationiteration', onIteration);
+            };
+            splashLogo.addEventListener('animationiteration', onIteration);
+        });
+
+        // Hide splash screen on logo click
+        splashLogo.addEventListener('click', () => {
             const splash = document.getElementById('splash');
             splash.classList.add('fade-out');
-            setTimeout(() => splash.remove(), 500);
-        }, 5000);
+            setTimeout(() => splash.style.display = 'none', 500);
+        });
+
+        // Return to splash screen
+        document.getElementById('back-to-splash').addEventListener('click', () => {
+            const splash = document.getElementById('splash');
+            splash.style.display = '';
+            splash.classList.remove('fade-out');
+        });
 
         const PANELS_PER_PAGE = 6; // 3 columns x 2 rows
 
@@ -980,7 +1309,6 @@
         };
 
         const elements = {
-            comicList: document.getElementById('comic-list'),
             startBtn: document.getElementById('start-btn'),
             comicSelect: document.getElementById('comic-select'),
             workspace: document.getElementById('workspace'),
@@ -1327,21 +1655,31 @@
                 const response = await fetch('/api/comics');
                 const comics = await response.json();
 
-                elements.comicList.innerHTML = comics.map(comic => `
-                    <div class="comic-card" data-id="${comic.id}">
-                        <h3>${comic.name}</h3>
-                        <p>${comic.description}</p>
-                    </div>
-                `).join('');
+                // Populate bubble containers with comic data
+                comics.forEach((comic, i) => {
+                    const bubble = document.getElementById(`bubble-${i}`);
+                    if (!bubble) return;
+                    bubble.dataset.id = comic.id;
+                    bubble.classList.remove('coming-soon');
+                    const textEl = bubble.querySelector('.bubble-text');
+                    textEl.classList.remove('muted');
+                    textEl.innerHTML = `<h3>${comic.name}</h3><p>${comic.description}</p>`;
+                });
 
-                document.querySelectorAll('.comic-card').forEach(card => {
-                    card.addEventListener('click', () => {
-                        document.querySelectorAll('.comic-card').forEach(c => c.classList.remove('selected'));
-                        card.classList.add('selected');
-                        state.selectedComic = card.dataset.id;
+                // Add click handlers to populated bubbles
+                document.querySelectorAll('.comic-bubble:not(.coming-soon)').forEach(bubble => {
+                    bubble.addEventListener('click', () => {
+                        document.querySelectorAll('.comic-bubble').forEach(b => b.classList.remove('selected'));
+                        bubble.classList.add('selected');
+                        state.selectedComic = bubble.dataset.id;
                         elements.startBtn.disabled = false;
                     });
                 });
+
+                // Start floating animation after pop-in completes
+                setTimeout(() => {
+                    document.querySelectorAll('.comic-bubble').forEach(b => b.classList.add('landed'));
+                }, 800);
             } catch (error) {
                 showNotification('Failed to load comics');
             }
