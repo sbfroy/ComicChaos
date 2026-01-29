@@ -200,14 +200,41 @@
         .splash-logo {
             position: relative;
             z-index: 2;
-            max-width: 85%;
-            max-height: 70%;
+            max-width: 90vw;
+            max-height: 65vh;
+            width: auto;
+            height: auto;
             cursor: pointer;
             animation: popIn 0.3s ease-out;
+            filter: drop-shadow(0 8px 20px rgba(0, 0, 0, 0.4));
         }
 
         .splash-logo.pulsing {
             animation: popIn 0.3s ease-out, logoPulse 1.8s ease-in-out infinite;
+        }
+
+        .splash-content {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 30px;
+            max-width: 90%;
+            max-height: 90%;
+        }
+
+        .splash-text {
+            color: var(--color-accent-yellow);
+            font-family: var(--font-display);
+            font-size: 1.8rem;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            text-shadow: 3px 3px 0 rgba(0, 0, 0, 0.6), 0 0 20px rgba(252, 233, 0, 0.5);
+            animation: popIn 0.3s ease-out 0.2s backwards;
+            cursor: pointer;
         }
 
         @keyframes logoPulse {
@@ -338,13 +365,15 @@
         .select-logo {
             width: 200px;
             cursor: pointer;
-            transition: transform 0.3s ease;
+            transition: transform 0.3s ease, filter 0.3s ease;
             margin-top: 20px;
             flex-shrink: 0;
+            filter: drop-shadow(0 6px 15px rgba(0, 0, 0, 0.4));
         }
 
         .select-logo:hover {
             transform: scale(1.08);
+            filter: drop-shadow(0 8px 20px rgba(0, 0, 0, 0.5));
         }
 
         .bubbles-area {
@@ -1521,7 +1550,10 @@
     <div id="splash" class="splash-screen">
         <div class="splash-stripes"></div>
         <div class="splash-vignette"></div>
-        <img src="/static/images/logo.webp" class="splash-logo" alt="Comic Chaos" />
+        <div class="splash-content">
+            <img src="/static/images/logo.webp" class="splash-logo" alt="Comic Chaos" />
+            <div class="splash-text">Click to Enter the Comic Chaos!</div>
+        </div>
     </div>
 
     <div class="container">
@@ -1541,7 +1573,7 @@
                         <div class="bubble-text muted"><h3>Coming Soon...</h3><p></p></div>
                     </div>
                 </div>
-                <button id="start-btn" class="select-start-btn" disabled>Start Creating</button>
+                <button id="start-btn" class="select-start-btn" disabled>Select a Comic</button>
             </div>
         </div>
 
@@ -1596,12 +1628,21 @@
             splashLogo.addEventListener('animationiteration', onIteration);
         });
 
-        // Hide splash screen on logo click
+        // Hide splash screen on logo or text click
+        const splash = document.getElementById('splash');
         splashLogo.addEventListener('click', () => {
-            const splash = document.getElementById('splash');
             splash.classList.add('fade-out');
             setTimeout(() => splash.style.display = 'none', 500);
         });
+
+        // Make splash text clickable
+        const splashText = document.querySelector('.splash-text');
+        if (splashText) {
+            splashText.addEventListener('click', () => {
+                splash.classList.add('fade-out');
+                setTimeout(() => splash.style.display = 'none', 500);
+            });
+        }
 
         // Return to splash screen
         document.getElementById('back-to-splash').addEventListener('click', () => {
@@ -2107,6 +2148,7 @@
                         bubble.classList.add('selected');
                         state.selectedComic = bubble.dataset.id;
                         elements.startBtn.disabled = false;
+                        elements.startBtn.textContent = 'Start the Comic Chaos!';
                     });
                 });
 
