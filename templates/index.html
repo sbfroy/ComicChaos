@@ -80,113 +80,79 @@
             pointer-events: none;
         }
 
-        .splash-stripes {
+        /* Shared rotating stripes pattern */
+        .rotating-stripes {
             position: absolute;
             top: 50%;
             left: 50%;
-            width: 300vmax;
-            height: 300vmax;
             transform: translate(-50%, -50%);
             background: conic-gradient(
-                /* wedge 1 */
                 transparent 0deg 1deg,
                 #111 1deg 1.5deg, #c42c1e 1.5deg 9deg, #111 9deg 9.5deg,
-                /* gap */
                 transparent 9.5deg 16deg,
-                /* wedge 2 */
                 #111 16deg 16.5deg, #c42c1e 16.5deg 22deg, #111 22deg 22.5deg,
-                /* gap */
                 transparent 22.5deg 31deg,
-                /* wedge 3 */
                 #111 31deg 31.5deg, #c42c1e 31.5deg 42deg, #111 42deg 42.5deg,
-                /* gap */
                 transparent 42.5deg 47deg,
-                /* wedge 4 */
                 #111 47deg 47.5deg, #c42c1e 47.5deg 54deg, #111 54deg 54.5deg,
-                /* gap */
                 transparent 54.5deg 64deg,
-                /* wedge 5 */
                 #111 64deg 64.5deg, #c42c1e 64.5deg 76deg, #111 76deg 76.5deg,
-                /* gap */
                 transparent 76.5deg 82deg,
-                /* wedge 6 */
                 #111 82deg 82.5deg, #c42c1e 82.5deg 88deg, #111 88deg 88.5deg,
-                /* gap */
                 transparent 88.5deg 97deg,
-                /* wedge 7 */
                 #111 97deg 97.5deg, #c42c1e 97.5deg 108deg, #111 108deg 108.5deg,
-                /* gap */
                 transparent 108.5deg 113deg,
-                /* wedge 8 */
                 #111 113deg 113.5deg, #c42c1e 113.5deg 119deg, #111 119deg 119.5deg,
-                /* gap */
                 transparent 119.5deg 129deg,
-                /* wedge 9 */
                 #111 129deg 129.5deg, #c42c1e 129.5deg 140deg, #111 140deg 140.5deg,
-                /* gap */
                 transparent 140.5deg 146deg,
-                /* wedge 10 */
                 #111 146deg 146.5deg, #c42c1e 146.5deg 153deg, #111 153deg 153.5deg,
-                /* gap */
                 transparent 153.5deg 161deg,
-                /* wedge 11 */
                 #111 161deg 161.5deg, #c42c1e 161.5deg 173deg, #111 173deg 173.5deg,
-                /* gap */
                 transparent 173.5deg 180deg,
-                /* wedge 12 */
                 #111 180deg 180.5deg, #c42c1e 180.5deg 186deg, #111 186deg 186.5deg,
-                /* gap */
                 transparent 186.5deg 194deg,
-                /* wedge 13 */
                 #111 194deg 194.5deg, #c42c1e 194.5deg 205deg, #111 205deg 205.5deg,
-                /* gap */
                 transparent 205.5deg 211deg,
-                /* wedge 14 */
                 #111 211deg 211.5deg, #c42c1e 211.5deg 218deg, #111 218deg 218.5deg,
-                /* gap */
                 transparent 218.5deg 227deg,
-                /* wedge 15 */
                 #111 227deg 227.5deg, #c42c1e 227.5deg 239deg, #111 239deg 239.5deg,
-                /* gap */
                 transparent 239.5deg 244deg,
-                /* wedge 16 */
                 #111 244deg 244.5deg, #c42c1e 244.5deg 250deg, #111 250deg 250.5deg,
-                /* gap */
                 transparent 250.5deg 260deg,
-                /* wedge 17 */
                 #111 260deg 260.5deg, #c42c1e 260.5deg 271deg, #111 271deg 271.5deg,
-                /* gap */
                 transparent 271.5deg 277deg,
-                /* wedge 18 */
                 #111 277deg 277.5deg, #c42c1e 277.5deg 284deg, #111 284deg 284.5deg,
-                /* gap */
                 transparent 284.5deg 293deg,
-                /* wedge 19 */
                 #111 293deg 293.5deg, #c42c1e 293.5deg 304deg, #111 304deg 304.5deg,
-                /* gap */
                 transparent 304.5deg 309deg,
-                /* wedge 20 */
                 #111 309deg 309.5deg, #c42c1e 309.5deg 316deg, #111 316deg 316.5deg,
-                /* gap */
                 transparent 316.5deg 325deg,
-                /* wedge 21 */
                 #111 325deg 325.5deg, #c42c1e 325.5deg 337deg, #111 337deg 337.5deg,
-                /* gap */
                 transparent 337.5deg 343deg,
-                /* wedge 22 */
                 #111 343deg 343.5deg, #c42c1e 343.5deg 350deg, #111 350deg 350.5deg,
-                /* trailing gap */
                 transparent 350.5deg 360deg
             );
             animation: stripesRotate 40s linear infinite;
         }
 
-        .splash-vignette {
+        .splash-stripes {
+            width: 300vmax;
+            height: 300vmax;
+            animation-duration: 40s;
+        }
+
+        /* Shared vignette overlay */
+        .vignette {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
+            z-index: 1;
+        }
+
+        .splash-vignette {
             background: radial-gradient(
                 ellipse 50% 50% at center,
                 var(--color-primary-blue) 0%,
@@ -194,7 +160,6 @@
                 rgba(23, 101, 185, 0.6) 60%,
                 rgba(23, 101, 185, 0.3) 80%
             );
-            z-index: 1;
         }
 
         .splash-logo {
@@ -278,70 +243,14 @@
             overflow: hidden;
         }
 
-        .comic-select .select-stripes {
-            position: absolute;
-            top: 50%;
-            left: 50%;
+        .select-stripes {
             width: 200vmax;
             height: 200vmax;
-            transform: translate(-50%, -50%);
-            background: conic-gradient(
-                transparent 0deg 1deg,
-                #111 1deg 1.5deg, #c42c1e 1.5deg 9deg, #111 9deg 9.5deg,
-                transparent 9.5deg 16deg,
-                #111 16deg 16.5deg, #c42c1e 16.5deg 22deg, #111 22deg 22.5deg,
-                transparent 22.5deg 31deg,
-                #111 31deg 31.5deg, #c42c1e 31.5deg 42deg, #111 42deg 42.5deg,
-                transparent 42.5deg 47deg,
-                #111 47deg 47.5deg, #c42c1e 47.5deg 54deg, #111 54deg 54.5deg,
-                transparent 54.5deg 64deg,
-                #111 64deg 64.5deg, #c42c1e 64.5deg 76deg, #111 76deg 76.5deg,
-                transparent 76.5deg 82deg,
-                #111 82deg 82.5deg, #c42c1e 82.5deg 88deg, #111 88deg 88.5deg,
-                transparent 88.5deg 97deg,
-                #111 97deg 97.5deg, #c42c1e 97.5deg 108deg, #111 108deg 108.5deg,
-                transparent 108.5deg 113deg,
-                #111 113deg 113.5deg, #c42c1e 113.5deg 119deg, #111 119deg 119.5deg,
-                transparent 119.5deg 129deg,
-                #111 129deg 129.5deg, #c42c1e 129.5deg 140deg, #111 140deg 140.5deg,
-                transparent 140.5deg 146deg,
-                #111 146deg 146.5deg, #c42c1e 146.5deg 153deg, #111 153deg 153.5deg,
-                transparent 153.5deg 161deg,
-                #111 161deg 161.5deg, #c42c1e 161.5deg 173deg, #111 173deg 173.5deg,
-                transparent 173.5deg 180deg,
-                #111 180deg 180.5deg, #c42c1e 180.5deg 186deg, #111 186deg 186.5deg,
-                transparent 186.5deg 194deg,
-                #111 194deg 194.5deg, #c42c1e 194.5deg 205deg, #111 205deg 205.5deg,
-                transparent 205.5deg 211deg,
-                #111 211deg 211.5deg, #c42c1e 211.5deg 218deg, #111 218deg 218.5deg,
-                transparent 218.5deg 227deg,
-                #111 227deg 227.5deg, #c42c1e 227.5deg 239deg, #111 239deg 239.5deg,
-                transparent 239.5deg 244deg,
-                #111 244deg 244.5deg, #c42c1e 244.5deg 250deg, #111 250deg 250.5deg,
-                transparent 250.5deg 260deg,
-                #111 260deg 260.5deg, #c42c1e 260.5deg 271deg, #111 271deg 271.5deg,
-                transparent 271.5deg 277deg,
-                #111 277deg 277.5deg, #c42c1e 277.5deg 284deg, #111 284deg 284.5deg,
-                transparent 284.5deg 293deg,
-                #111 293deg 293.5deg, #c42c1e 293.5deg 304deg, #111 304deg 304.5deg,
-                transparent 304.5deg 309deg,
-                #111 309deg 309.5deg, #c42c1e 309.5deg 316deg, #111 316deg 316.5deg,
-                transparent 316.5deg 325deg,
-                #111 325deg 325.5deg, #c42c1e 325.5deg 337deg, #111 337deg 337.5deg,
-                transparent 337.5deg 343deg,
-                #111 343deg 343.5deg, #c42c1e 343.5deg 350deg, #111 350deg 350.5deg,
-                transparent 350.5deg 360deg
-            );
-            animation: stripesRotate 60s linear infinite;
+            animation-duration: 60s;
             opacity: 0.7;
         }
 
-        .comic-select .select-vignette {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+        .select-vignette {
             background: radial-gradient(
                 ellipse 55% 55% at center,
                 var(--color-primary-blue) 0%,
@@ -349,7 +258,6 @@
                 rgba(23, 101, 185, 0.6) 55%,
                 rgba(23, 101, 185, 0.3) 75%
             );
-            z-index: 1;
         }
 
         .select-content {
@@ -540,51 +448,6 @@
             opacity: 0.7;
         }
 
-        /* Generic button styles */
-        .start-btn, .continue-btn, .finish-btn {
-            display: block;
-            width: 100%;
-            padding: 16px;
-            margin-top: 20px;
-            background: linear-gradient(180deg, var(--color-accent-red-light) 0%, var(--color-accent-red) 100%);
-            color: var(--color-white);
-            border: var(--border-thick);
-            border-radius: 8px;
-            font-family: var(--font-display);
-            font-size: 1.2rem;
-            font-weight: bold;
-            cursor: pointer;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            transition: all 0.15s ease;
-        }
-
-        .start-btn:hover:not(:disabled), .continue-btn:hover:not(:disabled) {
-            background: linear-gradient(180deg, #f87171 0%, var(--color-accent-red-light) 100%);
-        }
-
-        .start-btn:active:not(:disabled), .continue-btn:active:not(:disabled) {
-            background: linear-gradient(180deg, var(--color-accent-red) 0%, #b91c1c 100%);
-        }
-
-        .start-btn:disabled, .continue-btn:disabled, .finish-btn:disabled {
-            background: var(--color-gray-medium);
-            cursor: not-allowed;
-            opacity: 0.7;
-        }
-
-        .finish-btn {
-            background: linear-gradient(180deg, #10b981 0%, #059669 100%);
-        }
-
-        .finish-btn:hover:not(:disabled) {
-            background: linear-gradient(180deg, #34d399 0%, #10b981 100%);
-        }
-
-        .finish-btn:active:not(:disabled) {
-            background: linear-gradient(180deg, #059669 0%, #047857 100%);
-        }
-
         /* ========================================
            COMIC WORKSPACE - Generator Page
            ======================================== */
@@ -604,71 +467,14 @@
             display: block;
         }
 
-        /* Add rotating stripes background like other screens */
         .workspace-stripes {
-            position: absolute;
-            top: 50%;
-            left: 50%;
             width: 200vmax;
             height: 200vmax;
-            transform: translate(-50%, -50%);
-            background: conic-gradient(
-                transparent 0deg 1deg,
-                #111 1deg 1.5deg, #c42c1e 1.5deg 9deg, #111 9deg 9.5deg,
-                transparent 9.5deg 16deg,
-                #111 16deg 16.5deg, #c42c1e 16.5deg 22deg, #111 22deg 22.5deg,
-                transparent 22.5deg 31deg,
-                #111 31deg 31.5deg, #c42c1e 31.5deg 42deg, #111 42deg 42.5deg,
-                transparent 42.5deg 47deg,
-                #111 47deg 47.5deg, #c42c1e 47.5deg 54deg, #111 54deg 54.5deg,
-                transparent 54.5deg 64deg,
-                #111 64deg 64.5deg, #c42c1e 64.5deg 76deg, #111 76deg 76.5deg,
-                transparent 76.5deg 82deg,
-                #111 82deg 82.5deg, #c42c1e 82.5deg 88deg, #111 88deg 88.5deg,
-                transparent 88.5deg 97deg,
-                #111 97deg 97.5deg, #c42c1e 97.5deg 108deg, #111 108deg 108.5deg,
-                transparent 108.5deg 113deg,
-                #111 113deg 113.5deg, #c42c1e 113.5deg 119deg, #111 119deg 119.5deg,
-                transparent 119.5deg 129deg,
-                #111 129deg 129.5deg, #c42c1e 129.5deg 140deg, #111 140deg 140.5deg,
-                transparent 140.5deg 146deg,
-                #111 146deg 146.5deg, #c42c1e 146.5deg 153deg, #111 153deg 153.5deg,
-                transparent 153.5deg 161deg,
-                #111 161deg 161.5deg, #c42c1e 161.5deg 173deg, #111 173deg 173.5deg,
-                transparent 173.5deg 180deg,
-                #111 180deg 180.5deg, #c42c1e 180.5deg 186deg, #111 186deg 186.5deg,
-                transparent 186.5deg 194deg,
-                #111 194deg 194.5deg, #c42c1e 194.5deg 205deg, #111 205deg 205.5deg,
-                transparent 205.5deg 211deg,
-                #111 211deg 211.5deg, #c42c1e 211.5deg 218deg, #111 218deg 218.5deg,
-                transparent 218.5deg 227deg,
-                #111 227deg 227.5deg, #c42c1e 227.5deg 239deg, #111 239deg 239.5deg,
-                transparent 239.5deg 244deg,
-                #111 244deg 244.5deg, #c42c1e 244.5deg 250deg, #111 250deg 250.5deg,
-                transparent 250.5deg 260deg,
-                #111 260deg 260.5deg, #c42c1e 260.5deg 271deg, #111 271deg 271.5deg,
-                transparent 271.5deg 277deg,
-                #111 277deg 277.5deg, #c42c1e 277.5deg 284deg, #111 284deg 284.5deg,
-                transparent 284.5deg 293deg,
-                #111 293deg 293.5deg, #c42c1e 293.5deg 304deg, #111 304deg 304.5deg,
-                transparent 304.5deg 309deg,
-                #111 309deg 309.5deg, #c42c1e 309.5deg 316deg, #111 316deg 316.5deg,
-                transparent 316.5deg 325deg,
-                #111 325deg 325.5deg, #c42c1e 325.5deg 337deg, #111 337deg 337.5deg,
-                transparent 337.5deg 343deg,
-                #111 343deg 343.5deg, #c42c1e 343.5deg 350deg, #111 350deg 350.5deg,
-                transparent 350.5deg 360deg
-            );
-            animation: stripesRotate 80s linear infinite;
+            animation-duration: 80s;
             opacity: 0.4;
         }
 
         .workspace-vignette {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
             background: radial-gradient(
                 ellipse 55% 55% at center,
                 var(--color-primary-blue) 0%,
@@ -676,7 +482,6 @@
                 rgba(23, 101, 185, 0.6) 55%,
                 rgba(23, 101, 185, 0.3) 75%
             );
-            z-index: 1;
         }
 
         .workspace-content {
@@ -803,12 +608,6 @@
 
         .comic-page.active {
             display: grid;
-            position: absolute;
-            height: 100%;
-        }
-
-        .comic-page-header {
-            display: none;
         }
 
         /* ========================================
@@ -835,16 +634,8 @@
             z-index: 10;
         }
 
-        .comic-panel.completed {
-            opacity: 1;
-        }
-
         .comic-panel.current {
             box-shadow: 0 0 0 4px var(--color-accent-yellow);
-        }
-
-        .panel-header {
-            display: none;
         }
 
         .panel-image-container {
@@ -1111,34 +902,6 @@
         }
 
         /* ========================================
-           LOADING STATES
-           ======================================== */
-        .loading {
-            display: none;
-            text-align: center;
-            padding: 40px;
-            color: var(--color-accent-red);
-        }
-
-        .loading.active {
-            display: block;
-        }
-
-        .loading-text {
-            font-family: var(--font-display);
-            font-size: 1.3rem;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            animation: blink 1s infinite;
-        }
-
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-
-        /* ========================================
            PAGE NAVIGATION - Panel-like control bar
            ======================================== */
         .page-navigation {
@@ -1245,69 +1008,13 @@
         }
 
         .final-stripes {
-            position: absolute;
-            top: 50%;
-            left: 50%;
             width: 200vmax;
             height: 200vmax;
-            transform: translate(-50%, -50%);
-            background: conic-gradient(
-                transparent 0deg 1deg,
-                #111 1deg 1.5deg, #c42c1e 1.5deg 9deg, #111 9deg 9.5deg,
-                transparent 9.5deg 16deg,
-                #111 16deg 16.5deg, #c42c1e 16.5deg 22deg, #111 22deg 22.5deg,
-                transparent 22.5deg 31deg,
-                #111 31deg 31.5deg, #c42c1e 31.5deg 42deg, #111 42deg 42.5deg,
-                transparent 42.5deg 47deg,
-                #111 47deg 47.5deg, #c42c1e 47.5deg 54deg, #111 54deg 54.5deg,
-                transparent 54.5deg 64deg,
-                #111 64deg 64.5deg, #c42c1e 64.5deg 76deg, #111 76deg 76.5deg,
-                transparent 76.5deg 82deg,
-                #111 82deg 82.5deg, #c42c1e 82.5deg 88deg, #111 88deg 88.5deg,
-                transparent 88.5deg 97deg,
-                #111 97deg 97.5deg, #c42c1e 97.5deg 108deg, #111 108deg 108.5deg,
-                transparent 108.5deg 113deg,
-                #111 113deg 113.5deg, #c42c1e 113.5deg 119deg, #111 119deg 119.5deg,
-                transparent 119.5deg 129deg,
-                #111 129deg 129.5deg, #c42c1e 129.5deg 140deg, #111 140deg 140.5deg,
-                transparent 140.5deg 146deg,
-                #111 146deg 146.5deg, #c42c1e 146.5deg 153deg, #111 153deg 153.5deg,
-                transparent 153.5deg 161deg,
-                #111 161deg 161.5deg, #c42c1e 161.5deg 173deg, #111 173deg 173.5deg,
-                transparent 173.5deg 180deg,
-                #111 180deg 180.5deg, #c42c1e 180.5deg 186deg, #111 186deg 186.5deg,
-                transparent 186.5deg 194deg,
-                #111 194deg 194.5deg, #c42c1e 194.5deg 205deg, #111 205deg 205.5deg,
-                transparent 205.5deg 211deg,
-                #111 211deg 211.5deg, #c42c1e 211.5deg 218deg, #111 218deg 218.5deg,
-                transparent 218.5deg 227deg,
-                #111 227deg 227.5deg, #c42c1e 227.5deg 239deg, #111 239deg 239.5deg,
-                transparent 239.5deg 244deg,
-                #111 244deg 244.5deg, #c42c1e 244.5deg 250deg, #111 250deg 250.5deg,
-                transparent 250.5deg 260deg,
-                #111 260deg 260.5deg, #c42c1e 260.5deg 271deg, #111 271deg 271.5deg,
-                transparent 271.5deg 277deg,
-                #111 277deg 277.5deg, #c42c1e 277.5deg 284deg, #111 284deg 284.5deg,
-                transparent 284.5deg 293deg,
-                #111 293deg 293.5deg, #c42c1e 293.5deg 304deg, #111 304deg 304.5deg,
-                transparent 304.5deg 309deg,
-                #111 309deg 309.5deg, #c42c1e 309.5deg 316deg, #111 316deg 316.5deg,
-                transparent 316.5deg 325deg,
-                #111 325deg 325.5deg, #c42c1e 325.5deg 337deg, #111 337deg 337.5deg,
-                transparent 337.5deg 343deg,
-                #111 343deg 343.5deg, #c42c1e 343.5deg 350deg, #111 350deg 350.5deg,
-                transparent 350.5deg 360deg
-            );
-            animation: stripesRotate 80s linear infinite;
+            animation-duration: 80s;
             opacity: 0.5;
         }
 
         .final-vignette {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
             background: radial-gradient(
                 ellipse 55% 55% at center,
                 var(--color-primary-blue) 0%,
@@ -1315,7 +1022,6 @@
                 rgba(23, 101, 185, 0.6) 50%,
                 rgba(23, 101, 185, 0.3) 75%
             );
-            z-index: 1;
         }
 
         .final-content {
@@ -1515,15 +1221,6 @@
         }
 
         /* ========================================
-           TITLE CARD PANEL
-           ======================================== */
-        .title-card-panel .panel-header {
-            background: #ff9500;
-            color: var(--color-black);
-            font-family: var(--font-display);
-        }
-
-        /* ========================================
            RESPONSIVE ADJUSTMENTS
            ======================================== */
         /* Responsive adjustments */
@@ -1549,8 +1246,8 @@
 <body>
     <!-- Splash Screen -->
     <div id="splash" class="splash-screen">
-        <div class="splash-stripes"></div>
-        <div class="splash-vignette"></div>
+        <div class="rotating-stripes splash-stripes"></div>
+        <div class="vignette splash-vignette"></div>
         <div class="splash-content">
             <img src="/static/images/logo.webp" class="splash-logo" alt="Comic Chaos" />
             <div class="splash-text">Click to Enter the Comic Chaos!</div>
@@ -1559,8 +1256,8 @@
 
     <div class="container">
         <div id="comic-select" class="comic-select">
-            <div class="select-stripes"></div>
-            <div class="select-vignette"></div>
+            <div class="rotating-stripes select-stripes"></div>
+            <div class="vignette select-vignette"></div>
             <div class="select-content">
                 <img src="/static/images/simple_logo.webp" id="back-to-splash" class="select-logo" alt="Comic Chaos" />
                 <div class="bubbles-area">
@@ -1579,8 +1276,8 @@
         </div>
 
         <div id="workspace" class="comic-workspace">
-            <div class="workspace-stripes"></div>
-            <div class="workspace-vignette"></div>
+            <div class="rotating-stripes workspace-stripes"></div>
+            <div class="vignette workspace-vignette"></div>
             <div class="workspace-content">
                 <div class="comic-title-bar">
                     <h2 id="comic-title"></h2>
@@ -1602,8 +1299,8 @@
         </div>
 
         <div id="final-strip" class="final-strip">
-            <div class="final-stripes"></div>
-            <div class="final-vignette"></div>
+            <div class="rotating-stripes final-stripes"></div>
+            <div class="vignette final-vignette"></div>
             <div class="final-content">
                 <h2>Your Comic Strip!</h2>
                 <img id="strip-image" src="" alt="Comic Strip" />
@@ -1761,8 +1458,6 @@
             const page = document.createElement('div');
             page.className = 'comic-page';
             page.dataset.pageNumber = pageNumber;
-            page.innerHTML = `<div class="comic-page-header">Page ${pageNumber}</div>`;
-
             // Pre-populate with empty slot placeholders
             for (let i = 0; i < PANELS_PER_PAGE; i++) {
                 const emptySlot = document.createElement('div');
@@ -1794,10 +1489,6 @@
                 state.panelsOnCurrentPage = 0;
             }
             return state.pages[state.currentPageIndex];
-        }
-
-        function getLastPage() {
-            return state.pages[state.pages.length - 1];
         }
 
         function addPanelToPage(panel) {
@@ -2047,7 +1738,6 @@
             panel.dataset.panelNumber = 0;
             panel.dataset.isTitleCard = 'true';
             panel.innerHTML = `
-                <div class="panel-header">TITLE</div>
                 <div class="panel-image-container">
                     ${imageBase64 ? `<img src="data:image/png;base64,${imageBase64}" alt="Title Card" />` : '<div style="padding:20px;color:#666;">No image</div>'}
                 </div>
@@ -2060,7 +1750,6 @@
             panel.className = 'comic-panel' + (isEditable ? ' current' : ' completed');
             panel.dataset.panelNumber = panelNumber;
             panel.innerHTML = `
-                <div class="panel-header">${panelNumber}</div>
                 <div class="panel-image-container">
                     ${imageBase64 ? `<img src="data:image/png;base64,${imageBase64}" alt="Panel ${panelNumber}" />` : '<div style="padding:20px;color:#666;">No image</div>'}
                 </div>
