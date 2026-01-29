@@ -1,11 +1,11 @@
 {
-  "title": "Buddy's Town",
-  "synopsis": "A simple cartoon town where small everyday events lead to mild trouble and quiet humor. Situations unfold calmly and are resolved through patience, routine, and clear actions rather than chaos.",
+  "title": "Buddy the Otter",
+  "synopsis": "A simple cartoon town where small events lead to mild trouble and quiet humor.",
   "visual_style": "Classic mid-20th-century comic style, flat and faded colors, strong black outlines, simple backgrounds, minimal detail, traditional hand-drawn look, and panels are clean and easy to read.",
   "locations": [
     {
       "name": "Town Square",
-      "description": "A plain town square with boxy buildings and large windows, quiet and routine."
+      "description": "A plain town square with boxy buildings and large windows."
     }
   ],
   "characters": [
