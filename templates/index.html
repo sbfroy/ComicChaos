@@ -5,6 +5,40 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Comic Chaos</title>
     <style>
+        /* ========================================
+           CSS VARIABLES - Design Tokens
+           ======================================== */
+        :root {
+            /* Colors */
+            --color-primary-blue: #1765B9;
+            --color-accent-yellow: #FCE900;
+            --color-accent-red: #dc2626;
+            --color-accent-red-light: #ef4444;
+            --color-black: #111;
+            --color-white: #fff;
+            --color-paper: #f5f0e6;
+            --color-paper-dark: #e8e0d0;
+            --color-gray-light: #d1d5db;
+            --color-gray-medium: #9ca3af;
+            --color-gray-dark: #6b7280;
+
+            /* Borders */
+            --border-thick: 4px solid var(--color-black);
+            --border-medium: 3px solid var(--color-black);
+
+            /* Shadows - softer shadow color for natural 3D effect */
+            --color-shadow: rgba(0, 0, 0, 0.15);
+            --shadow-heavy: 6px 6px 0 var(--color-shadow);
+            --shadow-medium: 4px 4px 0 var(--color-shadow);
+            --shadow-light: 3px 3px 0 var(--color-shadow);
+            --shadow-hover: 8px 8px 0 var(--color-shadow);
+
+            /* Typography */
+            --font-display: 'Comic Sans MS', 'Chalkboard', cursive, sans-serif;
+            --font-ui: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            --font-comic: 'Comic Sans MS', 'Chalkboard', cursive, sans-serif;
+        }
+
         * {
             box-sizing: border-box;
             margin: 0;
@@ -12,7 +46,7 @@
         }
 
         body {
-            font-family: 'Comic Sans MS', 'Chalkboard', cursive, sans-serif;
+            font-family: var(--font-comic);
             background: #1e56b8;
             background-image:
                 radial-gradient(circle, #1e56b8 20%, transparent 20%),
@@ -155,9 +189,10 @@
             height: 100%;
             background: radial-gradient(
                 ellipse 50% 50% at center,
-                #1765B9 0%,
-                #1765B9 30%,
-                transparent 70%
+                var(--color-primary-blue) 0%,
+                var(--color-primary-blue) 30%,
+                rgba(23, 101, 185, 0.6) 60%,
+                rgba(23, 101, 185, 0.3) 80%
             );
             z-index: 1;
         }
@@ -282,9 +317,10 @@
             height: 100%;
             background: radial-gradient(
                 ellipse 55% 55% at center,
-                #1765B9 0%,
-                #1765B9 25%,
-                transparent 70%
+                var(--color-primary-blue) 0%,
+                var(--color-primary-blue) 25%,
+                rgba(23, 101, 185, 0.6) 55%,
+                rgba(23, 101, 185, 0.3) 75%
             );
             z-index: 1;
         }
@@ -418,98 +454,111 @@
         }
 
         .bubble-text h3 {
-            color: #111;
+            font-family: var(--font-display);
+            color: var(--color-black);
             text-transform: uppercase;
-            font-size: 1.1rem;
-            margin-bottom: 6px;
-            text-shadow: 1px 1px 0 rgba(255,255,255,0.5);
+            font-size: 1.2rem;
+            margin-bottom: 8px;
+            text-shadow: 1px 1px 0 rgba(255,255,255,0.6);
+            letter-spacing: 1px;
         }
 
         .bubble-text p {
-            color: #333;
-            font-size: 0.8rem;
-            line-height: 1.3;
+            font-family: var(--font-ui);
+            color: #444;
+            font-size: 0.85rem;
+            line-height: 1.4;
         }
 
         .bubble-text.muted h3,
         .bubble-text.muted p {
-            color: #888;
+            color: #999;
         }
 
+        /* ========================================
+           PRIMARY BUTTONS - Gradient style without shadow
+           ======================================== */
         .select-start-btn {
             position: relative;
             z-index: 2;
-            padding: 15px 50px;
+            padding: 16px 55px;
             margin-bottom: 30px;
-            background: #dc2626;
-            color: #fff;
-            border: 4px solid #111;
+            background: linear-gradient(180deg, var(--color-accent-red-light) 0%, var(--color-accent-red) 100%);
+            color: var(--color-white);
+            border: var(--border-thick);
             border-radius: 8px;
-            font-size: 1.2rem;
+            font-family: var(--font-display);
+            font-size: 1.3rem;
             font-weight: bold;
-            font-family: inherit;
             cursor: pointer;
             text-transform: uppercase;
-            letter-spacing: 2px;
-            transition: all 0.2s;
-            box-shadow: 4px 4px 0 #111;
+            letter-spacing: 3px;
+            transition: all 0.15s ease;
             flex-shrink: 0;
         }
 
         .select-start-btn:hover:not(:disabled) {
-            background: #ef4444;
-            transform: translate(-2px, -2px);
-            box-shadow: 6px 6px 0 #111;
+            background: linear-gradient(180deg, #f87171 0%, var(--color-accent-red-light) 100%);
+        }
+
+        .select-start-btn:active:not(:disabled) {
+            background: linear-gradient(180deg, var(--color-accent-red) 0%, #b91c1c 100%);
         }
 
         .select-start-btn:disabled {
-            background: #9ca3af;
+            background: var(--color-gray-medium);
             cursor: not-allowed;
-            box-shadow: 2px 2px 0 #111;
+            opacity: 0.7;
         }
 
+        /* Generic button styles */
         .start-btn, .continue-btn, .finish-btn {
             display: block;
             width: 100%;
-            padding: 15px;
+            padding: 16px;
             margin-top: 20px;
-            background: #dc2626;
-            color: #fff;
-            border: 4px solid #111;
+            background: linear-gradient(180deg, var(--color-accent-red-light) 0%, var(--color-accent-red) 100%);
+            color: var(--color-white);
+            border: var(--border-thick);
             border-radius: 8px;
+            font-family: var(--font-display);
             font-size: 1.2rem;
             font-weight: bold;
-            font-family: inherit;
             cursor: pointer;
             text-transform: uppercase;
             letter-spacing: 2px;
-            transition: all 0.2s;
-            box-shadow: 4px 4px 0 #111;
+            transition: all 0.15s ease;
         }
 
         .start-btn:hover:not(:disabled), .continue-btn:hover:not(:disabled) {
-            background: #ef4444;
-            transform: translate(-2px, -2px);
-            box-shadow: 6px 6px 0 #111;
+            background: linear-gradient(180deg, #f87171 0%, var(--color-accent-red-light) 100%);
+        }
+
+        .start-btn:active:not(:disabled), .continue-btn:active:not(:disabled) {
+            background: linear-gradient(180deg, var(--color-accent-red) 0%, #b91c1c 100%);
         }
 
         .start-btn:disabled, .continue-btn:disabled, .finish-btn:disabled {
-            background: #9ca3af;
+            background: var(--color-gray-medium);
             cursor: not-allowed;
-            box-shadow: 2px 2px 0 #111;
+            opacity: 0.7;
         }
 
         .finish-btn {
-            background: #059669;
+            background: linear-gradient(180deg, #10b981 0%, #059669 100%);
         }
 
         .finish-btn:hover:not(:disabled) {
-            background: #10b981;
-            transform: translate(-2px, -2px);
-            box-shadow: 6px 6px 0 #111;
+            background: linear-gradient(180deg, #34d399 0%, #10b981 100%);
         }
 
-        /* Comic Workspace */
+        .finish-btn:active:not(:disabled) {
+            background: linear-gradient(180deg, #059669 0%, #047857 100%);
+        }
+
+        /* ========================================
+           COMIC WORKSPACE - Generator Page
+           ======================================== */
         .comic-workspace {
             display: none;
             position: fixed;
@@ -517,7 +566,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: #1765B9;
+            background: var(--color-primary-blue);
             z-index: 100;
             overflow: hidden;
         }
@@ -526,8 +575,63 @@
             display: block;
         }
 
+        /* Add rotating stripes background like other screens */
         .workspace-stripes {
-            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 200vmax;
+            height: 200vmax;
+            transform: translate(-50%, -50%);
+            background: conic-gradient(
+                transparent 0deg 1deg,
+                #111 1deg 1.5deg, #c42c1e 1.5deg 9deg, #111 9deg 9.5deg,
+                transparent 9.5deg 16deg,
+                #111 16deg 16.5deg, #c42c1e 16.5deg 22deg, #111 22deg 22.5deg,
+                transparent 22.5deg 31deg,
+                #111 31deg 31.5deg, #c42c1e 31.5deg 42deg, #111 42deg 42.5deg,
+                transparent 42.5deg 47deg,
+                #111 47deg 47.5deg, #c42c1e 47.5deg 54deg, #111 54deg 54.5deg,
+                transparent 54.5deg 64deg,
+                #111 64deg 64.5deg, #c42c1e 64.5deg 76deg, #111 76deg 76.5deg,
+                transparent 76.5deg 82deg,
+                #111 82deg 82.5deg, #c42c1e 82.5deg 88deg, #111 88deg 88.5deg,
+                transparent 88.5deg 97deg,
+                #111 97deg 97.5deg, #c42c1e 97.5deg 108deg, #111 108deg 108.5deg,
+                transparent 108.5deg 113deg,
+                #111 113deg 113.5deg, #c42c1e 113.5deg 119deg, #111 119deg 119.5deg,
+                transparent 119.5deg 129deg,
+                #111 129deg 129.5deg, #c42c1e 129.5deg 140deg, #111 140deg 140.5deg,
+                transparent 140.5deg 146deg,
+                #111 146deg 146.5deg, #c42c1e 146.5deg 153deg, #111 153deg 153.5deg,
+                transparent 153.5deg 161deg,
+                #111 161deg 161.5deg, #c42c1e 161.5deg 173deg, #111 173deg 173.5deg,
+                transparent 173.5deg 180deg,
+                #111 180deg 180.5deg, #c42c1e 180.5deg 186deg, #111 186deg 186.5deg,
+                transparent 186.5deg 194deg,
+                #111 194deg 194.5deg, #c42c1e 194.5deg 205deg, #111 205deg 205.5deg,
+                transparent 205.5deg 211deg,
+                #111 211deg 211.5deg, #c42c1e 211.5deg 218deg, #111 218deg 218.5deg,
+                transparent 218.5deg 227deg,
+                #111 227deg 227.5deg, #c42c1e 227.5deg 239deg, #111 239deg 239.5deg,
+                transparent 239.5deg 244deg,
+                #111 244deg 244.5deg, #c42c1e 244.5deg 250deg, #111 250deg 250.5deg,
+                transparent 250.5deg 260deg,
+                #111 260deg 260.5deg, #c42c1e 260.5deg 271deg, #111 271deg 271.5deg,
+                transparent 271.5deg 277deg,
+                #111 277deg 277.5deg, #c42c1e 277.5deg 284deg, #111 284deg 284.5deg,
+                transparent 284.5deg 293deg,
+                #111 293deg 293.5deg, #c42c1e 293.5deg 304deg, #111 304deg 304.5deg,
+                transparent 304.5deg 309deg,
+                #111 309deg 309.5deg, #c42c1e 309.5deg 316deg, #111 316deg 316.5deg,
+                transparent 316.5deg 325deg,
+                #111 325deg 325.5deg, #c42c1e 325.5deg 337deg, #111 337deg 337.5deg,
+                transparent 337.5deg 343deg,
+                #111 343deg 343.5deg, #c42c1e 343.5deg 350deg, #111 350deg 350.5deg,
+                transparent 350.5deg 360deg
+            );
+            animation: stripesRotate 80s linear infinite;
+            opacity: 0.4;
         }
 
         .workspace-vignette {
@@ -537,10 +641,11 @@
             width: 100%;
             height: 100%;
             background: radial-gradient(
-                ellipse 60% 60% at center,
-                #1765B9 0%,
-                #1765B9 20%,
-                transparent 75%
+                ellipse 55% 55% at center,
+                var(--color-primary-blue) 0%,
+                var(--color-primary-blue) 25%,
+                rgba(23, 101, 185, 0.6) 55%,
+                rgba(23, 101, 185, 0.3) 75%
             );
             z-index: 1;
         }
@@ -548,37 +653,39 @@
         .workspace-content {
             position: relative;
             z-index: 2;
-            display: block;
+            display: flex;
+            flex-direction: column;
             max-width: 1100px;
+            height: 100vh;
             margin: 0 auto;
-            padding: 15px 20px;
+            padding: 10px 20px;
             line-height: 0;
+            box-sizing: border-box;
         }
 
+        /* Title Bar */
         .comic-title-bar {
-            background: #FCE900;
-            color: #111;
-            padding: 10px 15px;
+            background: var(--color-accent-yellow);
+            color: var(--color-black);
+            padding: 10px 20px;
             margin: 0;
             border-radius: 8px 8px 0 0;
-            border-left: 4px solid #111;
-            border-right: 4px solid #111;
-            border-top: 4px solid #111;
-            border-bottom: none;
+            border: var(--border-thick);
             display: flex;
             align-items: center;
             justify-content: space-between;
             position: relative;
             line-height: normal;
-            vertical-align: top;
-            box-shadow: 8px 8px 0 rgba(0,0,0,0.4);
+            flex-shrink: 0;
+            box-shadow: var(--shadow-heavy);
         }
 
         .comic-title-bar h2 {
-            font-size: 1.4rem;
+            font-family: var(--font-display);
+            font-size: 1.6rem;
             text-transform: uppercase;
-            text-shadow: 2px 2px 0 #dc2626;
-            letter-spacing: 2px;
+            text-shadow: 2px 2px 0 var(--color-accent-red);
+            letter-spacing: 3px;
             margin: 0;
         }
 
@@ -588,35 +695,44 @@
             align-items: center;
         }
 
+        /* Finish Button - gradient style without shadow */
         .finish-btn-small {
-            padding: 8px 16px;
-            background: #dc2626;
-            color: #fff;
-            border: 3px solid #111;
+            padding: 10px 20px;
+            background: linear-gradient(180deg, var(--color-accent-red-light) 0%, var(--color-accent-red) 100%);
+            color: var(--color-white);
+            border: var(--border-thick);
             border-radius: 6px;
-            font-size: 0.85rem;
+            font-family: var(--font-display);
+            font-size: 0.95rem;
             font-weight: bold;
-            font-family: inherit;
             cursor: pointer;
             text-transform: uppercase;
-            box-shadow: 3px 3px 0 #111;
-            transition: all 0.2s;
+            letter-spacing: 1px;
+            transition: all 0.15s ease;
         }
 
         .finish-btn-small:hover:not(:disabled) {
-            background: #ef4444;
-            transform: translate(-2px, -2px);
-            box-shadow: 5px 5px 0 #111;
+            background: linear-gradient(180deg, #f87171 0%, var(--color-accent-red-light) 100%);
+        }
+
+        .finish-btn-small:active:not(:disabled) {
+            background: linear-gradient(180deg, var(--color-accent-red) 0%, #b91c1c 100%);
         }
 
         .finish-btn-small:disabled {
-            background: #9ca3af;
+            background: var(--color-gray-medium);
             cursor: not-allowed;
+            opacity: 0.7;
         }
 
-        /* Panels Container - now holds single visible page */
+        /* ========================================
+           PANELS CONTAINER - Comic Page Frame
+           ======================================== */
         .panels-strip {
-            display: block;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            min-height: 0;
             background: transparent;
             border: none;
             padding: 0;
@@ -624,36 +740,35 @@
             position: relative;
             font-size: 0;
             line-height: 0;
-            vertical-align: top;
         }
 
-        /* Pages wrapper - only shows one page at a time */
+        /* Pages wrapper - Comic page with paper feel */
         .pages-wrapper {
             position: relative;
-            height: 560px;  /* Fixed height for 2 rows of 240px panels + gaps + padding */
+            flex: 1;
+            min-height: 0;
             display: block;
-            background: #fff;
-            border-left: 4px solid #111;
-            border-right: 4px solid #111;
+            background-color: var(--color-paper);
+            /* Full border on all sides */
+            border: var(--border-thick);
             margin: 0;
             padding: 0;
-            vertical-align: top;
-            box-shadow: 8px 8px 0 rgba(0,0,0,0.4);
+            box-shadow: var(--shadow-heavy);
         }
 
         /* Comic Page - a single page containing multiple panels */
         .comic-page {
             display: none;
             grid-template-columns: repeat(4, 1fr);
-            grid-template-rows: 240px 240px;  /* 2 fixed rows for panels */
-            gap: 8px;
-            padding: 15px;
+            grid-template-rows: 1fr 1fr;
+            gap: 10px;
+            padding: 12px;
             position: absolute;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
-            overflow: visible;
+            overflow: hidden;
         }
 
         .comic-page.active {
@@ -666,24 +781,27 @@
             display: none;
         }
 
-        /* Individual Panel - square, fixed size */
+        /* ========================================
+           INDIVIDUAL PANELS
+           ======================================== */
         .comic-panel {
             position: relative;
-            background: #fff;
-            border: 3px solid #111;
-            border-radius: 4px;
+            background: var(--color-paper);
+            border: var(--border-thick);
+            border-radius: 3px;
             overflow: visible;
-            box-shadow: 3px 3px 0 #111;
-            transition: transform 0.2s, box-shadow 0.2s;
-            justify-self: center;
-            align-self: center;
-            width: 240px;
-            height: 240px;
+            transition: transform 0.2s;
+            justify-self: stretch;
+            align-self: stretch;
+            width: 100%;
+            height: 100%;
+            max-width: 240px;
+            max-height: 240px;
+            margin: auto;
         }
 
         .comic-panel:hover {
-            transform: translate(-2px, -2px);
-            box-shadow: 5px 5px 0 #111;
+            transform: scale(1.02);
             z-index: 10;
         }
 
@@ -692,7 +810,7 @@
         }
 
         .comic-panel.current {
-            box-shadow: 0 0 0 4px #FCE900, 5px 5px 0 #111;
+            box-shadow: 0 0 0 4px var(--color-accent-yellow);
         }
 
         .panel-header {
@@ -701,9 +819,8 @@
 
         .panel-image-container {
             position: relative;
-            background: #e5e7eb;
+            background: var(--color-paper-dark);
             overflow: hidden;
-            /* Fill the panel completely */
             width: 100%;
             height: 100%;
         }
@@ -715,60 +832,64 @@
             display: block;
         }
 
-        /* Comic Elements (bubbles, boxes) */
+        /* ========================================
+           COMIC ELEMENTS (bubbles, boxes)
+           ======================================== */
         .comic-element {
             position: absolute;
             z-index: 10;
         }
 
-        /* Speech Bubble - smaller for grid layout */
+        /* Speech Bubble - with thick border */
         .speech-bubble {
-            background: #fff;
-            border: 2px solid #111;
+            background: var(--color-paper);
+            border: 3px solid var(--color-black);
             border-radius: 12px;
-            padding: 4px 6px;
+            padding: 5px 8px;
             min-width: 50px;
             max-width: 80%;
             font-size: 14px;
-            color: #111;
+            color: var(--color-black);
             line-height: 1.2;
         }
 
         .speech-bubble::after {
             content: '';
             position: absolute;
-            bottom: -8px;
+            bottom: -10px;
             left: 12px;
-            border-width: 8px 5px 0;
+            border-width: 10px 6px 0;
             border-style: solid;
-            border-color: #111 transparent transparent transparent;
+            border-color: var(--color-black) transparent transparent transparent;
         }
 
         .speech-bubble::before {
             content: '';
             position: absolute;
-            bottom: -5px;
-            left: 14px;
-            border-width: 6px 4px 0;
+            bottom: -6px;
+            left: 15px;
+            border-width: 7px 4px 0;
             border-style: solid;
-            border-color: #fff transparent transparent transparent;
+            border-color: var(--color-paper) transparent transparent transparent;
             z-index: 1;
         }
 
         .speech-bubble .char-name {
+            font-family: var(--font-display);
             font-weight: bold;
-            font-size: 0.5rem;
-            color: #dc2626;
+            font-size: 0.55rem;
+            color: var(--color-accent-red);
             margin-bottom: 2px;
             text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
-        /* Thought Bubble - smaller for grid layout */
+        /* Thought Bubble - with thick border */
         .thought-bubble {
-            background: #fff;
-            border: 2px solid #111;
+            background: var(--color-paper);
+            border: 3px solid var(--color-black);
             border-radius: 15px;
-            padding: 4px 6px;
+            padding: 5px 8px;
             min-width: 45px;
             max-width: 75%;
             font-size: 13px;
@@ -780,69 +901,72 @@
         .thought-bubble::after {
             content: '';
             position: absolute;
-            bottom: -10px;
+            bottom: -12px;
             left: 10px;
-            width: 8px;
-            height: 8px;
-            background: #fff;
-            border: 2px solid #111;
+            width: 10px;
+            height: 10px;
+            background: var(--color-paper);
+            border: 3px solid var(--color-black);
             border-radius: 50%;
         }
 
         .thought-bubble::before {
             content: '';
             position: absolute;
-            bottom: -18px;
+            bottom: -20px;
             left: 6px;
-            width: 5px;
-            height: 5px;
-            background: #fff;
-            border: 2px solid #111;
+            width: 6px;
+            height: 6px;
+            background: var(--color-paper);
+            border: 2px solid var(--color-black);
             border-radius: 50%;
         }
 
         .thought-bubble .char-name {
+            font-family: var(--font-display);
             font-weight: bold;
-            font-size: 0.45rem;
+            font-size: 0.5rem;
             color: #06b6d4;
             margin-bottom: 2px;
             font-style: normal;
+            letter-spacing: 0.5px;
         }
 
-        /* Narration Box - smaller for grid layout */
+        /* Narration Box - with thick border */
         .narration-box {
             background: #fef3c7;
-            border: 2px solid #111;
-            padding: 4px 6px;
+            border: 3px solid var(--color-black);
+            padding: 5px 8px;
             min-width: 60px;
             max-width: 80%;
-            font-size: 0.5rem;
-            color: #111;
+            font-size: 0.55rem;
+            color: var(--color-black);
             font-style: italic;
             line-height: 1.2;
         }
 
-        /* Sound Effect - smaller for grid layout */
+        /* Sound Effect - comic style */
         .sfx-text {
-            font-size: 0.8rem;
+            font-family: var(--font-display);
+            font-size: 0.9rem;
             font-weight: bold;
-            color: #dc2626;
-            text-shadow: 2px 2px 0 #FCE900, 3px 3px 0 #111;
+            color: var(--color-accent-red);
+            text-shadow: 2px 2px 0 var(--color-accent-yellow), 3px 3px 0 var(--color-black);
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 2px;
             transform: rotate(-8deg);
             white-space: nowrap;
         }
 
         /* User Input Element - highlighted */
         .comic-element.user-input {
-            box-shadow: 0 0 0 2px #FCE900, 0 0 10px rgba(251, 191, 36, 0.6);
+            box-shadow: 0 0 0 3px var(--color-accent-yellow), 0 0 12px rgba(251, 191, 36, 0.6);
             animation: pulse 1.5s infinite;
         }
 
         @keyframes pulse {
-            0%, 100% { box-shadow: 0 0 0 2px #FCE900, 0 0 10px rgba(251, 191, 36, 0.6); }
-            50% { box-shadow: 0 0 0 3px #FCE900, 0 0 15px rgba(251, 191, 36, 0.8); }
+            0%, 100% { box-shadow: 0 0 0 3px var(--color-accent-yellow), 0 0 12px rgba(251, 191, 36, 0.6); }
+            50% { box-shadow: 0 0 0 4px var(--color-accent-yellow), 0 0 18px rgba(251, 191, 36, 0.8); }
         }
 
         .sfx-text.user-input {
@@ -851,9 +975,9 @@
         }
 
         .sfx-text.user-input .element-input {
-            background: rgba(255, 255, 255, 0.95);
-            border: 2px solid #FCE900;
-            box-shadow: 0 0 8px rgba(251, 191, 36, 0.5);
+            background: rgba(245, 240, 230, 0.95);
+            border: 3px solid var(--color-accent-yellow);
+            box-shadow: 0 0 10px rgba(251, 191, 36, 0.5);
         }
 
         /* Input inside user-input elements */
@@ -871,14 +995,14 @@
         }
 
         .element-input::placeholder {
-            color: #9ca3af;
-            font-size: 0.5rem;
+            color: var(--color-gray-medium);
+            font-size: 0.55rem;
         }
 
         .sfx-text .element-input {
-            background: rgba(255,255,255,0.95);
-            padding: 3px 6px;
-            border-radius: 3px;
+            background: rgba(245, 240, 230, 0.95);
+            padding: 4px 8px;
+            border-radius: 4px;
             text-align: center;
             min-width: 50px;
             min-height: auto;
@@ -956,12 +1080,14 @@
             50% { opacity: 0.85; }
         }
 
-        /* Loading */
+        /* ========================================
+           LOADING STATES
+           ======================================== */
         .loading {
             display: none;
             text-align: center;
             padding: 40px;
-            color: #dc2626;
+            color: var(--color-accent-red);
         }
 
         .loading.active {
@@ -969,9 +1095,11 @@
         }
 
         .loading-text {
-            font-size: 1.2rem;
+            font-family: var(--font-display);
+            font-size: 1.3rem;
             font-weight: bold;
             text-transform: uppercase;
+            letter-spacing: 2px;
             animation: blink 1s infinite;
         }
 
@@ -980,85 +1108,96 @@
             50% { opacity: 0.5; }
         }
 
-        /* Page Navigation - positioned at bottom */
+        /* ========================================
+           PAGE NAVIGATION - Panel-like control bar
+           ======================================== */
         .page-navigation {
             display: flex;
-            gap: 15px;
+            gap: 20px;
             justify-content: center;
             align-items: center;
-            padding: 10px 20px;
+            padding: 12px 24px;
             margin: 0;
             line-height: normal;
-            background: rgba(23, 101, 185, 0.85);
-            border-left: 4px solid #111;
-            border-right: 4px solid #111;
-            border-bottom: 4px solid #111;
-            border-top: none;
+            background: var(--color-accent-yellow);
+            border: var(--border-thick);
             border-radius: 0 0 8px 8px;
-            backdrop-filter: blur(4px);
-            box-shadow: 8px 8px 0 rgba(0,0,0,0.4);
+            box-shadow: var(--shadow-heavy);
+            flex-shrink: 0;
         }
 
+        /* Nav buttons - gradient style without shadow */
         .nav-btn {
-            padding: 8px 16px;
-            background: #9ca3af;
-            color: #fff;
-            border: 3px solid #111;
-            border-radius: 4px;
-            font-size: 0.85rem;
+            padding: 10px 18px;
+            background: linear-gradient(180deg, #2980d9 0%, var(--color-primary-blue) 100%);
+            color: var(--color-white);
+            border: var(--border-thick);
+            border-radius: 6px;
+            font-family: var(--font-display);
+            font-size: 0.9rem;
             font-weight: bold;
-            font-family: inherit;
             cursor: pointer;
             text-transform: uppercase;
-            box-shadow: 2px 2px 0 #111;
-            transition: all 0.2s;
+            letter-spacing: 1px;
+            transition: all 0.15s ease;
         }
 
         .nav-btn:hover:not(:disabled) {
-            background: #6b7280;
-            transform: translate(-1px, -1px);
-            box-shadow: 3px 3px 0 #111;
+            background: linear-gradient(180deg, #3b9ae8 0%, #2980d9 100%);
+        }
+
+        .nav-btn:active:not(:disabled) {
+            background: linear-gradient(180deg, var(--color-primary-blue) 0%, #125a9e 100%);
         }
 
         .nav-btn:disabled {
-            background: #d1d5db;
+            background: var(--color-gray-light);
+            color: var(--color-gray-dark);
             cursor: not-allowed;
-            box-shadow: 2px 2px 0 #111;
-            opacity: 0.5;
+            opacity: 0.6;
         }
 
-        /* Page indicator */
+        /* Page indicator - styled panel without shadow */
         .page-indicator {
-            color: #fff;
+            color: var(--color-black);
+            background: var(--color-paper);
+            padding: 8px 20px;
+            border: 3px solid var(--color-black);
+            border-radius: 4px;
+            font-family: var(--font-display);
             font-weight: bold;
-            font-size: 0.8rem;
+            font-size: 0.9rem;
             text-transform: uppercase;
             letter-spacing: 1px;
-            min-width: 120px;
+            min-width: 140px;
             text-align: center;
-            text-shadow: 1px 1px 0 rgba(0,0,0,0.3);
         }
 
-        /* Input hint - now floating */
+        /* ========================================
+           INPUT HINT
+           ======================================== */
         .input-hint {
             position: absolute;
-            bottom: 65px;
+            bottom: 70px;
             left: 50%;
             transform: translateX(-50%);
-            color: #111;
-            background: #FCE900;
-            padding: 8px 15px;
+            color: var(--color-black);
+            background: var(--color-accent-yellow);
+            padding: 8px 16px;
             border-radius: 8px;
-            border: 3px solid #111;
+            border: var(--border-thick);
+            font-family: var(--font-ui);
             font-size: 0.75rem;
-            font-weight: bold;
+            font-weight: 600;
             text-transform: uppercase;
+            letter-spacing: 0.5px;
             z-index: 100;
-            box-shadow: 3px 3px 0 #111;
             pointer-events: none;
         }
 
-        /* Final Strip */
+        /* ========================================
+           FINAL STRIP DISPLAY
+           ======================================== */
         .final-strip {
             display: none;
             position: fixed;
@@ -1066,7 +1205,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: #1765B9;
+            background: var(--color-primary-blue);
             z-index: 100;
             overflow: hidden;
         }
@@ -1141,9 +1280,10 @@
             height: 100%;
             background: radial-gradient(
                 ellipse 55% 55% at center,
-                #1765B9 0%,
-                #1765B9 20%,
-                transparent 75%
+                var(--color-primary-blue) 0%,
+                var(--color-primary-blue) 20%,
+                rgba(23, 101, 185, 0.6) 50%,
+                rgba(23, 101, 185, 0.3) 75%
             );
             z-index: 1;
         }
@@ -1161,11 +1301,13 @@
         }
 
         .final-content h2 {
-            color: #FCE900;
+            font-family: var(--font-display);
+            color: var(--color-accent-yellow);
             margin-bottom: 20px;
             text-transform: uppercase;
-            text-shadow: 2px 2px 0 #dc2626, 4px 4px 0 #111;
-            font-size: 2rem;
+            text-shadow: 3px 3px 0 var(--color-accent-red), 5px 5px 0 var(--color-black);
+            font-size: 2.2rem;
+            letter-spacing: 3px;
             flex-shrink: 0;
         }
 
@@ -1173,57 +1315,65 @@
             max-width: 90%;
             max-height: calc(100vh - 220px);
             object-fit: contain;
-            border: 4px solid #111;
+            border: var(--border-thick);
             border-radius: 8px;
             margin-bottom: 20px;
-            box-shadow: 8px 8px 0 rgba(0,0,0,0.4);
+            box-shadow: var(--shadow-heavy);
+            background: var(--color-paper);
         }
 
         .final-content p {
-            color: #fff;
+            font-family: var(--font-ui);
+            color: var(--color-white);
             font-size: 1rem;
             text-transform: uppercase;
             letter-spacing: 1px;
             margin-bottom: 15px;
         }
 
+        /* Create Another button - gradient style without shadow */
         .new-comic-btn {
-            padding: 15px 30px;
-            background: #dc2626;
-            color: #fff;
-            border: 4px solid #111;
+            padding: 16px 35px;
+            background: linear-gradient(180deg, var(--color-accent-red-light) 0%, var(--color-accent-red) 100%);
+            color: var(--color-white);
+            border: var(--border-thick);
             border-radius: 8px;
-            font-size: 1.1rem;
+            font-family: var(--font-display);
+            font-size: 1.15rem;
             font-weight: bold;
-            font-family: inherit;
             cursor: pointer;
             text-transform: uppercase;
-            box-shadow: 4px 4px 0 #111;
-            transition: all 0.2s;
+            letter-spacing: 2px;
+            transition: all 0.15s ease;
         }
 
         .new-comic-btn:hover {
-            background: #ef4444;
-            transform: translate(-2px, -2px);
-            box-shadow: 6px 6px 0 #111;
+            background: linear-gradient(180deg, #f87171 0%, var(--color-accent-red-light) 100%);
         }
 
-        /* Notification */
+        .new-comic-btn:active {
+            background: linear-gradient(180deg, var(--color-accent-red) 0%, #b91c1c 100%);
+        }
+
+        /* ========================================
+           NOTIFICATION
+           ======================================== */
         .notification {
             position: fixed;
             top: 20px;
             right: 20px;
-            padding: 15px 25px;
-            background: #FCE900;
-            border: 3px solid #111;
+            padding: 14px 24px;
+            background: var(--color-accent-yellow);
+            border: var(--border-thick);
             border-radius: 8px;
-            color: #111;
-            font-weight: bold;
+            color: var(--color-black);
+            font-family: var(--font-ui);
+            font-weight: 600;
+            font-size: 0.9rem;
             opacity: 0;
             transform: translateX(100%);
             transition: all 0.3s;
             z-index: 1000;
-            box-shadow: 4px 4px 0 #111;
         }
 
         .notification.show {
@@ -1235,25 +1385,29 @@
             display: none !important;
         }
 
-        /* Loading/streaming panel */
+        /* ========================================
+           LOADING/STREAMING PANEL
+           ======================================== */
         .streaming-panel {
             position: relative;
-            background: #e5e7eb;
-            border: 3px solid #111;
-            border-radius: 4px;
+            background-color: var(--color-paper-dark);
+            border: var(--border-thick);
+            border-radius: 3px;
             overflow: hidden;
-            box-shadow: 3px 3px 0 #111;
-            justify-self: center;
-            align-self: center;
-            width: 240px;
-            height: 240px;
+            justify-self: stretch;
+            align-self: stretch;
+            width: 100%;
+            height: 100%;
+            max-width: 240px;
+            max-height: 240px;
+            margin: auto;
         }
 
         .streaming-panel .panel-image-container {
             position: relative;
             width: 100%;
             height: 100%;
-            background: #e5e7eb;
+            background: transparent;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -1272,32 +1426,35 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(23, 101, 185, 0.6);
+            background: rgba(23, 101, 185, 0.7);
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #fff;
-            font-size: 0.7rem;
+            color: var(--color-white);
+            font-family: var(--font-ui);
+            font-size: 0.75rem;
             text-transform: uppercase;
-            font-weight: bold;
+            font-weight: 600;
+            letter-spacing: 0.5px;
         }
 
         .streaming-indicator {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
         }
 
         .streaming-dots {
             display: flex;
-            gap: 4px;
+            gap: 6px;
         }
 
         .streaming-dots span {
-            width: 8px;
-            height: 8px;
-            background: #FCE900;
+            width: 10px;
+            height: 10px;
+            background: var(--color-accent-yellow);
+            border: 2px solid var(--color-black);
             border-radius: 50%;
             animation: streamPulse 1.4s infinite;
         }
@@ -1310,24 +1467,35 @@
             50% { opacity: 1; transform: scale(1); }
         }
 
-        /* Empty panel slot */
+        /* ========================================
+           EMPTY PANEL SLOT - Placeholder with solid border
+           ======================================== */
         .empty-slot {
-            background: #f3f4f6;
-            border: 2px dashed #d1d5db;
-            border-radius: 4px;
-            width: 240px;
-            height: 240px;
-            justify-self: center;
-            align-self: center;
+            background-color: var(--color-paper-dark);
+            border: var(--border-thick);
+            border-radius: 3px;
+            width: 100%;
+            height: 100%;
+            max-width: 240px;
+            max-height: 240px;
+            margin: auto;
+            justify-self: stretch;
+            align-self: stretch;
             opacity: 0.5;
         }
 
-        /* Title Card Panel - same size as other panels, different header color */
+        /* ========================================
+           TITLE CARD PANEL
+           ======================================== */
         .title-card-panel .panel-header {
-            background: #FCE900;
-            color: #111;
+            background: var(--color-accent-yellow);
+            color: var(--color-black);
+            font-family: var(--font-display);
         }
 
+        /* ========================================
+           RESPONSIVE ADJUSTMENTS
+           ======================================== */
         /* Responsive adjustments */
         @media (max-width: 1000px) {
             .comic-page {
@@ -1392,9 +1560,9 @@
                     <div id="pages-container" class="pages-wrapper"></div>
                     <p id="input-hint" class="input-hint hidden">Press Enter after filling the bubble</p>
                     <div class="page-navigation">
-                        <button id="prev-page-btn" class="nav-btn" disabled>◀ Prev</button>
+                        <button id="prev-page-btn" class="nav-btn" disabled>← Prev</button>
                         <div id="page-indicator" class="page-indicator">Page 1 of 1</div>
-                        <button id="next-page-btn" class="nav-btn" disabled>Next ▶</button>
+                        <button id="next-page-btn" class="nav-btn" disabled>Next →</button>
                     </div>
                 </div>
             </div>
@@ -1552,6 +1720,15 @@
             page.className = 'comic-page';
             page.dataset.pageNumber = pageNumber;
             page.innerHTML = `<div class="comic-page-header">Page ${pageNumber}</div>`;
+
+            // Pre-populate with empty slot placeholders
+            for (let i = 0; i < PANELS_PER_PAGE; i++) {
+                const emptySlot = document.createElement('div');
+                emptySlot.className = 'empty-slot';
+                emptySlot.dataset.slotIndex = i;
+                page.appendChild(emptySlot);
+            }
+
             return page;
         }
 
@@ -1582,12 +1759,18 @@
         }
 
         function addPanelToPage(panel) {
-            // Remove streaming panel if exists
+            // Replace streaming panel directly if it exists (it already took the slot)
             const streamingPanel = document.querySelector('.streaming-panel');
             if (streamingPanel) {
-                streamingPanel.remove();
+                streamingPanel.replaceWith(panel);
+                state.streamingPanelEl = null;
+                state.panelsOnCurrentPage++;
+                showPage(state.currentPageIndex);
+                updatePageIndicator();
+                return;
             }
 
+            // No streaming panel - find an empty slot
             const currentPage = getCurrentPage();
             const panelCount = currentPage.querySelectorAll('.comic-panel').length;
 
@@ -1598,9 +1781,22 @@
                 state.pages.push(newPage);
                 state.currentPageIndex = state.pages.length - 1;
                 state.panelsOnCurrentPage = 0;
-                newPage.appendChild(panel);
+
+                // Replace first empty slot with the panel
+                const emptySlot = newPage.querySelector('.empty-slot');
+                if (emptySlot) {
+                    emptySlot.replaceWith(panel);
+                } else {
+                    newPage.appendChild(panel);
+                }
             } else {
-                currentPage.appendChild(panel);
+                // Replace next empty slot with the panel
+                const emptySlot = currentPage.querySelector('.empty-slot');
+                if (emptySlot) {
+                    emptySlot.replaceWith(panel);
+                } else {
+                    currentPage.appendChild(panel);
+                }
             }
 
             state.panelsOnCurrentPage++;
@@ -1621,7 +1817,6 @@
                             <div class="streaming-dots">
                                 <span></span><span></span><span></span>
                             </div>
-                            <span>Generating panel...</span>
                         </div>
                     </div>
                 </div>
@@ -1644,7 +1839,14 @@
 
             const streamingPanel = createStreamingPanel();
             state.streamingPanelEl = streamingPanel;
-            getCurrentPage().appendChild(streamingPanel);
+
+            // Replace next empty slot with streaming panel
+            const emptySlot = getCurrentPage().querySelector('.empty-slot');
+            if (emptySlot) {
+                emptySlot.replaceWith(streamingPanel);
+            } else {
+                getCurrentPage().appendChild(streamingPanel);
+            }
 
             // Make sure we're viewing this page
             showPage(state.currentPageIndex);
