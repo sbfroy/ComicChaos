@@ -400,21 +400,21 @@
         }
 
         .comic-bubble:nth-child(1) {
-            top: 3%;
-            left: 3%;
+              top: -3%;
+              left: 0.5%;
             animation-delay: 0.1s;
         }
 
         .comic-bubble:nth-child(2) {
-            top: 10%;
+              top: -1.5%;
             right: 3%;
             left: auto;
             animation-delay: 0.3s;
         }
 
         .comic-bubble:nth-child(3) {
-            bottom: 3%;
-            left: 15%;
+              bottom: -3%;
+              left: 18%;
             top: auto;
             animation-delay: 0.5s;
         }
@@ -787,10 +787,11 @@
 
         /* Comic Page - a single page containing multiple panels */
         .comic-page {
-            display: none;
-            grid-template-columns: repeat(4, 1fr);
-            grid-template-rows: 1fr 1fr;
-            gap: 10px;
+              display: none;
+              grid-template-columns: repeat(4, 1fr);
+              grid-template-rows: 1fr 1fr;
+              column-gap: 10px;
+              row-gap: 10px;
             padding: 12px;
             position: absolute;
             top: 0;
