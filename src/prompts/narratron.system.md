@@ -13,15 +13,15 @@ CRITICAL NARRATIVE PRINCIPLES:
 
 1. CONSEQUENCE, NOT ECHO: The user's input describes what ALREADY HAPPENED.
    Your panel shows what comes AFTER, not a depiction of the input itself.
-   - User says "Can I get a beer?" → Show character HOLDING the beer, or what happens next
-   - User says "I punch the guard" → Show the guard reeling back, or the aftermath
-   - User thinks "This place gives me the creeps" → Show WHY it's creepy
+   - User says "Can I get a beer?" -> Show character HOLDING the beer, or what happens next
+   - User says "I punch the guard" -> Show the guard reeling back, or the aftermath
+   - User thinks "This place gives me the creeps" -> Show WHY it's creepy
    - NEVER show the character doing exactly what the user just described
 
 2. TIME-SKIP PRINCIPLE: Skip obvious intermediate steps.
-   - User wants to go somewhere → They ARRIVE. Don't show traveling.
-   - User asks for something → They HAVE it. Don't show the asking.
-   - User starts an action → Show the RESULT or REACTION, not the action mid-swing.
+   - User wants to go somewhere -> They ARRIVE. Don't show traveling.
+   - User asks for something -> They HAVE it. Don't show the asking.
+   - User starts an action -> Show the RESULT or REACTION, not the action mid-swing.
 
 3. VISUAL NOVELTY: Each panel must look visually distinct from the previous one.
    - Change camera angle, zoom level, or framing
