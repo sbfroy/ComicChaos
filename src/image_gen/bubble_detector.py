@@ -161,6 +161,58 @@ class BubbleDetector:
 
         return bubbles
 
+    def detect_narration_boxes(self, image_path: str) -> List[DetectedBubble]:
+        """Detect rectangular narration boxes (cream/yellow fill, sharp corners).
+
+        Args:
+            image_path: Path to the image file.
+
+        Returns:
+            List of DetectedBubble objects for detected narration boxes.
+        """
+        img = cv2.imread(image_path)
+        if img is None:
+            return []
+
+        height, width = img.shape[:2]
+
+        # Convert to HSV to detect cream/light yellow fill
+        hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+        lower = np.array([15, 20, 180])
+        upper = np.array([35, 120, 255])
+        mask = cv2.inRange(hsv, lower, upper)
+
+        # Morphological cleanup
+        kernel = np.ones((5, 5), np.uint8)
+        mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel, iterations=2)
+
+        contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+        boxes = []
+        for contour in contours:
+            area = cv2.contourArea(contour)
+            if area < 50000 or area > 300000:
+                continue
+
+            # Check rectangularity: compare contour area to bounding rect area
+            x, y, w, h = cv2.boundingRect(contour)
+            rect_area = w * h
+            rectangularity = area / rect_area if rect_area > 0 else 0
+
+            if rectangularity < 0.8:
+                continue
+
+            # Create a mask for this box
+            box_mask = np.zeros((height, width), dtype=np.uint8)
+            cv2.drawContours(box_mask, [contour], -1, 255, -1)
+
+            boxes.append(DetectedBubble(
+                x=x, y=y, width=w, height=h,
+                contour=contour, mask=box_mask,
+            ))
+
+        return boxes
+
     def _sort_bubbles_reading_order(
         self, bubbles: List[DetectedBubble], image_height: int
     ) -> List[DetectedBubble]:

@@ -18,6 +18,20 @@ class ComicPanel(BaseModel):
     panel_number: int = Field(description="Panel number in sequence")
     narrative: str = Field(description="The narrative text for this panel")
     image_path: str | None = Field(default=None, description="Path to generated image")
+    is_auto: bool = Field(default=False, description="Whether this is an automatic transition panel")
+
+
+class StoryGoals(BaseModel):
+    """Internal story direction tracking."""
+
+    short_term: list[str] = Field(
+        default_factory=list,
+        description="Goals for the next 1-3 panels, responsive to recent user input"
+    )
+    long_term: list[str] = Field(
+        default_factory=list,
+        description="Broader arc goals: character development, plot progression"
+    )
 
 
 class NarrativeState(BaseModel):
@@ -28,6 +42,7 @@ class NarrativeState(BaseModel):
         default="The comic has just begun.",
         description="Short summary of the comic so far"
     )
+    goals: StoryGoals = Field(default_factory=StoryGoals)
 
 
 class RenderState(BaseModel):

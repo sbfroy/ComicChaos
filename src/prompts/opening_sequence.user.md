@@ -37,5 +37,9 @@ RESPOND WITH JSON:
     ],
     "scene_summary": {{"scene_setting": "Brief setting description", "characters_present": ["Character + brief desc"], "current_action": "What's happening"}},
     "rolling_summary_update": "The story begins: brief setup of the scene"
+  }},
+  "initial_goals": {{
+    "short_term": ["first immediate story goal based on the opening scene"],
+    "long_term": ["overarching story goal based on the synopsis and world"]
   }}
 }}

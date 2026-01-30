@@ -171,26 +171,13 @@ class ComicStrip:
             if not detected_bubbles:
                 detected_bubbles = self.bubble_detector.detect_bubbles(image_path)
 
-            # Separate elements by type
-            speech_thought_elements = []
-            narration_elements = []
-
+            # Render text into detected bubbles for all element types
+            # Falls back to programmatic overlay when no detected bubble available
+            bubble_idx = 0
             for el in elements:
                 el_type = el.get("type", "")
-                if el_type in ("speech", "thought"):
-                    speech_thought_elements.append(el)
-                elif el_type == "narration":
-                    narration_elements.append(el)
-                # SFX are skipped for final strip (they're visual in the image)
-
-            # Step 1: Render text into detected bubbles for speech/thought
-            bubble_idx = 0
-            for el in speech_thought_elements:
-                if bubble_idx >= len(detected_bubbles):
-                    break
-
-                bubble = detected_bubbles[bubble_idx]
-                bubble_idx += 1
+                if el_type not in ("speech", "thought", "narration"):
+                    continue
 
                 # Determine text
                 if el.get("user_input"):
@@ -203,34 +190,22 @@ class ComicStrip:
 
                 text_element = TextElement(
                     text=text,
-                    element_type=el.get("type", "speech"),
+                    element_type=el_type,
                     character_name=el.get("character_name"),
                     position=el.get("position"),
                 )
-                img = self.text_renderer.render_text_on_image(img, bubble, text_element)
 
-            # Step 2: Draw narration boxes in corners
-            corner_positions = ["top-left", "top-right", "bottom-left", "bottom-right"]
-            for i, el in enumerate(narration_elements):
-                text = el.get("text", "")
-                if el.get("user_input"):
-                    text = user_input_text or ""
-
-                if not text:
-                    continue
-
-                # Use element's position or assign a corner
-                position = el.get("position", corner_positions[i % len(corner_positions)])
-
-                text_element = TextElement(
-                    text=text,
-                    element_type="narration",
-                    character_name=None,
-                    position=position,
-                )
-                img = self.text_renderer.draw_programmatic_bubble(
-                    img, text_element, img_width, img_height
-                )
+                if bubble_idx < len(detected_bubbles):
+                    # Render into detected region
+                    img = self.text_renderer.render_text_on_image(
+                        img, detected_bubbles[bubble_idx], text_element
+                    )
+                    bubble_idx += 1
+                else:
+                    # Fallback: programmatic overlay
+                    img = self.text_renderer.draw_programmatic_bubble(
+                        img, text_element, img_width, img_height
+                    )
 
             return img
 

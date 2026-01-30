@@ -94,6 +94,7 @@ class ComicSession:
             "user_input_text": None,
             "detected_bubbles": [],
             "is_title_card": True,
+            "is_auto": False,
         })
 
         # Generate first interactive panel (with bubble detection)
@@ -107,6 +108,7 @@ class ComicSession:
             "user_input_text": None,
             "detected_bubbles": first_panel_image["detected_bubbles"],
             "is_title_card": False,
+            "is_auto": False,
         })
 
         return {
@@ -155,7 +157,7 @@ class ComicSession:
         )
 
     def submit_panel(self, user_input_text: str):
-        """Submit user's input for the current panel and generate next panel.
+        """Submit user's input for the current panel and generate next panel(s).
 
         Args:
             user_input_text: The text the user entered in the input element
@@ -184,30 +186,60 @@ class ComicSession:
                 detected_bubbles=current_panel.get("detected_bubbles"),
             )
 
-        # Generate next panel based on user's input
+        # Generate next panel(s) based on user's input
         response = self.narratron.process_input(user_input_text, self.state)
 
-        # Generate image with elements for bubble detection
-        image_result = self._generate_image(elements=response.elements)
-        image_path = image_result["image_path"]
-        detected_bubbles = image_result["detected_bubbles"]
-        next_panel_num = panel_num + 1
+        result_panels = []
+        for i, panel_data in enumerate(response.panels):
+            is_auto = panel_data.is_auto
+            next_panel_num = panel_num + 1 + i
 
-        # Store next panel data
-        self.panels_data.append({
-            "panel_number": next_panel_num,
-            "image_path": image_path,
-            "elements": response.elements,
-            "user_input_text": None,
-            "detected_bubbles": detected_bubbles,
-        })
+            # For auto panels, temporarily override render state
+            saved_render = None
+            if is_auto and panel_data.scene_description:
+                saved_render = self.state.render.model_copy()
+                self.state.render.current_action = panel_data.scene_description
 
-        return {
-            "panel_number": next_panel_num,
-            "image": self._image_to_base64(image_path),
-            "elements": response.elements,
-            "detected_bubbles": detected_bubbles,
-        }
+            # Generate image
+            image_result = self._generate_image(elements=panel_data.elements)
+            image_path = image_result["image_path"]
+            detected_bubbles = image_result["detected_bubbles"]
+
+            # Restore render state after auto panel
+            if saved_render:
+                self.state.render = saved_render
+
+            # For auto panels, add to state and comic strip
+            if is_auto:
+                auto_narrative = self._build_narrative(panel_data.elements, "")
+                self.state.add_panel(auto_narrative, image_path)
+                if self.comic_strip:
+                    self.comic_strip.add_panel(
+                        image_path, auto_narrative, next_panel_num,
+                        elements=panel_data.elements,
+                        user_input_text=None,
+                        detected_bubbles=detected_bubbles,
+                    )
+
+            # Store panel data
+            self.panels_data.append({
+                "panel_number": next_panel_num,
+                "image_path": image_path,
+                "elements": panel_data.elements,
+                "user_input_text": None,
+                "detected_bubbles": detected_bubbles,
+                "is_auto": is_auto,
+            })
+
+            result_panels.append({
+                "panel_number": next_panel_num,
+                "image": self._image_to_base64(image_path),
+                "elements": panel_data.elements,
+                "detected_bubbles": detected_bubbles,
+                "is_auto": is_auto,
+            })
+
+        return {"panels": result_panels}
 
     def _build_narrative(self, elements: list, user_input_text: str) -> str:
         """Build narrative text from all elements including user's input."""
@@ -369,6 +401,7 @@ class ComicSession:
             "user_input_text": None,
             "detected_bubbles": [],
             "is_title_card": True,
+            "is_auto": False,
         })
 
         # Add title card to comic strip
@@ -426,10 +459,15 @@ class ComicSession:
             "user_input_text": None,
             "detected_bubbles": first_panel_bubbles,
             "is_title_card": False,
+            "is_auto": False,
         })
 
     def submit_panel_streaming(self, user_input_text: str):
-        """Submit user's input and stream the next panel generation."""
+        """Submit user's input and stream the next panel(s) generation.
+
+        May yield one or two panels: an optional automatic transition panel
+        followed by an interactive panel.
+        """
         if not self.state or not self.narratron:
             yield json.dumps({"type": "error", "error": "Session not started"})
             return
@@ -455,49 +493,86 @@ class ComicSession:
                 detected_bubbles=current_panel.get("detected_bubbles"),
             )
 
-        # Generate next panel based on user's input
+        # Generate next panel(s) based on user's input
         response = self.narratron.process_input(user_input_text, self.state)
 
-        next_panel_num = panel_num + 1
+        # Stream each panel in the response (1 or 2 panels)
+        for i, panel_data in enumerate(response.panels):
+            is_auto = panel_data.is_auto
+            next_panel_num = panel_num + 1 + i
 
-        # Send initial data for next panel
-        yield json.dumps({
-            "type": "init",
-            "panel_number": next_panel_num,
-            "elements": response.elements,
-        })
+            # For auto panels, temporarily override render state
+            saved_render = None
+            if is_auto and panel_data.scene_description:
+                saved_render = self.state.render.model_copy()
+                self.state.render.current_action = panel_data.scene_description
 
-        # Generate image with streaming
-        image_path = None
-        detected_bubbles = []
+            # Choose SSE event types based on panel type
+            init_type = "init_auto" if is_auto else "init"
+            complete_type = "complete_auto" if is_auto else "complete"
 
-        for event in self._generate_image_streaming(elements=response.elements):
-            if event["type"] == "partial":
-                yield json.dumps({
-                    "type": "partial",
-                    "image_base64": event["image_base64"],
-                    "partial_index": event["partial_index"],
-                })
-            elif event["type"] == "complete":
-                image_path = event["image_path"]
-                detected_bubbles = event["detected_bubbles"]
-                yield json.dumps({
-                    "type": "complete",
-                    "image_base64": event["image_base64"],
-                    "detected_bubbles": detected_bubbles,
-                })
-            elif event["type"] == "error":
-                yield json.dumps({"type": "error", "error": event["error"]})
-                return
+            # Send init event
+            yield json.dumps({
+                "type": init_type,
+                "panel_number": next_panel_num,
+                "elements": panel_data.elements,
+                "is_auto": is_auto,
+            })
 
-        # Store next panel data
-        self.panels_data.append({
-            "panel_number": next_panel_num,
-            "image_path": image_path,
-            "elements": response.elements,
-            "user_input_text": None,
-            "detected_bubbles": detected_bubbles,
-        })
+            # Generate image with streaming
+            image_path = None
+            detected_bubbles = []
+
+            for event in self._generate_image_streaming(elements=panel_data.elements):
+                if event["type"] == "partial":
+                    yield json.dumps({
+                        "type": "partial",
+                        "panel_number": next_panel_num,
+                        "image_base64": event["image_base64"],
+                        "partial_index": event["partial_index"],
+                    })
+                elif event["type"] == "complete":
+                    image_path = event["image_path"]
+                    detected_bubbles = event["detected_bubbles"]
+                    yield json.dumps({
+                        "type": complete_type,
+                        "panel_number": next_panel_num,
+                        "image_base64": event["image_base64"],
+                        "detected_bubbles": detected_bubbles,
+                        "elements": panel_data.elements,
+                        "is_auto": is_auto,
+                    })
+                elif event["type"] == "error":
+                    yield json.dumps({"type": "error", "error": event["error"]})
+                    if saved_render:
+                        self.state.render = saved_render
+                    return
+
+            # Restore render state after auto panel
+            if saved_render:
+                self.state.render = saved_render
+
+            # For auto panels, add to state and comic strip immediately
+            if is_auto:
+                auto_narrative = self._build_narrative(panel_data.elements, "")
+                self.state.add_panel(auto_narrative, image_path)
+                if self.comic_strip:
+                    self.comic_strip.add_panel(
+                        image_path, auto_narrative, next_panel_num,
+                        elements=panel_data.elements,
+                        user_input_text=None,
+                        detected_bubbles=detected_bubbles,
+                    )
+
+            # Store panel data
+            self.panels_data.append({
+                "panel_number": next_panel_num,
+                "image_path": image_path,
+                "elements": panel_data.elements,
+                "user_input_text": None,
+                "detected_bubbles": detected_bubbles,
+                "is_auto": is_auto,
+            })
 
     def _image_to_base64(self, image_path):
         """Convert an image file to base64 string."""

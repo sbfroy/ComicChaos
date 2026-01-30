@@ -32,17 +32,42 @@ from ..prompt_loader import load_prompt
 _PROMPTS_DIR = Path(__file__).resolve().parent.parent / "prompts"
 
 _FALLBACK_RESPONSE = {
-    "scene_description": "Something unexpected happened...",
-    "elements": [
+    "panels": [
         {
-            "type": "narration",
-            "position": "bottom-center",
-            "user_input": True,
-            "placeholder": "What happens next?",
+            "scene_description": "Something unexpected happened...",
+            "elements": [
+                {
+                    "type": "narration",
+                    "position": "bottom-center",
+                    "user_input": True,
+                    "placeholder": "What happens next?",
+                }
+            ],
         }
     ],
     "scene_summary": {},
+    "short_term_goals": [],
+    "long_term_goals": [],
 }
+
+
+@dataclass
+class PanelData:
+    """Data for a single panel in a Narratron response."""
+
+    scene_description: str
+    elements: List[Dict[str, Any]]
+    is_auto: bool
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "PanelData":
+        elements = data.get("elements", [])
+        is_auto = all(not el.get("user_input", False) for el in elements)
+        return cls(
+            scene_description=data.get("scene_description", ""),
+            elements=elements,
+            is_auto=is_auto,
+        )
 
 
 class NarratronResponse:
@@ -50,10 +75,49 @@ class NarratronResponse:
 
     def __init__(self, raw_response: Dict[str, Any]) -> None:
         self.raw: Dict[str, Any] = raw_response
-        self.scene_description: str = raw_response.get("scene_description", "")
-        self.elements: List[Dict[str, Any]] = raw_response.get("elements", [])
+
+        # Support both panels array and legacy single-panel format
+        panels_data = raw_response.get("panels", None)
+        if panels_data and isinstance(panels_data, list):
+            self.panels: List[PanelData] = [PanelData.from_dict(p) for p in panels_data]
+        else:
+            # Legacy single-panel format: wrap in a list
+            self.panels = [PanelData(
+                scene_description=raw_response.get("scene_description", ""),
+                elements=raw_response.get("elements", []),
+                is_auto=False,
+            )]
+
+        # Enforce: last panel must be interactive
+        if self.panels and self.panels[-1].is_auto:
+            last = self.panels[-1]
+            if last.elements:
+                last.elements[-1]["user_input"] = True
+                last.elements[-1].pop("text", None)
+                last.elements[-1].setdefault("placeholder", "What happens next?")
+            last.is_auto = False
+
+        # Enforce max 2 panels
+        if len(self.panels) > 2:
+            # Keep only the last auto panel (if any) + the last interactive panel
+            auto_panels = [p for p in self.panels if p.is_auto]
+            interactive_panels = [p for p in self.panels if not p.is_auto]
+            if auto_panels and interactive_panels:
+                self.panels = [auto_panels[-1], interactive_panels[-1]]
+            elif interactive_panels:
+                self.panels = [interactive_panels[-1]]
+            else:
+                self.panels = [self.panels[-1]]
+
+        # Backward compat: expose last panel's data
+        self.scene_description: str = self.panels[-1].scene_description if self.panels else ""
+        self.elements: List[Dict[str, Any]] = self.panels[-1].elements if self.panels else []
+
+        # Top-level fields
         self.scene_summary: Dict[str, Any] = raw_response.get("scene_summary", {})
         self.rolling_summary_update: str = raw_response.get("rolling_summary_update", "")
+        self.short_term_goals: List[str] = raw_response.get("short_term_goals", [])
+        self.long_term_goals: List[str] = raw_response.get("long_term_goals", [])
 
 
 @dataclass
@@ -79,14 +143,17 @@ class OpeningSequenceResponse:
 
     title_card: TitleCardPanel
     first_panel: NarratronResponse
+    initial_goals: Dict[str, List[str]]
 
     @classmethod
     def from_raw(cls, raw_response: Dict[str, Any]) -> "OpeningSequenceResponse":
         title_card_data = raw_response.get("title_card", {})
         first_panel_data = raw_response.get("first_panel", {})
+        initial_goals = raw_response.get("initial_goals", {"short_term": [], "long_term": []})
         return cls(
             title_card=TitleCardPanel.from_dict(title_card_data),
             first_panel=NarratronResponse(first_panel_data),
+            initial_goals=initial_goals,
         )
 
 
@@ -197,10 +264,22 @@ class Narratron:
                 panel_lines.append(f"P{panel.panel_number}: {narrative}")
             recent_panels = "RECENT:\n" + "\n".join(panel_lines)
 
+        # Format story goals
+        story_goals = ""
+        goals = comic_state.narrative.goals
+        if goals.short_term or goals.long_term:
+            goals_parts = []
+            if goals.short_term:
+                goals_parts.append("SHORT-TERM: " + "; ".join(goals.short_term))
+            if goals.long_term:
+                goals_parts.append("LONG-TERM: " + "; ".join(goals.long_term))
+            story_goals = "STORY GOALS:\n" + "\n".join(goals_parts)
+
         return load_prompt(
             _PROMPTS_DIR / "panel.user.md",
             main_character=main_char,
             rolling_summary=comic_state.narrative.rolling_summary,
+            story_goals=story_goals,
             recent_panels=recent_panels,
             user_input=user_input,
         )
@@ -229,6 +308,12 @@ class Narratron:
                     "current_action", comic_state.render.current_action
                 ),
             )
+
+        # Update story goals
+        if isinstance(response.short_term_goals, list) and response.short_term_goals:
+            comic_state.narrative.goals.short_term = response.short_term_goals
+        if isinstance(response.long_term_goals, list) and response.long_term_goals:
+            comic_state.narrative.goals.long_term = response.long_term_goals
 
     def generate_opening_sequence(
         self, comic_state: ComicState
@@ -285,8 +370,18 @@ class Narratron:
                     atmosphere=blueprint.synopsis,
                 ),
                 first_panel=NarratronResponse(_FALLBACK_RESPONSE),
+                initial_goals={"short_term": [], "long_term": []},
             )
 
         self._apply_state_changes(response.first_panel, comic_state)
+
+        # Apply initial story goals
+        if response.initial_goals:
+            st = response.initial_goals.get("short_term", [])
+            lt = response.initial_goals.get("long_term", [])
+            if isinstance(st, list) and st:
+                comic_state.narrative.goals.short_term = st
+            if isinstance(lt, list) and lt:
+                comic_state.narrative.goals.long_term = lt
 
         return response

@@ -109,10 +109,14 @@ class ImageGenerator:
             with open(filepath, "wb") as file:
                 file.write(image_bytes)
 
-            # Detect bubbles in the generated image
+            # Detect bubbles/boxes in the generated image
             detected_bubbles = []
             if elements:
-                bubbles = self.bubble_detector.detect_bubbles(str(filepath))
+                el_type = elements[0].get("type", "") if elements else ""
+                if el_type == "narration":
+                    bubbles = self.bubble_detector.detect_narration_boxes(str(filepath))
+                else:
+                    bubbles = self.bubble_detector.detect_bubbles(str(filepath))
                 for bubble in bubbles:
                     detected_bubbles.append({
                         "x": bubble.x,
@@ -221,10 +225,14 @@ class ImageGenerator:
                 with open(filepath, "wb") as file:
                     file.write(image_bytes)
 
-                # Detect bubbles
+                # Detect bubbles/boxes
                 detected_bubbles = []
                 if elements:
-                    bubbles = self.bubble_detector.detect_bubbles(str(filepath))
+                    el_type = elements[0].get("type", "") if elements else ""
+                    if el_type == "narration":
+                        bubbles = self.bubble_detector.detect_narration_boxes(str(filepath))
+                    else:
+                        bubbles = self.bubble_detector.detect_bubbles(str(filepath))
                     for bubble in bubbles:
                         detected_bubbles.append({
                             "x": bubble.x,
@@ -323,10 +331,9 @@ class ImageGenerator:
         return full_prompt
 
     def _build_bubble_instructions(self, elements: List[Dict[str, Any]]) -> str:
-        """Build instructions for generating ONE empty speech/thought bubble.
+        """Build instructions for generating ONE empty bubble or narration box.
 
-        Only generates a bubble for speech or thought elements.
-        Narration boxes are NOT included in the image - they're corner overlays.
+        Generates bubble/box instructions for speech, thought, and narration elements.
 
         Args:
             elements: List of elements (should be exactly one).
@@ -341,7 +348,6 @@ class ImageGenerator:
         el = elements[0]
         el_type = el.get("type", "")
 
-        # Only speech and thought need bubbles in the image
         if el_type == "speech":
             return (
                 "Include ONE empty white oval speech bubble with black outline and pointed tail, "
@@ -354,8 +360,15 @@ class ImageGenerator:
                 "positioned near the main character's head. The bubble should be large enough to "
                 "contain a short thought, completely empty inside with no text. The whole bubble must be visible."
             )
+        elif el_type == "narration":
+            return (
+                "Include ONE empty rectangular narration box with a thin black border and "
+                "light yellow/cream fill, positioned in the top-left corner of the panel. "
+                "The box should be roughly 25-30% of the panel width and tall enough for "
+                "2-3 lines of text. Completely empty inside with no text. "
+                "The box must have sharp 90-degree corners (not rounded)."
+            )
 
-        # Narration and other types don't need bubbles in the image
         return ""
 
 

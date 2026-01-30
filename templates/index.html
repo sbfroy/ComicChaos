@@ -1641,13 +1641,43 @@
 
             // Handle positioning based on element type
             if (el.type === 'narration') {
-                // Narration always goes in corners with visible box
-                div.classList.add('narration-box', getNarrationCornerClass(el.position));
-                if (isUserInput) div.classList.add('user-input');
-                if (isEditable && isUserInput) {
-                    content = `<textarea class="element-input" placeholder="${el.placeholder || 'Narrate...'}">${displayText}</textarea>`;
+                if (detectedBubble) {
+                    // Position inside the detected narration box
+                    div.classList.add('detected-bubble', 'narration-detected');
+                    if (isUserInput) div.classList.add('user-input');
+
+                    const imgSize = 1024;
+                    const leftPct = (detectedBubble.x / imgSize) * 100;
+                    const topPct = (detectedBubble.y / imgSize) * 100;
+                    const widthPct = (detectedBubble.width / imgSize) * 100;
+                    const heightPct = (detectedBubble.height / imgSize) * 100;
+
+                    div.style.left = `${leftPct}%`;
+                    div.style.top = `${topPct}%`;
+                    div.style.width = `${widthPct}%`;
+                    div.style.height = `${heightPct}%`;
+
+                    if (isEditable && isUserInput) {
+                        content = `<textarea class="element-input" placeholder="${el.placeholder || 'Narrate...'}" style="background: transparent; resize: none;">${displayText}</textarea>`;
+                    } else {
+                        const textLength = displayText.length;
+                        let fontSize;
+                        if (textLength < 15) fontSize = 13;
+                        else if (textLength < 30) fontSize = 12;
+                        else if (textLength < 50) fontSize = 11;
+                        else if (textLength < 70) fontSize = 10;
+                        else fontSize = 9;
+                        content = `<div class="element-text" style="font-size: ${fontSize}px; font-style: italic;">${displayText}</div>`;
+                    }
                 } else {
-                    content = `<div class="element-text">${displayText}</div>`;
+                    // Fallback: corner narration box
+                    div.classList.add('narration-box', getNarrationCornerClass(el.position));
+                    if (isUserInput) div.classList.add('user-input');
+                    if (isEditable && isUserInput) {
+                        content = `<textarea class="element-input" placeholder="${el.placeholder || 'Narrate...'}">${displayText}</textarea>`;
+                    } else {
+                        content = `<div class="element-text">${displayText}</div>`;
+                    }
                 }
             } else if (el.type === 'sfx') {
                 // SFX uses grid positioning
@@ -1755,13 +1785,13 @@
             const imageContainer = panel.querySelector('.panel-image-container');
 
             if (panelElements && panelElements.length > 0) {
-                // Match speech/thought elements to detected bubbles
+                // Match speech/thought/narration elements to detected bubbles
                 let bubbleIndex = 0;
                 panelElements.forEach(el => {
                     let detectedBubble = null;
 
-                    // Only speech and thought elements use detected bubbles
-                    if ((el.type === 'speech' || el.type === 'thought') && bubbleIndex < detectedBubbles.length) {
+                    // Speech, thought, and narration elements use detected bubbles
+                    if ((el.type === 'speech' || el.type === 'thought' || el.type === 'narration') && bubbleIndex < detectedBubbles.length) {
                         detectedBubble = detectedBubbles[bubbleIndex];
                         bubbleIndex++;
                     }
@@ -2017,6 +2047,7 @@
 
             let pendingElements = [];
             let pendingPanelNumber = state.completedPanels.length + 1;
+            let pendingIsAuto = false;
 
             try {
                 const response = await fetch('/api/submit-stream', {
@@ -2053,16 +2084,57 @@
                                     return;
                                 }
 
+                                // Auto panel init
+                                if (data.type === 'init_auto') {
+                                    pendingElements = data.elements || [];
+                                    pendingPanelNumber = data.panel_number;
+                                    pendingIsAuto = true;
+                                    // Streaming panel already added
+                                }
+
+                                // Interactive panel init
                                 if (data.type === 'init') {
                                     pendingElements = data.elements || [];
                                     pendingPanelNumber = data.panel_number || (state.completedPanels.length + 1);
-
+                                    pendingIsAuto = false;
+                                    // If we just finished an auto panel, add a new streaming panel
+                                    if (!document.querySelector('.streaming-panel')) {
+                                        addStreamingPanel();
+                                    }
                                 }
 
                                 if (data.type === 'partial') {
                                     updateStreamingImage(data.image_base64);
                                 }
 
+                                // Auto panel complete
+                                if (data.type === 'complete_auto') {
+                                    const autoElements = data.elements || pendingElements;
+                                    const autoPanel = createPanel(
+                                        pendingPanelNumber,
+                                        data.image_base64,
+                                        autoElements,
+                                        false,  // Not editable
+                                        null,
+                                        data.detected_bubbles || []
+                                    );
+                                    autoPanel.classList.add('auto-panel');
+
+                                    addPanelToPage(autoPanel);
+
+                                    // Record as completed
+                                    state.completedPanels.push({
+                                        panel_number: pendingPanelNumber,
+                                        is_auto: true,
+                                        image: data.image_base64,
+                                        elements: autoElements,
+                                    });
+
+                                    // Add streaming panel for the next (interactive) panel
+                                    addStreamingPanel();
+                                }
+
+                                // Interactive panel complete
                                 if (data.type === 'complete') {
                                     state.currentPanel = {
                                         panel_number: pendingPanelNumber,
