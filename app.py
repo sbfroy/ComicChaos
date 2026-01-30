@@ -7,7 +7,7 @@ import base64
 from pathlib import Path
 
 from dotenv import load_dotenv
-from flask import Flask, render_template, request, jsonify, send_from_directory, Response
+from flask import Flask, render_template, request, jsonify, Response
 
 from src.config import GENERATED_IMAGES_DIR, COMIC_STRIPS_DIR, SETTINGS_DIR
 from src.state.static_config import StaticConfig
@@ -513,7 +513,6 @@ def index():
     return render_template("index.html")
 
 
-
 @app.route("/api/comics")
 def list_comics():
     """List available comics."""
@@ -649,12 +648,6 @@ def submit_panel_stream():
             "X-Accel-Buffering": "no",
         }
     )
-
-
-@app.route("/assets/<path:filename>")
-def serve_asset(filename):
-    """Serve generated assets."""
-    return send_from_directory("assets", filename)
 
 
 if __name__ == "__main__":

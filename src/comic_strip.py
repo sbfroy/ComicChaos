@@ -238,12 +238,3 @@ class ComicStrip:
             print(f"Error processing panel bubbles: {e}")
             return None
 
-    def get_summary(self) -> str:
-        """Get a text summary of the comic."""
-        lines = [f"=== {self.title} ===", ""]
-        for panel in self.panels:
-            lines.append(f"Panel {panel['panel_number']}: {panel['narrative']}")
-            if panel['image_path']:
-                lines.append(f"  Image: {panel['image_path']}")
-            lines.append("")
-        return "\n".join(lines)

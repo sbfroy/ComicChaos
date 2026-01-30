@@ -30,9 +30,3 @@ def load_prompt(filepath: Union[str, Path], **kwargs: Any) -> str:
     """
     content = _read_file(str(filepath))
     return content.format(**kwargs) if kwargs else content
-
-
-
-def clear_cache() -> None:
-    """Clear the file cache."""
-    _read_file.cache_clear()

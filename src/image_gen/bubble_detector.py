@@ -5,12 +5,10 @@ contour detection and filtering techniques.
 """
 
 from dataclasses import dataclass
-from typing import List, Tuple, Optional
-from pathlib import Path
+from typing import List, Optional
 
 import cv2
 import numpy as np
-from PIL import Image
 
 
 @dataclass
@@ -73,24 +71,6 @@ class BubbleDetector:
 
         return self._detect_bubbles_from_array(img)
 
-    def detect_bubbles_from_pil(self, pil_image: Image.Image) -> List[DetectedBubble]:
-        """Detect speech bubbles from a PIL Image.
-
-        Args:
-            pil_image: PIL Image object.
-
-        Returns:
-            List of DetectedBubble objects.
-        """
-        # Convert PIL to OpenCV format (RGB to BGR)
-        img_array = np.array(pil_image)
-        if len(img_array.shape) == 3 and img_array.shape[2] == 3:
-            img_array = cv2.cvtColor(img_array, cv2.COLOR_RGB2BGR)
-        elif len(img_array.shape) == 3 and img_array.shape[2] == 4:
-            img_array = cv2.cvtColor(img_array, cv2.COLOR_RGBA2BGR)
-
-        return self._detect_bubbles_from_array(img_array)
-
     def _detect_bubbles_from_array(self, img: np.ndarray) -> List[DetectedBubble]:
         """Internal method to detect bubbles from a numpy array.
 
@@ -113,7 +93,6 @@ class BubbleDetector:
 
         inverse = cv2.bitwise_not(binary)
 
-        # 
         after_close = cv2.morphologyEx(inverse, cv2.MORPH_CLOSE, kernel, iterations=2)
         
         # Find contours
@@ -220,43 +199,3 @@ class BubbleDetector:
             result.extend(row_sorted)
 
         return result
-
-    def create_debug_image(
-        self, image_path: str, bubbles: List[DetectedBubble], output_path: str
-    ) -> None:
-        """Create a debug image showing detected bubbles.
-
-        Args:
-            image_path: Path to the original image.
-            bubbles: List of detected bubbles.
-            output_path: Path to save the debug image.
-        """
-        img = cv2.imread(image_path)
-        if img is None:
-            return
-
-        for i, bubble in enumerate(bubbles):
-            # Draw contour
-            cv2.drawContours(img, [bubble.contour], -1, (0, 255, 0), 2)
-
-            # Draw bounding rectangle
-            cv2.rectangle(
-                img,
-                (bubble.x, bubble.y),
-                (bubble.x + bubble.width, bubble.y + bubble.height),
-                (255, 0, 0),
-                2
-            )
-
-            # Draw bubble number
-            cv2.putText(
-                img,
-                str(i + 1),
-                (bubble.center_x - 10, bubble.center_y + 10),
-                cv2.FONT_HERSHEY_SIMPLEX,
-                1,
-                (0, 0, 255),
-                2
-            )
-
-        cv2.imwrite(output_path, img)

@@ -350,32 +350,6 @@ class TextRenderer:
 
         return img
 
-    def render_all_bubbles(
-        self,
-        image: Image.Image,
-        bubbles: List[DetectedBubble],
-        elements: List[TextElement],
-    ) -> Image.Image:
-        """Render text into all detected bubbles.
-
-        Matches bubbles to elements based on position order.
-
-        Args:
-            image: PIL Image to render onto.
-            bubbles: List of detected bubbles.
-            elements: List of text elements to render.
-
-        Returns:
-            Modified PIL Image with all text rendered.
-        """
-        img = image.copy()
-
-        # Match bubbles to elements (assuming same order)
-        for i, (bubble, element) in enumerate(zip(bubbles, elements)):
-            img = self.render_text_on_image(img, bubble, element)
-
-        return img
-
     def draw_programmatic_bubble(
         self,
         image: Image.Image,

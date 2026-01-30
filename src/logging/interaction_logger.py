@@ -7,7 +7,6 @@ The logs are saved in JSON format for easy analysis and review.
 
 
 import json
-import os
 from datetime import datetime
 from pathlib import Path
 from typing import Optional, Dict, Any, List
@@ -209,18 +208,3 @@ class InteractionLogger:
         with open(self.log_file, 'w', encoding='utf-8') as f:
             json.dump(log_data, f, indent=2, ensure_ascii=False)
 
-    def get_log_path(self) -> str:
-        """Get the path to the current log file.
-        
-        Returns:
-            Absolute path to the log file.
-        """
-        return str(self.log_file.resolve())
-
-    def get_interaction_count(self) -> int:
-        """Get the number of interactions logged.
-        
-        Returns:
-            Count of logged interactions.
-        """
-        return len(self.interactions)

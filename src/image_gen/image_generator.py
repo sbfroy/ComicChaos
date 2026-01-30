@@ -16,7 +16,6 @@ from pathlib import Path
 from typing import Optional, List, Dict, Any, Generator
 
 from openai import OpenAI
-from PIL import Image
 
 from ..config import (
     IMAGE_MODEL,
@@ -27,8 +26,7 @@ from ..config import (
 )
 from ..state.comic_state import RenderState
 from ..logging.interaction_logger import InteractionLogger
-from .bubble_detector import BubbleDetector, DetectedBubble
-from .text_renderer import TextRenderer, TextElement
+from .bubble_detector import BubbleDetector
 
 
 class ImageGenerator:
@@ -60,9 +58,8 @@ class ImageGenerator:
         self.output_dir.mkdir(parents=True, exist_ok=True)
         self.logger: Optional[InteractionLogger] = logger
 
-        # Initialize bubble detection and text rendering
+        # Initialize bubble detection
         self.bubble_detector = BubbleDetector()
-        self.text_renderer = TextRenderer()
 
     def generate_image(
         self,
@@ -272,76 +269,6 @@ class ImageGenerator:
                 "type": "error",
                 "error": str(error),
             }
-
-    def process_bubbles(
-        self,
-        image_path: str,
-        elements: List[Dict[str, Any]],
-        user_input_text: Optional[str] = None,
-    ) -> Optional[str]:
-        """Detect bubbles in an image and render text into them.
-
-        This is called when generating the final comic strip to bake
-        text into the bubble regions.
-
-        Args:
-            image_path: Path to the image with empty bubbles.
-            elements: List of element dictionaries with text to render.
-            user_input_text: The text the user entered for the user_input element.
-
-        Returns:
-            Path to the processed image, or None if processing fails.
-        """
-        try:
-            # Detect bubbles in the image
-            bubbles = self.bubble_detector.detect_bubbles(image_path)
-
-            if not bubbles:
-                print("No bubbles detected in image")
-                return image_path  # Return original if no bubbles found
-
-            # Convert elements to TextElement objects
-            text_elements = []
-            for el in elements:
-                el_type = el.get("type", "")
-
-                # Determine the text content
-                if el.get("user_input"):
-                    # Use the actual user input for this element
-                    text = user_input_text or ""
-                else:
-                    text = el.get("text", "")
-
-                # Skip elements without text
-                if not text:
-                    continue
-
-                text_elements.append(TextElement(
-                    text=text,
-                    element_type=el_type,
-                    character_name=el.get("character_name"),
-                ))
-
-            if not text_elements:
-                return image_path
-
-            # Load image and render text
-            img = Image.open(image_path)
-            processed_img = self.text_renderer.render_all_bubbles(
-                img, bubbles, text_elements
-            )
-
-            # Save processed image with _final suffix
-            original_path = Path(image_path)
-            processed_filename = original_path.stem + "_final" + original_path.suffix
-            processed_filepath = original_path.parent / processed_filename
-            processed_img.save(processed_filepath)
-
-            return str(processed_filepath)
-
-        except Exception as error:
-            print(f"Bubble processing failed: {error}")
-            return image_path  # Return original image on failure
 
     def _build_prompt(
         self,
