@@ -49,6 +49,8 @@
         body {
             font-family: var(--font-display);
             font-weight: 700;
+            -webkit-text-stroke: 1.5px var(--color-black);
+            paint-order: stroke fill;
             background: #1e56b8;
             background-image:
                 radial-gradient(circle, #1e56b8 20%, transparent 20%),
@@ -671,6 +673,7 @@
             max-width: 80%;
             font-size: 14px;
             font-family: var(--font-panel);
+            -webkit-text-stroke: 0;
             color: var(--color-black);
             line-height: 1.2;
         }
@@ -716,6 +719,7 @@
             max-width: 75%;
             font-size: 13px;
             font-family: var(--font-panel);
+            -webkit-text-stroke: 0;
             font-style: italic;
             color: #444;
             line-height: 1.2;
@@ -764,6 +768,7 @@
             max-width: 80%;
             font-size: 0.55rem;
             font-family: var(--font-panel);
+            -webkit-text-stroke: 0;
             color: var(--color-black);
             font-style: italic;
             line-height: 1.2;
@@ -880,6 +885,7 @@
             width: 100%;
             height: 100%;
             font-family: var(--font-panel);
+            -webkit-text-stroke: 0;
             font-size: 13px;
             line-height: 1.2;
             color: #111;
@@ -1335,12 +1341,22 @@
             setTimeout(() => splash.style.display = 'none', 500);
         });
 
-        // Make splash text clickable
+        // Make splash text clickable and trigger logo pulse on hover
         const splashText = document.querySelector('.splash-text');
         if (splashText) {
             splashText.addEventListener('click', () => {
                 splash.classList.add('fade-out');
                 setTimeout(() => splash.style.display = 'none', 500);
+            });
+            splashText.addEventListener('mouseenter', () => {
+                splashLogo.classList.add('pulsing');
+            });
+            splashText.addEventListener('mouseleave', () => {
+                const onIteration = () => {
+                    splashLogo.classList.remove('pulsing');
+                    splashLogo.removeEventListener('animationiteration', onIteration);
+                };
+                splashLogo.addEventListener('animationiteration', onIteration);
             });
         }
 
