@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Comic Chaos</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         /* ========================================
            CSS VARIABLES - Design Tokens
@@ -35,8 +38,8 @@
             --shadow-hover: 8px 8px 0 var(--color-shadow);
 
             /* Typography */
-            --font-display: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            --font-ui: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            --font-display: 'Roboto Mono', monospace;
+            --font-ui: 'Roboto Mono', monospace;
             --font-panel: 'Comic Sans MS', 'Chalkboard', cursive, sans-serif;
         }
 
@@ -49,7 +52,7 @@
         body {
             font-family: var(--font-display);
             font-weight: 700;
-            -webkit-text-stroke: 6.5px var(--color-black);
+            -webkit-text-stroke: 0.0px var(--color-black);
             paint-order: stroke fill;
             background: #1e56b8;
             background-image:
@@ -154,15 +157,16 @@
             width: 100%;
             height: 100%;
             z-index: 1;
+            pointer-events: none;
         }
 
         .splash-vignette {
             background: radial-gradient(
-                ellipse 50% 50% at center,
+                ellipse 60% 60% at center,
                 var(--color-primary-blue) 0%,
                 var(--color-primary-blue) 30%,
-                rgba(23, 101, 185, 0.6) 60%,
-                rgba(23, 101, 185, 0.3) 80%
+                rgba(23, 101, 185, 0.15) 60%,
+                rgba(23, 101, 185, 0.08) 80%
             );
         }
 
@@ -199,11 +203,11 @@
             font-family: var(--font-display);
             font-size: 2.2rem;
             text-align: center;
-            text-transform: uppercase;
             letter-spacing: 3px;
             text-shadow: none;
             animation: popIn 0.3s ease-out 0.2s backwards;
             cursor: pointer;
+            margin-top: -40px;
         }
 
         @keyframes logoPulse {
@@ -256,11 +260,11 @@
 
         .select-vignette {
             background: radial-gradient(
-                ellipse 55% 55% at center,
+                ellipse 75% 75% at center,
                 var(--color-primary-blue) 0%,
                 var(--color-primary-blue) 25%,
-                rgba(23, 101, 185, 0.6) 55%,
-                rgba(23, 101, 185, 0.3) 75%
+                rgba(23, 101, 185, 0.15) 55%,
+                rgba(23, 101, 185, 0.08) 75%
             );
         }
 
@@ -390,14 +394,14 @@
 
         .bubble-text {
             text-align: center;
-            padding: 30px 40px;
+            padding: 105px 115px;
             pointer-events: none;
+            max-width: 100%;
         }
 
         .bubble-text h3 {
             font-family: var(--font-display);
             color: var(--color-black);
-            text-transform: uppercase;
             font-size: 1.2rem;
             margin-bottom: 8px;
             text-shadow: 1px 1px 0 rgba(255,255,255,0.6);
@@ -422,34 +426,22 @@
         .select-start-btn {
             position: relative;
             z-index: 2;
-            padding: 16px 55px;
-            margin-bottom: 30px;
-            background: linear-gradient(180deg, var(--color-accent-red-light) 0%, var(--color-accent-red) 100%);
+            background: none;
             color: var(--color-white);
-            border: var(--border-thick);
-            border-radius: 8px;
+            border: none;
             font-family: var(--font-display);
-            font-size: 1.3rem;
-            font-weight: bold;
-            cursor: pointer;
-            text-transform: uppercase;
+            font-size: 2.2rem;
+            font-weight: 700;
+            text-align: center;
             letter-spacing: 3px;
-            transition: all 0.15s ease;
-            flex-shrink: 0;
-        }
-
-        .select-start-btn:hover:not(:disabled) {
-            background: linear-gradient(180deg, #f87171 0%, var(--color-accent-red-light) 100%);
-        }
-
-        .select-start-btn:active:not(:disabled) {
-            background: linear-gradient(180deg, var(--color-accent-red) 0%, #b91c1c 100%);
+            text-shadow: none;
+            cursor: pointer;
+            margin-top: -40px;
         }
 
         .select-start-btn:disabled {
-            background: var(--color-gray-medium);
+            color: var(--color-gray-medium);
             cursor: not-allowed;
-            opacity: 0.7;
         }
 
         /* ========================================
@@ -480,11 +472,11 @@
 
         .workspace-vignette {
             background: radial-gradient(
-                ellipse 55% 55% at center,
+                ellipse 65% 65% at center,
                 var(--color-primary-blue) 0%,
                 var(--color-primary-blue) 25%,
-                rgba(23, 101, 185, 0.6) 55%,
-                rgba(23, 101, 185, 0.3) 75%
+                rgba(23, 101, 185, 0.15) 55%,
+                rgba(23, 101, 185, 0.08) 75%
             );
         }
 
@@ -1026,11 +1018,11 @@
 
         .final-vignette {
             background: radial-gradient(
-                ellipse 55% 55% at center,
+                ellipse 65% 65% at center,
                 var(--color-primary-blue) 0%,
                 var(--color-primary-blue) 20%,
-                rgba(23, 101, 185, 0.6) 50%,
-                rgba(23, 101, 185, 0.3) 75%
+                rgba(23, 101, 185, 0.15) 50%,
+                rgba(23, 101, 185, 0.08) 75%
             );
         }
 
@@ -1258,7 +1250,7 @@
         <div class="vignette splash-vignette"></div>
         <div class="splash-content">
             <img src="/static/images/logo.webp" class="splash-logo" alt="Comic Chaos" />
-            <div class="splash-text">Click to Enter the Chaos!</div>
+            <div class="splash-text">Click to enter the chaos!</div>
         </div>
     </div>
 
