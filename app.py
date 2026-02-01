@@ -56,7 +56,7 @@ class ComicSession:
             )
 
         if use_real_images and self.api_key:
-            self.image_gen = ImageGenerator(api_key=self.api_key, logger=self.logger)
+            self.image_gen = ImageGenerator(comic_config=self.config.comic_config, api_key=self.api_key, logger=self.logger)
         else:
             self.image_gen = MockImageGenerator()
 
@@ -600,7 +600,8 @@ def list_comics():
             "id": s.id,
             "name": s.name,
             "description": s.description,
-            "style": s.style
+            "style": s.style,
+            "panel_font": s.panel_font,
         }
         for s in settings
     ])

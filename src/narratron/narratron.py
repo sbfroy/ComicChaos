@@ -20,7 +20,6 @@ from openai import OpenAI
 
 from pathlib import Path
 
-from ..config import LLM_MODEL, LLM_TEMPERATURE, LLM_MAX_TOKENS
 from ..state.comic_state import (
     ComicState,
     RenderState,
@@ -189,11 +188,12 @@ class Narratron:
 
         Raises on API errors so callers can fall back gracefully.
         """
+        cc = self.config.comic_config
         response = self.client.chat.completions.create(
-            model=LLM_MODEL,
+            model=cc.llm_model,
             messages=messages,
-            temperature=LLM_TEMPERATURE,
-            max_tokens=LLM_MAX_TOKENS,
+            temperature=cc.llm_temperature,
+            max_tokens=cc.llm_max_tokens,
             response_format={"type": "json_object"},
         )
 
@@ -214,9 +214,9 @@ class Narratron:
                 user_message=user_message,
                 response=response_content,
                 parsed_response=parsed_response,
-                model=LLM_MODEL,
-                temperature=LLM_TEMPERATURE,
-                max_tokens=LLM_MAX_TOKENS
+                model=cc.llm_model,
+                temperature=cc.llm_temperature,
+                max_tokens=cc.llm_max_tokens
             )
 
         return response_content
@@ -361,9 +361,9 @@ class Narratron:
                     user_message=user_message,
                     response=response_text,
                     parsed_response=parsed_response,
-                    model=LLM_MODEL,
-                    temperature=LLM_TEMPERATURE,
-                    max_tokens=LLM_MAX_TOKENS,
+                    model=self.config.comic_config.llm_model,
+                    temperature=self.config.comic_config.llm_temperature,
+                    max_tokens=self.config.comic_config.llm_max_tokens,
                 )
 
             data = json.loads(response_text)

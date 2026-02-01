@@ -17,14 +17,9 @@ from typing import Optional, List, Dict, Any, Generator
 
 from openai import OpenAI
 
-from ..config import (
-    IMAGE_MODEL,
-    IMAGE_SIZE,
-    IMAGE_QUALITY,
-    IMAGE_MODERATION,
-    GENERATED_IMAGES_DIR,
-)
+from ..config import GENERATED_IMAGES_DIR
 from ..state.comic_state import RenderState
+from ..state.static_config import ComicConfig
 from ..logging.interaction_logger import InteractionLogger
 from .bubble_detector import BubbleDetector
 
@@ -44,13 +39,20 @@ class ImageGenerator:
         text_renderer: Renderer for adding text to bubbles.
     """
 
-    def __init__(self, api_key: Optional[str] = None, logger: Optional[InteractionLogger] = None) -> None:
+    def __init__(
+        self,
+        comic_config: Optional[ComicConfig] = None,
+        api_key: Optional[str] = None,
+        logger: Optional[InteractionLogger] = None,
+    ) -> None:
         """Initialize the image generator.
 
         Args:
+            comic_config: Per-comic configuration for model settings.
             api_key: OpenAI API key. If None, uses OPENAI_API_KEY environment variable.
             logger: Interaction logger for tracking prompts and responses.
         """
+        self.comic_config: ComicConfig = comic_config or ComicConfig()
         self.client: OpenAI = OpenAI(
             api_key=api_key or os.getenv("OPENAI_API_KEY")
         )
@@ -90,11 +92,11 @@ class ImageGenerator:
         try:
             # Call API to generate the image
             result = self.client.images.generate(
-                model=IMAGE_MODEL,
+                model=self.comic_config.image_model,
                 prompt=prompt,
-                size=IMAGE_SIZE,
-                quality=IMAGE_QUALITY,
-                moderation=IMAGE_MODERATION,
+                size=self.comic_config.image_size,
+                quality=self.comic_config.image_quality,
+                moderation=self.comic_config.image_moderation,
             )
 
             # Extract base64-encoded image data from response
@@ -133,9 +135,9 @@ class ImageGenerator:
                 self.logger.log_image_generation(
                     prompt=prompt,
                     image_path=str(filepath),
-                    model=IMAGE_MODEL,
-                    size=IMAGE_SIZE,
-                    quality=IMAGE_QUALITY,
+                    model=self.comic_config.image_model,
+                    size=self.comic_config.image_size,
+                    quality=self.comic_config.image_quality,
                     success=True
                 )
 
@@ -153,9 +155,9 @@ class ImageGenerator:
                 self.logger.log_image_generation(
                     prompt=prompt,
                     image_path=None,
-                    model=IMAGE_MODEL,
-                    size=IMAGE_SIZE,
-                    quality=IMAGE_QUALITY,
+                    model=self.comic_config.image_model,
+                    size=self.comic_config.image_size,
+                    quality=self.comic_config.image_quality,
                     success=False,
                     error_message=str(error)
                 )
@@ -196,11 +198,11 @@ class ImageGenerator:
 
         try:
             stream = self.client.images.generate(
-                model=IMAGE_MODEL,
+                model=self.comic_config.image_model,
                 prompt=prompt,
-                size=IMAGE_SIZE,
-                quality=IMAGE_QUALITY,
-                moderation=IMAGE_MODERATION,
+                size=self.comic_config.image_size,
+                quality=self.comic_config.image_quality,
+                moderation=self.comic_config.image_moderation,
                 stream=True,
                 partial_images=partial_images,
             )
@@ -250,9 +252,9 @@ class ImageGenerator:
                     self.logger.log_image_generation(
                         prompt=prompt,
                         image_path=str(filepath),
-                        model=IMAGE_MODEL,
-                        size=IMAGE_SIZE,
-                        quality=IMAGE_QUALITY,
+                        model=self.comic_config.image_model,
+                        size=self.comic_config.image_size,
+                        quality=self.comic_config.image_quality,
                         success=True
                     )
 
@@ -269,9 +271,9 @@ class ImageGenerator:
                 self.logger.log_image_generation(
                     prompt=prompt,
                     image_path=None,
-                    model=IMAGE_MODEL,
-                    size=IMAGE_SIZE,
-                    quality=IMAGE_QUALITY,
+                    model=self.comic_config.image_model,
+                    size=self.comic_config.image_size,
+                    quality=self.comic_config.image_quality,
                     success=False,
                     error_message=str(error)
                 )
@@ -396,6 +398,7 @@ class MockImageGenerator(ImageGenerator):
 
         Note: Does not call parent __init__ to avoid creating an OpenAI client.
         """
+        self.comic_config: ComicConfig = ComicConfig()
         self.output_dir: Path = Path(GENERATED_IMAGES_DIR)
         self.output_dir.mkdir(parents=True, exist_ok=True)
         self._call_count: int = 0
@@ -435,8 +438,8 @@ class MockImageGenerator(ImageGenerator):
             file.write("MOCK IMAGE GENERATION\n")
             file.write("=====================\n\n")
             file.write(f"Prompt:\n{prompt}\n\n")
-            file.write(f"Size: {IMAGE_SIZE}\n")
-            file.write(f"Quality: {IMAGE_QUALITY}\n")
+            file.write(f"Size: {self.comic_config.image_size}\n")
+            file.write(f"Quality: {self.comic_config.image_quality}\n")
             if elements:
                 file.write("\nElements:\n")
                 for i, el in enumerate(elements):
