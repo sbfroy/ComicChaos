@@ -12,6 +12,10 @@ class SettingInfo(BaseModel):
     name: str = Field(description="Display name")
     description: str = Field(description="Brief description")
     style: str = Field(description="Visual style description")
+    panel_font: str = Field(
+        default="'Comic Sans MS', 'Chalkboard', cursive, sans-serif",
+        description="CSS font-family for in-panel text"
+    )
 
 
 class SettingRegistry:
@@ -34,11 +38,21 @@ class SettingRegistry:
                     # Load info from blueprint
                     with open(blueprint_file) as f:
                         bp_data = json.load(f)
+
+                    # Load panel font from config.json if present
+                    panel_font = "'Comic Sans MS', 'Chalkboard', cursive, sans-serif"
+                    config_file = setting_path / "config.json"
+                    if config_file.exists():
+                        with open(config_file) as f:
+                            cfg_data = json.load(f)
+                        panel_font = cfg_data.get("panel_font", panel_font)
+
                     self._settings[setting_path.name] = SettingInfo(
                         id=setting_path.name,
                         name=bp_data.get("title", setting_path.name),
                         description=bp_data.get("synopsis", "No description"),
-                        style=bp_data.get("visual_style", "comic book style")
+                        style=bp_data.get("visual_style", "comic book style"),
+                        panel_font=panel_font,
                     )
 
     def get_available_settings(self) -> list[SettingInfo]:

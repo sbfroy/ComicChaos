@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Comic Chaos</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap" rel="stylesheet">
     <style>
         /* ========================================
            CSS VARIABLES - Design Tokens
@@ -35,9 +38,9 @@
             --shadow-hover: 8px 8px 0 var(--color-shadow);
 
             /* Typography */
-            --font-display: 'Comic Sans MS', 'Chalkboard', cursive, sans-serif;
-            --font-ui: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            --font-comic: 'Comic Sans MS', 'Chalkboard', cursive, sans-serif;
+            --font-display: 'Montserrat', sans-serif;
+            --font-ui: 'Montserrat', sans-serif;
+            --font-panel: 'Comic Sans MS', 'Chalkboard', cursive, sans-serif;
         }
 
         * {
@@ -47,7 +50,8 @@
         }
 
         body {
-            font-family: var(--font-comic);
+            font-family: var(--font-display);
+            font-weight: 700;
             background: #1e56b8;
             background-image:
                 radial-gradient(circle, #1e56b8 20%, transparent 20%),
@@ -669,6 +673,7 @@
             min-width: 50px;
             max-width: 80%;
             font-size: 14px;
+            font-family: var(--font-panel);
             color: var(--color-black);
             line-height: 1.2;
         }
@@ -695,7 +700,7 @@
         }
 
         .speech-bubble .char-name {
-            font-family: var(--font-display);
+            font-family: var(--font-panel);
             font-weight: bold;
             font-size: 0.55rem;
             color: var(--color-accent-red);
@@ -713,6 +718,7 @@
             min-width: 45px;
             max-width: 75%;
             font-size: 13px;
+            font-family: var(--font-panel);
             font-style: italic;
             color: #444;
             line-height: 1.2;
@@ -743,7 +749,7 @@
         }
 
         .thought-bubble .char-name {
-            font-family: var(--font-display);
+            font-family: var(--font-panel);
             font-weight: bold;
             font-size: 0.5rem;
             color: #06b6d4;
@@ -760,6 +766,7 @@
             min-width: 60px;
             max-width: 80%;
             font-size: 0.55rem;
+            font-family: var(--font-panel);
             color: var(--color-black);
             font-style: italic;
             line-height: 1.2;
@@ -767,7 +774,7 @@
 
         /* Sound Effect - comic style */
         .sfx-text {
-            font-family: var(--font-display);
+            font-family: var(--font-panel);
             font-size: 0.9rem;
             font-weight: bold;
             color: var(--color-accent-red);
@@ -875,6 +882,7 @@
             justify-content: center;
             width: 100%;
             height: 100%;
+            font-family: var(--font-panel);
             font-size: 13px;
             line-height: 1.2;
             color: #111;
@@ -1852,6 +1860,7 @@
                     const bubble = document.getElementById(`bubble-${i}`);
                     if (!bubble) return;
                     bubble.dataset.id = comic.id;
+                    bubble.dataset.panelFont = comic.panel_font || '';
                     bubble.classList.remove('coming-soon');
                     const textEl = bubble.querySelector('.bubble-text');
                     textEl.classList.remove('muted');
@@ -1880,6 +1889,12 @@
 
         async function startComic() {
             if (!state.selectedComic) return;
+
+            // Apply per-comic panel font
+            const selectedBubble = document.querySelector(`.comic-bubble[data-id="${state.selectedComic}"]`);
+            if (selectedBubble && selectedBubble.dataset.panelFont) {
+                document.documentElement.style.setProperty('--font-panel', selectedBubble.dataset.panelFont);
+            }
 
             state.sessionId = generateSessionId();
             elements.startBtn.disabled = true;
