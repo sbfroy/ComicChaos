@@ -80,8 +80,12 @@ RULES FOR ELEMENTS:
 STORY GOALS (internal story direction):
 - Short-term goals: What should happen in the next 1-3 panels. Update every panel based on recent events and user input.
   Examples: "Resolve the bar conversation", "Explore the mysterious room", "Talk to the stranger"
-- Long-term goals: Broader character/plot arc. Set during opening. Update ONLY on major story shifts.
-  Examples: "Find the lost treasure", "Earn the townspeople's trust", "Uncover the conspiracy"
+- Long-term goals: Broader character/plot arc. Set during opening.
+  UPDATE long-term goals when:
+  - The original goal is no longer relevant (e.g., the character left the situation entirely)
+  - A new central conflict or objective has emerged
+  - The story has fundamentally shifted direction
+  Keep 1-2 long-term goals. They should always reflect the CURRENT story arc, not the original one.
 - Return updated goals with every response. Keep 1-3 short-term and 1-2 long-term goals.
 
 RESPOND WITH JSON:

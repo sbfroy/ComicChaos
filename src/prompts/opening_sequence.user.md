@@ -5,7 +5,7 @@ SYNOPSIS: {synopsis}
 VISUAL STYLE: {visual_style}
 STARTING LOCATION: {starting_location}
 MAIN CHARACTER: {main_character}
-
+{long_term_goals_section}
 Create TWO panels for the grand opening:
 
 ## PANEL 1: TITLE CARD
@@ -40,6 +40,6 @@ RESPOND WITH JSON:
   }},
   "initial_goals": {{
     "short_term": ["first immediate story goal based on the opening scene"],
-    "long_term": ["overarching story goal based on the synopsis and world"]
+    "long_term": ["use the provided long-term goals if given, otherwise create overarching story goals based on the synopsis"]
   }}
 }}

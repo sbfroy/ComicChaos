@@ -299,6 +299,7 @@ class ComicSession:
                 self.state.render,
                 visual_style=self.config.blueprint.visual_style,
                 elements=elements,
+                main_character_description=f"{self.state.main_character_name}: {self.state.main_character_description}",
             )
         except Exception:
             return {"image_path": None, "detected_bubbles": []}
@@ -317,6 +318,7 @@ class ComicSession:
                 self.state.render,
                 visual_style=self.config.blueprint.visual_style,
                 elements=elements,
+                main_character_description=f"{self.state.main_character_name}: {self.state.main_character_description}",
             ):
                 yield event
         except Exception as e:

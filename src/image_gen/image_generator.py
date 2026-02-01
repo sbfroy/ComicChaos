@@ -66,6 +66,7 @@ class ImageGenerator:
         render_state: RenderState,
         visual_style: str,
         elements: Optional[List[Dict[str, Any]]] = None,
+        main_character_description: Optional[str] = None,
     ) -> Dict[str, Any]:
         """Generate an image from the render state.
 
@@ -84,7 +85,7 @@ class ImageGenerator:
                 - detected_bubbles: List of bubble position dicts with x, y, width, height
         """
         # Build the detailed prompt from render state and visual style
-        prompt = self._build_prompt(render_state, visual_style, elements)
+        prompt = self._build_prompt(render_state, visual_style, elements, main_character_description)
 
         try:
             # Call API to generate the image
@@ -170,6 +171,7 @@ class ImageGenerator:
         visual_style: str,
         elements: Optional[List[Dict[str, Any]]] = None,
         partial_images: int = 2,
+        main_character_description: Optional[str] = None,
     ) -> Generator[Dict[str, Any], None, None]:
         """Generate an image with streaming partial images.
 
@@ -190,7 +192,7 @@ class ImageGenerator:
                 - image_path: Path to saved image (for complete type)
                 - detected_bubbles: List of bubble positions (for complete type)
         """
-        prompt = self._build_prompt(render_state, visual_style, elements)
+        prompt = self._build_prompt(render_state, visual_style, elements, main_character_description)
 
         try:
             stream = self.client.images.generate(
@@ -283,6 +285,7 @@ class ImageGenerator:
         render_state: RenderState,
         visual_style: str,
         elements: Optional[List[Dict[str, Any]]] = None,
+        main_character_description: Optional[str] = None,
     ) -> str:
         """Build an image generation prompt from the render state.
 
@@ -307,7 +310,11 @@ class ImageGenerator:
         if render_state.scene_setting:
             prompt_parts.append(f"Setting: {render_state.scene_setting}")
 
-        # Add all characters present in the scene
+        # Always include the main character's full description from the blueprint
+        if main_character_description:
+            prompt_parts.append(f"Main character: {main_character_description}")
+
+        # Add other characters present in the scene
         if render_state.characters_present:
             for character in render_state.characters_present:
                 prompt_parts.append(f"Character: {character}")

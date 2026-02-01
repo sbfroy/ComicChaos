@@ -85,9 +85,14 @@ class ComicState(BaseModel):
         starting_loc = blueprint.starting_location
         main_char = blueprint.main_character
 
+        goals = StoryGoals(
+            long_term=blueprint.long_term_goals if blueprint.long_term_goals else []
+        )
+
         narrative = NarrativeState(
             panels=[],
-            rolling_summary=f"{blueprint.synopsis}"
+            rolling_summary=f"{blueprint.synopsis}",
+            goals=goals,
         )
 
         render = RenderState(

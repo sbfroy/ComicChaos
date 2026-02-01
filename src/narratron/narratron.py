@@ -326,6 +326,11 @@ class Narratron:
 
         system_prompt = self._build_system_prompt()
 
+        long_term_goals_section = ""
+        if blueprint.long_term_goals:
+            goals_str = "; ".join(blueprint.long_term_goals)
+            long_term_goals_section = f"LONG-TERM GOALS (use these as-is for initial_goals.long_term): {goals_str}"
+
         user_message = load_prompt(
             _PROMPTS_DIR / "opening_sequence.user.md",
             title=blueprint.title,
@@ -333,6 +338,7 @@ class Narratron:
             visual_style=blueprint.visual_style,
             starting_location=f"{blueprint.starting_location.name}: {blueprint.starting_location.description}",
             main_character=f"{blueprint.main_character.name}: {blueprint.main_character.description}",
+            long_term_goals_section=long_term_goals_section,
         )
 
         messages = [
@@ -378,10 +384,12 @@ class Narratron:
         # Apply initial story goals
         if response.initial_goals:
             st = response.initial_goals.get("short_term", [])
-            lt = response.initial_goals.get("long_term", [])
             if isinstance(st, list) and st:
                 comic_state.narrative.goals.short_term = st
-            if isinstance(lt, list) and lt:
-                comic_state.narrative.goals.long_term = lt
+            # Only use LLM's long-term goals if the blueprint didn't define any
+            if not self.config.blueprint.long_term_goals:
+                lt = response.initial_goals.get("long_term", [])
+                if isinstance(lt, list) and lt:
+                    comic_state.narrative.goals.long_term = lt
 
         return response

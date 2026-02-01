@@ -48,6 +48,10 @@ class Blueprint(BaseModel):
         default_factory=list,
         description="Rules/constraints for the world that the LLM should follow"
     )
+    long_term_goals: list[str] = Field(
+        default_factory=list,
+        description="Blueprint-defined long-term story goals that anchor the narrative arc"
+    )
 
     @property
     def starting_location(self) -> Location | None:
