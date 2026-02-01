@@ -64,10 +64,27 @@ class Blueprint(BaseModel):
         return self.characters[0] if self.characters else None
 
 
+class ComicConfig(BaseModel):
+    """Per-comic technical configuration for models, fonts, and generation settings."""
+
+    panel_font: str = Field(
+        default="'Comic Sans MS', 'Chalkboard', cursive, sans-serif",
+        description="CSS font-family string for in-panel text"
+    )
+    llm_model: str = Field(default="gpt-4o-mini")
+    llm_temperature: float = Field(default=0.6)
+    llm_max_tokens: int = Field(default=1500)
+    image_model: str = Field(default="gpt-image-1-mini")
+    image_size: str = Field(default="1024x1024")
+    image_quality: str = Field(default="low")
+    image_moderation: str = Field(default="low")
+
+
 class StaticConfig(BaseModel):
     """Complete comic configuration."""
 
     blueprint: Blueprint | None = None
+    comic_config: ComicConfig = Field(default_factory=ComicConfig)
 
     @classmethod
     def load_from_directory(cls, config_dir: str | Path) -> "StaticConfig":
@@ -75,6 +92,7 @@ class StaticConfig(BaseModel):
         config_dir = Path(config_dir)
 
         blueprint = None
+        comic_config = ComicConfig()
 
         blueprint_file = config_dir / "blueprint.json"
         if blueprint_file.exists():
@@ -82,4 +100,10 @@ class StaticConfig(BaseModel):
                 data = json.load(f)
                 blueprint = Blueprint(**data)
 
-        return cls(blueprint=blueprint)
+        config_file = config_dir / "config.json"
+        if config_file.exists():
+            with open(config_file) as f:
+                data = json.load(f)
+                comic_config = ComicConfig(**data)
+
+        return cls(blueprint=blueprint, comic_config=comic_config)
