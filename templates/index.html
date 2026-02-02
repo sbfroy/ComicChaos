@@ -288,8 +288,8 @@
         .bubbles-area {
             position: relative;
             width: 100%;
-            max-width: 900px;
-            height: 450px;
+            max-width: 990px;
+            height: 620px;
             flex-shrink: 0;
         }
 
@@ -310,22 +310,22 @@
         }
 
         .comic-bubble:nth-child(1) {
-            top: 5%;
-            left: -5%;
+            top: 8%;
+            left: 50%;
+            margin-left: -495px;
             animation-delay: 0.1s;
         }
 
         .comic-bubble:nth-child(2) {
-            top: 5%;
-            right: -5%;
-            left: auto;
+            top: 8%;
+            left: 50%;
+            margin-left: 15px;
             animation-delay: 0.3s;
         }
 
         .comic-bubble:nth-child(3) {
-            bottom: 5%;
-            left: 50%;
-            transform: translateX(-50%);
+            bottom: 8%;
+            left: calc(50% - 240px);
             top: auto;
             animation-delay: 0.5s;
         }
@@ -363,8 +363,8 @@
         }
 
         @keyframes bubbleFloat3 {
-            0%, 100% { transform: translateX(-50%) translateY(0); }
-            50% { transform: translateX(-50%) translateY(-15px); }
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
         }
 
         .comic-bubble:hover {
