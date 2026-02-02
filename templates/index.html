@@ -480,7 +480,6 @@
             color: var(--color-paper);
             font-family: var(--font-display);
             font-size: 1.6rem;
-            text-transform: uppercase;
             text-shadow: none;
             letter-spacing: 3px;
             margin: 0;
@@ -492,26 +491,34 @@
             align-items: center;
         }
 
-        /* Finish Button - plain text style */
+        /* Finish Button - fixed at bottom right */
         .finish-btn-small {
-            background: none;
-            color: var(--color-paper);
-            border: none;
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 200;
+            background: var(--color-accent-yellow);
+            color: var(--color-black);
+            border: var(--border-thick);
             font-family: var(--font-display);
             font-size: 1.1rem;
+            font-weight: 700;
             cursor: pointer;
-            letter-spacing: 3px;
-            transition: opacity 0.15s ease;
-            padding: 0;
+            letter-spacing: 2px;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+            padding: 12px 24px;
+            box-shadow: var(--shadow-medium);
         }
 
         .finish-btn-small:hover:not(:disabled) {
-            opacity: 0.7;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-hover);
         }
 
         .finish-btn-small:disabled {
-            opacity: 0.4;
+            opacity: 0.5;
             cursor: not-allowed;
+            background: var(--color-gray-light);
         }
 
         /* ========================================
@@ -1107,12 +1114,10 @@
         </div>
 
         <div id="workspace" class="comic-workspace">
+            <button id="finish-btn" class="finish-btn-small" disabled>Finish?</button>
             <div class="workspace-content">
                 <div class="comic-title-bar">
                     <h2 id="comic-title"></h2>
-                    <div class="title-bar-controls">
-                        <button id="finish-btn" class="finish-btn-small" disabled>Finish comic?</button>
-                    </div>
                 </div>
 
                 <div class="panels-strip">
