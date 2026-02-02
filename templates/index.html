@@ -199,6 +199,11 @@
         }
 
         .splash-text {
+            position: absolute;
+            bottom: 5%;
+            left: 0;
+            right: 0;
+            z-index: 2;
             color: var(--color-paper);
             font-family: var(--font-display);
             font-size: 2.2rem;
@@ -207,7 +212,6 @@
             text-shadow: none;
             animation: popIn 0.3s ease-out 0.2s backwards;
             cursor: pointer;
-            margin-top: -40px;
         }
 
         @keyframes logoPulse {
@@ -280,18 +284,6 @@
             max-height: 90%;
         }
 
-        .select-logo {
-            width: 200px;
-            cursor: pointer;
-            transition: transform 0.3s ease, filter 0.3s ease;
-            flex-shrink: 0;
-            filter: drop-shadow(0 6px 15px rgba(0, 0, 0, 0.4));
-        }
-
-        .select-logo:hover {
-            transform: scale(1.08);
-            filter: drop-shadow(0 8px 20px rgba(0, 0, 0, 0.5));
-        }
 
         .bubbles-area {
             position: relative;
@@ -426,6 +418,11 @@
            PRIMARY BUTTONS - Gradient style without shadow
            ======================================== */
         .select-label {
+            position: absolute;
+            bottom: 5%;
+            left: 0;
+            right: 0;
+            z-index: 2;
             color: var(--color-paper);
             font-family: var(--font-display);
             font-size: 2.2rem;
@@ -433,7 +430,6 @@
             letter-spacing: 3px;
             text-shadow: none;
             animation: popIn 0.3s ease-out 0.2s backwards;
-            margin-top: -40px;
         }
 
         /* ========================================
@@ -1085,8 +1081,8 @@
         <div class="vignette splash-vignette"></div>
         <div class="splash-content">
             <img src="/static/images/logo.webp" class="splash-logo" alt="Comic Chaos" />
-            <div class="splash-text">Click to enter the chaos!</div>
         </div>
+        <div class="splash-text">Click to enter the chaos!</div>
     </div>
 
     <div class="container">
@@ -1094,7 +1090,6 @@
             <div class="rotating-stripes select-stripes"></div>
             <div class="vignette select-vignette"></div>
             <div class="select-content">
-                <img src="/static/images/simple_logo.webp" id="back-to-splash" class="select-logo" alt="Comic Chaos" />
                 <div class="bubbles-area">
                     <div class="comic-bubble" id="bubble-0" style="background-image: url('/static/images/bubble_1.webp')">
                         <div class="bubble-text"><h3>Loading...</h3><p></p></div>
@@ -1106,8 +1101,8 @@
                         <div class="bubble-text muted"><h3>Coming Soon...</h3><p></p></div>
                     </div>
                 </div>
-                <div class="select-label">Pick your comic!</div>
             </div>
+            <div class="select-label">Pick your comic!</div>
         </div>
 
         <div id="workspace" class="comic-workspace">
@@ -1179,12 +1174,6 @@
             });
         }
 
-        // Return to splash screen
-        document.getElementById('back-to-splash').addEventListener('click', () => {
-            const splash = document.getElementById('splash');
-            splash.style.display = '';
-            splash.classList.remove('fade-out');
-        });
 
         const state = {
             sessionId: null,
