@@ -274,8 +274,11 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: center;
             width: 100%;
             height: 100%;
+            max-width: 90%;
+            max-height: 90%;
         }
 
         .select-logo {
@@ -423,25 +426,15 @@
         /* ========================================
            PRIMARY BUTTONS - Gradient style without shadow
            ======================================== */
-        .select-start-btn {
-            position: relative;
-            z-index: 2;
-            background: none;
+        .select-label {
             color: var(--color-white);
-            border: none;
             font-family: var(--font-display);
             font-size: 2.2rem;
-            font-weight: 700;
             text-align: center;
             letter-spacing: 3px;
             text-shadow: none;
-            cursor: pointer;
+            animation: popIn 0.3s ease-out 0.2s backwards;
             margin-top: -40px;
-        }
-
-        .select-start-btn:disabled {
-            color: var(--color-gray-medium);
-            cursor: not-allowed;
         }
 
         /* ========================================
@@ -456,29 +449,13 @@
             height: 100%;
             background: var(--color-primary-blue);
             z-index: 100;
-            overflow: hidden;
+            overflow-y: auto;
         }
 
         .comic-workspace.active {
             display: block;
         }
 
-        .workspace-stripes {
-            width: 200vmax;
-            height: 200vmax;
-            animation-duration: 80s;
-            opacity: 0.4;
-        }
-
-        .workspace-vignette {
-            background: radial-gradient(
-                ellipse 65% 65% at center,
-                var(--color-primary-blue) 0%,
-                var(--color-primary-blue) 25%,
-                rgba(23, 101, 185, 0.15) 55%,
-                rgba(23, 101, 185, 0.08) 75%
-            );
-        }
 
         .workspace-content {
             position: relative;
@@ -486,35 +463,29 @@
             display: flex;
             flex-direction: column;
             max-width: 1100px;
-            height: 100vh;
             margin: 0 auto;
-            padding: 10px 20px;
+            padding: 20px 20px;
             line-height: 0;
             box-sizing: border-box;
         }
 
         /* Title Bar */
         .comic-title-bar {
-            background: var(--color-chrome);
-            color: var(--color-black);
-            padding: 10px 20px;
-            margin: 0;
-            border-radius: 8px 8px 0 0;
-            border: var(--border-thick);
             display: flex;
             align-items: center;
             justify-content: space-between;
-            position: relative;
+            padding: 0 0 15px 0;
+            margin: 0;
             line-height: normal;
             flex-shrink: 0;
-            box-shadow: var(--shadow-heavy);
         }
 
         .comic-title-bar h2 {
+            color: var(--color-white);
             font-family: var(--font-display);
             font-size: 1.6rem;
             text-transform: uppercase;
-            text-shadow: 2px 2px 0 var(--color-accent-red);
+            text-shadow: none;
             letter-spacing: 3px;
             margin: 0;
         }
@@ -525,34 +496,26 @@
             align-items: center;
         }
 
-        /* Finish Button - gradient style without shadow */
+        /* Finish Button - plain text style */
         .finish-btn-small {
-            padding: 10px 20px;
-            background: linear-gradient(180deg, var(--color-accent-red-light) 0%, var(--color-accent-red) 100%);
+            background: none;
             color: var(--color-white);
-            border: var(--border-thick);
-            border-radius: 6px;
+            border: none;
             font-family: var(--font-display);
-            font-size: 0.95rem;
-            font-weight: bold;
+            font-size: 1.1rem;
             cursor: pointer;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            transition: all 0.15s ease;
+            letter-spacing: 3px;
+            transition: opacity 0.15s ease;
+            padding: 0;
         }
 
         .finish-btn-small:hover:not(:disabled) {
-            background: linear-gradient(180deg, #f87171 0%, var(--color-accent-red-light) 100%);
-        }
-
-        .finish-btn-small:active:not(:disabled) {
-            background: linear-gradient(180deg, var(--color-accent-red) 0%, #b91c1c 100%);
+            opacity: 0.7;
         }
 
         .finish-btn-small:disabled {
-            background: var(--color-gray-medium);
+            opacity: 0.4;
             cursor: not-allowed;
-            opacity: 0.7;
         }
 
         /* ========================================
@@ -561,48 +524,30 @@
         .panels-strip {
             display: flex;
             flex-direction: column;
-            flex: 1;
-            min-height: 0;
             background: transparent;
             border: none;
             padding: 0;
             margin: 0;
-            position: relative;
             font-size: 0;
             line-height: 0;
         }
 
         /* Pages wrapper - Comic page with paper feel */
         .pages-wrapper {
-            position: relative;
-            flex: 1;
-            min-height: 0;
             display: block;
             background-color: var(--color-paper);
-            /* Full border on all sides */
             border: var(--border-thick);
             margin: 0;
             padding: 0;
             box-shadow: var(--shadow-heavy);
         }
 
-        /* Comic Page - a single page containing multiple panels */
+        /* Comic Page - single continuous grid */
         .comic-page {
-              display: none;
-              grid-template-columns: repeat(4, 1fr);
-              grid-template-rows: 1fr 1fr;
-              gap: 10px;
-            padding: 12px;
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            overflow: hidden;
-        }
-
-        .comic-page.active {
             display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            padding: 12px;
         }
 
         /* ========================================
@@ -615,12 +560,8 @@
             border-radius: 3px;
             overflow: visible;
             transition: transform 0.2s;
-            justify-self: center;
-            align-self: center;
             width: 100%;
-            height: 100%;
-            max-width: 240px;
-            max-height: 240px;
+            aspect-ratio: 1;
         }
 
         .comic-panel:hover {
@@ -906,89 +847,7 @@
         /* ========================================
            PAGE NAVIGATION - Panel-like control bar
            ======================================== */
-        .page-navigation {
-            display: flex;
-            gap: 20px;
-            justify-content: center;
-            align-items: center;
-            padding: 12px 24px;
-            margin: 0;
-            line-height: normal;
-            background: var(--color-chrome);
-            border: var(--border-thick);
-            border-radius: 0 0 8px 8px;
-            box-shadow: var(--shadow-heavy);
-            flex-shrink: 0;
-        }
-
-        /* Nav buttons - gradient style without shadow */
-        .nav-btn {
-            padding: 10px 18px;
-            background: linear-gradient(180deg, #2980d9 0%, var(--color-primary-blue) 100%);
-            color: var(--color-white);
-            border: var(--border-thick);
-            border-radius: 6px;
-            font-family: var(--font-display);
-            font-size: 0.9rem;
-            font-weight: bold;
-            cursor: pointer;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            transition: all 0.15s ease;
-        }
-
-        .nav-btn:hover:not(:disabled) {
-            background: linear-gradient(180deg, #3b9ae8 0%, #2980d9 100%);
-        }
-
-        .nav-btn:active:not(:disabled) {
-            background: linear-gradient(180deg, var(--color-primary-blue) 0%, #125a9e 100%);
-        }
-
-        .nav-btn:disabled {
-            background: var(--color-gray-light);
-            color: var(--color-gray-dark);
-            cursor: not-allowed;
-            opacity: 0.6;
-        }
-
-        /* Page indicator - styled panel without shadow */
-        .page-indicator {
-            color: var(--color-black);
-            background: var(--color-paper);
-            padding: 8px 20px;
-            border: 3px solid var(--color-black);
-            border-radius: 4px;
-            font-family: var(--font-display);
-            font-weight: bold;
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            min-width: 140px;
-            text-align: center;
-        }
-
-        /* ========================================
-           INPUT HINT
-           ======================================== */
-        .input-hint {
-            position: absolute;
-            bottom: 70px;
-            left: 50%;
-            transform: translateX(-50%);
-            color: var(--color-black);
-            background: var(--color-chrome);
-            padding: 8px 16px;
-            border-radius: 8px;
-            border: var(--border-thick);
-            font-family: var(--font-ui);
-            font-size: 0.75rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            z-index: 100;
-            pointer-events: none;
-        }
+        /* (page navigation and input hint removed) */
 
         /* ========================================
            FINAL STRIP DISPLAY
@@ -1132,12 +991,8 @@
             border: var(--border-thick);
             border-radius: 3px;
             overflow: hidden;
-            justify-self: center;
-            align-self: center;
             width: 100%;
-            height: 100%;
-            max-width: 240px;
-            max-height: 240px;
+            aspect-ratio: 1;
         }
 
         .streaming-panel .panel-image-container {
@@ -1190,8 +1045,8 @@
         .streaming-dots span {
             width: 10px;
             height: 10px;
-            background: var(--color-accent-yellow);
-            border: 2px solid var(--color-black);
+            background: var(--color-white);
+            border: 2px solid var(--color-gray-light);
             border-radius: 50%;
             animation: streamPulse 1.4s infinite;
         }
@@ -1207,29 +1062,10 @@
         /* ========================================
            EMPTY PANEL SLOT - Placeholder with solid border
            ======================================== */
-        .empty-slot {
-            background-color: var(--color-paper-dark);
-            border: var(--border-thick);
-            border-radius: 3px;
-            width: 100%;
-            height: 100%;
-            max-width: 240px;
-            max-height: 240px;
-            justify-self: center;
-            align-self: center;
-            opacity: 0.5;
-        }
-
         /* ========================================
            RESPONSIVE ADJUSTMENTS
            ======================================== */
         /* Responsive adjustments */
-        @media (max-width: 1000px) {
-            .comic-page {
-                grid-template-columns: repeat(3, 1fr);
-            }
-        }
-
         @media (max-width: 768px) {
             .comic-page {
                 grid-template-columns: repeat(2, 1fr);
@@ -1271,13 +1107,11 @@
                         <div class="bubble-text muted"><h3>Coming Soon...</h3><p></p></div>
                     </div>
                 </div>
-                <button id="start-btn" class="select-start-btn" disabled>Select a Comic</button>
+                <div class="select-label">Pick your comic!</div>
             </div>
         </div>
 
         <div id="workspace" class="comic-workspace">
-            <div class="rotating-stripes workspace-stripes"></div>
-            <div class="vignette workspace-vignette"></div>
             <div class="workspace-content">
                 <div class="comic-title-bar">
                     <h2 id="comic-title"></h2>
@@ -1288,12 +1122,6 @@
 
                 <div class="panels-strip">
                     <div id="pages-container" class="pages-wrapper"></div>
-                    <p id="input-hint" class="input-hint hidden">Press Enter after filling the bubble</p>
-                    <div class="page-navigation">
-                        <button id="prev-page-btn" class="nav-btn" disabled>← Prev</button>
-                        <div id="page-indicator" class="page-indicator">Page 1 of 1</div>
-                        <button id="next-page-btn" class="nav-btn" disabled>Next →</button>
-                    </div>
                 </div>
             </div>
         </div>
@@ -1359,36 +1187,25 @@
             splash.classList.remove('fade-out');
         });
 
-        const PANELS_PER_PAGE = 8; // 4 columns x 2 rows
-
         const state = {
             sessionId: null,
             selectedComic: null,
             currentPanel: null,
             completedPanels: [],
-            pages: [],
-            currentPageIndex: 0,
-            viewingPageIndex: 0,
-            panelsOnCurrentPage: 0,
             isGenerating: false,
             streamingPanelEl: null
         };
 
         const elements = {
-            startBtn: document.getElementById('start-btn'),
             comicSelect: document.getElementById('comic-select'),
             workspace: document.getElementById('workspace'),
             comicTitle: document.getElementById('comic-title'),
             pagesContainer: document.getElementById('pages-container'),
-            inputHint: document.getElementById('input-hint'),
             finishBtn: document.getElementById('finish-btn'),
             finalStrip: document.getElementById('final-strip'),
             stripImage: document.getElementById('strip-image'),
             panelCount: document.getElementById('panel-count'),
-            notification: document.getElementById('notification'),
-            pageIndicator: document.getElementById('page-indicator'),
-            prevPageBtn: document.getElementById('prev-page-btn'),
-            nextPageBtn: document.getElementById('next-page-btn')
+            notification: document.getElementById('notification')
         };
 
         function generateSessionId() {
@@ -1401,38 +1218,11 @@
             setTimeout(() => elements.notification.classList.remove('show'), 3000);
         }
 
-        let hintTimer = null;
-
         function setLoading(isLoading) {
             state.isGenerating = isLoading;
             elements.finishBtn.disabled = isLoading;
-            if (isLoading) {
-                hideInputHint();
-            }
-            updateNavButtons();
         }
 
-        function showInputHint() {
-            elements.inputHint.classList.remove('hidden');
-        }
-
-        function hideInputHint() {
-            elements.inputHint.classList.add('hidden');
-            if (hintTimer) {
-                clearTimeout(hintTimer);
-                hintTimer = null;
-            }
-        }
-
-        function startHintTimer() {
-            hideInputHint();
-            if (hintTimer) {
-                clearTimeout(hintTimer);
-            }
-            hintTimer = setTimeout(() => {
-                showInputHint();
-            }, 5000); // Show hint after 5 seconds of inactivity
-        }
 
         function adjustBubbleTextSize(input) {
             if (!input) return;
@@ -1464,89 +1254,25 @@
             }
         }
 
-        function createPage(pageNumber) {
-            const page = document.createElement('div');
-            page.className = 'comic-page';
-            page.dataset.pageNumber = pageNumber;
-            // Pre-populate with empty slot placeholders
-            for (let i = 0; i < PANELS_PER_PAGE; i++) {
-                const emptySlot = document.createElement('div');
-                emptySlot.className = 'empty-slot';
-                emptySlot.dataset.slotIndex = i;
-                page.appendChild(emptySlot);
+        function getGrid() {
+            let grid = elements.pagesContainer.querySelector('.comic-page');
+            if (!grid) {
+                grid = document.createElement('div');
+                grid.className = 'comic-page';
+                elements.pagesContainer.appendChild(grid);
             }
-
-            return page;
-        }
-
-        function showPage(index) {
-            state.viewingPageIndex = index;
-            state.pages.forEach((page, i) => {
-                page.classList.toggle('active', i === index);
-            });
-            updateNavButtons();
-            updatePageIndicator();
-        }
-
-        function getCurrentPage() {
-            if (state.pages.length === 0) {
-                const page = createPage(1);
-                page.classList.add('active');
-                elements.pagesContainer.appendChild(page);
-                state.pages.push(page);
-                state.currentPageIndex = 0;
-                state.viewingPageIndex = 0;
-                state.panelsOnCurrentPage = 0;
-            }
-            return state.pages[state.currentPageIndex];
+            return grid;
         }
 
         function addPanelToPage(panel) {
-            // Replace streaming panel directly if it exists (it already took the slot)
             const streamingPanel = document.querySelector('.streaming-panel');
             if (streamingPanel) {
                 streamingPanel.replaceWith(panel);
                 state.streamingPanelEl = null;
-                state.panelsOnCurrentPage++;
-                showPage(state.currentPageIndex);
-                updatePageIndicator();
-                return;
-            }
-
-            // No streaming panel - find an empty slot
-            const currentPage = getCurrentPage();
-            const panelCount = currentPage.querySelectorAll('.comic-panel').length;
-
-            if (panelCount >= PANELS_PER_PAGE) {
-                // Create new page
-                const newPage = createPage(state.pages.length + 1);
-                elements.pagesContainer.appendChild(newPage);
-                state.pages.push(newPage);
-                state.currentPageIndex = state.pages.length - 1;
-                state.panelsOnCurrentPage = 0;
-
-                // Replace first empty slot with the panel
-                const emptySlot = newPage.querySelector('.empty-slot');
-                if (emptySlot) {
-                    emptySlot.replaceWith(panel);
-                } else {
-                    newPage.appendChild(panel);
-                }
             } else {
-                // Replace next empty slot with the panel
-                const emptySlot = currentPage.querySelector('.empty-slot');
-                if (emptySlot) {
-                    emptySlot.replaceWith(panel);
-                } else {
-                    currentPage.appendChild(panel);
-                }
+                getGrid().appendChild(panel);
             }
-
-            state.panelsOnCurrentPage++;
-
-            // Show the page with the new panel
-            showPage(state.currentPageIndex);
-            updatePageIndicator();
+            panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
 
         function createStreamingPanel() {
@@ -1568,31 +1294,10 @@
         }
 
         function addStreamingPanel() {
-            const currentPage = getCurrentPage();
-            const panelCount = currentPage.querySelectorAll('.comic-panel').length;
-
-            // If current page is full, create new page first
-            if (panelCount >= PANELS_PER_PAGE) {
-                const newPage = createPage(state.pages.length + 1);
-                elements.pagesContainer.appendChild(newPage);
-                state.pages.push(newPage);
-                state.currentPageIndex = state.pages.length - 1;
-                state.panelsOnCurrentPage = 0;
-            }
-
             const streamingPanel = createStreamingPanel();
             state.streamingPanelEl = streamingPanel;
-
-            // Replace next empty slot with streaming panel
-            const emptySlot = getCurrentPage().querySelector('.empty-slot');
-            if (emptySlot) {
-                emptySlot.replaceWith(streamingPanel);
-            } else {
-                getCurrentPage().appendChild(streamingPanel);
-            }
-
-            // Make sure we're viewing this page
-            showPage(state.currentPageIndex);
+            getGrid().appendChild(streamingPanel);
+            streamingPanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
             return streamingPanel;
         }
 
@@ -1604,15 +1309,6 @@
                     img.style.opacity = '1';
                 }
             }
-        }
-
-        function updateNavButtons() {
-            elements.prevPageBtn.disabled = state.viewingPageIndex <= 0 || state.isGenerating;
-            elements.nextPageBtn.disabled = state.viewingPageIndex >= state.pages.length - 1 || state.isGenerating;
-        }
-
-        function updatePageIndicator() {
-            elements.pageIndicator.textContent = `Page ${state.viewingPageIndex + 1} of ${state.pages.length}`;
         }
 
         function getPositionClass(position) {
@@ -1865,6 +1561,7 @@
                     const bubble = document.getElementById(`bubble-${i}`);
                     if (!bubble) return;
                     bubble.dataset.id = comic.id;
+                    bubble.dataset.title = comic.name || '';
                     bubble.dataset.panelFont = comic.panel_font || '';
                     bubble.classList.remove('coming-soon');
                     const textEl = bubble.querySelector('.bubble-text');
@@ -1875,11 +1572,8 @@
                 // Add click handlers to populated bubbles
                 document.querySelectorAll('.comic-bubble:not(.coming-soon)').forEach(bubble => {
                     bubble.addEventListener('click', () => {
-                        document.querySelectorAll('.comic-bubble').forEach(b => b.classList.remove('selected'));
-                        bubble.classList.add('selected');
                         state.selectedComic = bubble.dataset.id;
-                        elements.startBtn.disabled = false;
-                        elements.startBtn.textContent = 'Start the Comic Chaos!';
+                        startComic();
                     });
                 });
 
@@ -1895,24 +1589,22 @@
         async function startComic() {
             if (!state.selectedComic) return;
 
-            // Apply per-comic panel font
+            // Apply per-comic panel font and title
             const selectedBubble = document.querySelector(`.comic-bubble[data-id="${state.selectedComic}"]`);
-            if (selectedBubble && selectedBubble.dataset.panelFont) {
-                document.documentElement.style.setProperty('--font-panel', selectedBubble.dataset.panelFont);
+            if (selectedBubble) {
+                if (selectedBubble.dataset.panelFont) {
+                    document.documentElement.style.setProperty('--font-panel', selectedBubble.dataset.panelFont);
+                }
+                elements.comicTitle.textContent = selectedBubble.dataset.title || '';
             }
 
             state.sessionId = generateSessionId();
-            elements.startBtn.disabled = true;
 
             // Show workspace and prepare for streaming
             elements.comicSelect.classList.add('hidden');
             elements.workspace.classList.add('active');
 
             // Reset state
-            state.pages = [];
-            state.currentPageIndex = 0;
-            state.viewingPageIndex = 0;
-            state.panelsOnCurrentPage = 0;
             state.completedPanels = [];
             elements.pagesContainer.innerHTML = '';
 
@@ -1953,7 +1645,6 @@
                                 if (data.type === 'error') {
                                     showNotification(data.error);
                                     setLoading(false);
-                                    elements.startBtn.disabled = false;
                                     elements.workspace.classList.remove('active');
                                     elements.comicSelect.classList.remove('hidden');
                                     return;
@@ -2022,13 +1713,10 @@
                                         const input = panel.querySelector('.user-input .element-input');
                                         if (input) {
                                             input.focus();
-                                            startHintTimer();
                                             adjustBubbleTextSize(input);
                                             input.addEventListener('input', () => {
-                                                hideInputHint();
                                                 adjustBubbleTextSize(input);
                                             });
-                                            input.addEventListener('blur', hideInputHint);
                                         }
                                     }, 100);
                                 }
@@ -2040,7 +1728,6 @@
                 }
             } catch (error) {
                 showNotification('Failed to start comic');
-                elements.startBtn.disabled = false;
                 elements.workspace.classList.remove('active');
                 elements.comicSelect.classList.remove('hidden');
             }
@@ -2178,13 +1865,10 @@
                                         const input = panel.querySelector('.user-input .element-input');
                                         if (input) {
                                             input.focus();
-                                            startHintTimer();
                                             adjustBubbleTextSize(input);
                                             input.addEventListener('input', () => {
-                                                hideInputHint();
                                                 adjustBubbleTextSize(input);
                                             });
-                                            input.addEventListener('blur', hideInputHint);
                                         }
                                     }, 100);
                                 }
@@ -2248,23 +1932,8 @@
             setLoading(false);
         }
 
-        function goToPrevPage() {
-            if (state.viewingPageIndex > 0) {
-                showPage(state.viewingPageIndex - 1);
-            }
-        }
-
-        function goToNextPage() {
-            if (state.viewingPageIndex < state.pages.length - 1) {
-                showPage(state.viewingPageIndex + 1);
-            }
-        }
-
         // Event listeners
-        elements.startBtn.addEventListener('click', startComic);
         elements.finishBtn.addEventListener('click', finishComic);
-        elements.prevPageBtn.addEventListener('click', goToPrevPage);
-        elements.nextPageBtn.addEventListener('click', goToNextPage);
 
         // Submit on Enter key
         document.addEventListener('keydown', (e) => {
@@ -2286,21 +1955,6 @@
                 }
             }
 
-            // Page navigation with arrow keys when not focused on input
-            if (elements.workspace.classList.contains('active')) {
-                const activeEl = document.activeElement;
-                const isInput = activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA');
-
-                if (!isInput) {
-                    if (e.key === 'ArrowLeft') {
-                        e.preventDefault();
-                        goToPrevPage();
-                    } else if (e.key === 'ArrowRight') {
-                        e.preventDefault();
-                        goToNextPage();
-                    }
-                }
-            }
         });
 
         // Initialize
