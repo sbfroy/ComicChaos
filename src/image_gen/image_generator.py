@@ -11,13 +11,10 @@ Classes:
 
 import base64
 import os
-from datetime import datetime
-from pathlib import Path
 from typing import Optional, List, Dict, Any, Generator
 
 from openai import OpenAI
 
-from ..config import GENERATED_IMAGES_DIR
 from ..state.comic_state import RenderState
 from ..state.static_config import ComicConfig
 from ..logging.interaction_logger import InteractionLogger
@@ -56,8 +53,6 @@ class ImageGenerator:
         self.client: OpenAI = OpenAI(
             api_key=api_key or os.getenv("OPENAI_API_KEY")
         )
-        self.output_dir: Path = Path(GENERATED_IMAGES_DIR)
-        self.output_dir.mkdir(parents=True, exist_ok=True)
         self.logger: Optional[InteractionLogger] = logger
 
         # Initialize bubble detection
@@ -83,7 +78,7 @@ class ImageGenerator:
 
         Returns:
             Dictionary with:
-                - image_path: Path to the generated image (or None on failure)
+                - image_bytes: Raw PNG bytes (or None on failure)
                 - detected_bubbles: List of bubble position dicts with x, y, width, height
         """
         # Build the detailed prompt from render state and visual style
@@ -101,25 +96,16 @@ class ImageGenerator:
 
             # Extract base64-encoded image data from response
             image_base64 = result.data[0].b64_json
-
-            # Generate unique filename with timestamp
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            filename = f"image_{timestamp}.png"
-            filepath = self.output_dir / filename
-
-            # Decode base64 image data and save to file
             image_bytes = base64.b64decode(image_base64)
-            with open(filepath, "wb") as file:
-                file.write(image_bytes)
 
             # Detect bubbles/boxes in the generated image
             detected_bubbles = []
             if elements:
                 el_type = elements[0].get("type", "") if elements else ""
                 if el_type == "narration":
-                    bubbles = self.bubble_detector.detect_narration_boxes(str(filepath))
+                    bubbles = self.bubble_detector.detect_narration_boxes(image_bytes)
                 else:
-                    bubbles = self.bubble_detector.detect_bubbles(str(filepath))
+                    bubbles = self.bubble_detector.detect_bubbles(image_bytes)
                 for bubble in bubbles:
                     detected_bubbles.append({
                         "x": bubble.x,
@@ -134,7 +120,7 @@ class ImageGenerator:
             if self.logger:
                 self.logger.log_image_generation(
                     prompt=prompt,
-                    image_path=str(filepath),
+                    image_path=None,
                     model=self.comic_config.image_model,
                     size=self.comic_config.image_size,
                     quality=self.comic_config.image_quality,
@@ -142,7 +128,7 @@ class ImageGenerator:
                 )
 
             return {
-                "image_path": str(filepath),
+                "image_bytes": image_bytes,
                 "detected_bubbles": detected_bubbles,
             }
 
@@ -163,7 +149,7 @@ class ImageGenerator:
                 )
 
             return {
-                "image_path": None,
+                "image_bytes": None,
                 "detected_bubbles": [],
             }
 
@@ -191,7 +177,7 @@ class ImageGenerator:
                 - type: "partial" or "complete"
                 - image_base64: Base64-encoded image data
                 - partial_index: Index of partial image (for partial type)
-                - image_path: Path to saved image (for complete type)
+                - image_bytes: Raw PNG bytes (for complete type)
                 - detected_bubbles: List of bubble positions (for complete type)
         """
         prompt = self._build_prompt(render_state, visual_style, elements, main_character_description)
@@ -220,23 +206,16 @@ class ImageGenerator:
                     final_image_base64 = event.b64_json
 
             if final_image_base64:
-                # Save the final image
-                timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-                filename = f"image_{timestamp}.png"
-                filepath = self.output_dir / filename
-
                 image_bytes = base64.b64decode(final_image_base64)
-                with open(filepath, "wb") as file:
-                    file.write(image_bytes)
 
                 # Detect bubbles/boxes
                 detected_bubbles = []
                 if elements:
                     el_type = elements[0].get("type", "") if elements else ""
                     if el_type == "narration":
-                        bubbles = self.bubble_detector.detect_narration_boxes(str(filepath))
+                        bubbles = self.bubble_detector.detect_narration_boxes(image_bytes)
                     else:
-                        bubbles = self.bubble_detector.detect_bubbles(str(filepath))
+                        bubbles = self.bubble_detector.detect_bubbles(image_bytes)
                     for bubble in bubbles:
                         detected_bubbles.append({
                             "x": bubble.x,
@@ -251,7 +230,7 @@ class ImageGenerator:
                 if self.logger:
                     self.logger.log_image_generation(
                         prompt=prompt,
-                        image_path=str(filepath),
+                        image_path=None,
                         model=self.comic_config.image_model,
                         size=self.comic_config.image_size,
                         quality=self.comic_config.image_quality,
@@ -261,7 +240,7 @@ class ImageGenerator:
                 yield {
                     "type": "complete",
                     "image_base64": final_image_base64,
-                    "image_path": str(filepath),
+                    "image_bytes": image_bytes,
                     "detected_bubbles": detected_bubbles,
                 }
 
@@ -385,11 +364,9 @@ class MockImageGenerator(ImageGenerator):
     """A mock image generator for testing without API calls.
 
     This class provides a testing alternative to the real ImageGenerator.
-    Instead of making actual API calls, it creates text files containing
-    the prompt and configuration that would have been sent to the API.
+    Instead of making actual API calls, it returns empty image bytes.
 
     Attributes:
-        output_dir: Path to the directory where mock files are saved.
         _call_count: Counter tracking the number of generation calls.
     """
 
@@ -399,8 +376,6 @@ class MockImageGenerator(ImageGenerator):
         Note: Does not call parent __init__ to avoid creating an OpenAI client.
         """
         self.comic_config: ComicConfig = ComicConfig()
-        self.output_dir: Path = Path(GENERATED_IMAGES_DIR)
-        self.output_dir.mkdir(parents=True, exist_ok=True)
         self._call_count: int = 0
 
     def generate_image(
@@ -411,41 +386,17 @@ class MockImageGenerator(ImageGenerator):
     ) -> Dict[str, Any]:
         """Generate a mock image without making API calls.
 
-        Creates a text file documenting what would have been sent to the API,
-        useful for testing and debugging without incurring API costs.
-
         Args:
             render_state: The current render state containing scene information.
             visual_style: The visual style description for the comic.
             elements: Optional list of element dictionaries with text to render.
 
         Returns:
-            Dictionary with image_path and empty detected_bubbles list.
+            Dictionary with image_bytes and empty detected_bubbles list.
         """
-        # Increment call counter for unique filenames
         self._call_count += 1
 
-        # Build the prompt that would be sent to the API
-        prompt = self._build_prompt(render_state, visual_style, elements)
-
-        # Generate unique filename with call count and timestamp
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        filename = f"mock_{self._call_count}_{timestamp}.txt"
-        filepath = self.output_dir / filename
-
-        # Create a text file documenting the mock generation
-        with open(filepath, "w") as file:
-            file.write("MOCK IMAGE GENERATION\n")
-            file.write("=====================\n\n")
-            file.write(f"Prompt:\n{prompt}\n\n")
-            file.write(f"Size: {self.comic_config.image_size}\n")
-            file.write(f"Quality: {self.comic_config.image_quality}\n")
-            if elements:
-                file.write("\nElements:\n")
-                for i, el in enumerate(elements):
-                    file.write(f"  {i+1}. {el.get('type', 'unknown')}: {el.get('text', el.get('placeholder', ''))}\n")
-
         return {
-            "image_path": str(filepath),
-            "detected_bubbles": [],  # Mock doesn't detect bubbles
+            "image_bytes": None,
+            "detected_bubbles": [],
         }

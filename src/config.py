@@ -22,8 +22,6 @@ IMAGE_MODERATION = "low"
 # =============================================================================
 # Output Directories (now under 'output/')
 # =============================================================================
-GENERATED_IMAGES_DIR = "output/generated"
-COMIC_STRIPS_DIR = "output/comics"
 LOGS_DIR = "output/logs"
 
 # =============================================================================

@@ -17,7 +17,6 @@ class ComicPanel(BaseModel):
 
     panel_number: int = Field(description="Panel number in sequence")
     narrative: str = Field(description="The narrative text for this panel")
-    image_path: str | None = Field(default=None, description="Path to generated image")
     is_auto: bool = Field(default=False, description="Whether this is an automatic transition panel")
 
 
@@ -114,13 +113,12 @@ class ComicState(BaseModel):
             main_character_description=main_char.description,
         )
 
-    def add_panel(self, narrative: str, image_path: str | None = None) -> ComicPanel:
+    def add_panel(self, narrative: str) -> ComicPanel:
         """Add a new panel to the comic strip."""
         self.meta.panel_count += 1
         panel = ComicPanel(
             panel_number=self.meta.panel_count,
             narrative=narrative,
-            image_path=image_path
         )
         self.narrative.panels.append(panel)
         self.meta.last_updated = datetime.now()

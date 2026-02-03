@@ -55,17 +55,16 @@ class BubbleDetector:
         self.min_circularity = min_circularity
         self.kernel_size = kernel_size
 
-    def detect_bubbles(self, image_path: str) -> List[DetectedBubble]:
+    def detect_bubbles(self, image_data: bytes) -> List[DetectedBubble]:
         """Detect speech bubbles in an image.
 
         Args:
-            image_path: Path to the image file.
+            image_data: Raw image bytes (e.g. PNG).
 
         Returns:
             List of DetectedBubble objects, sorted by position (top-to-bottom, left-to-right).
         """
-        # Load image
-        img = cv2.imread(image_path)
+        img = cv2.imdecode(np.frombuffer(image_data, np.uint8), cv2.IMREAD_COLOR)
         if img is None:
             return []
 
@@ -161,16 +160,16 @@ class BubbleDetector:
 
         return bubbles
 
-    def detect_narration_boxes(self, image_path: str) -> List[DetectedBubble]:
+    def detect_narration_boxes(self, image_data: bytes) -> List[DetectedBubble]:
         """Detect rectangular narration boxes (cream/yellow fill, sharp corners).
 
         Args:
-            image_path: Path to the image file.
+            image_data: Raw image bytes (e.g. PNG).
 
         Returns:
             List of DetectedBubble objects for detected narration boxes.
         """
-        img = cv2.imread(image_path)
+        img = cv2.imdecode(np.frombuffer(image_data, np.uint8), cv2.IMREAD_COLOR)
         if img is None:
             return []
 

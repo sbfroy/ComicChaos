@@ -4,12 +4,11 @@
 import os
 import json
 import base64
-from pathlib import Path
 
 from dotenv import load_dotenv
 from flask import Flask, render_template, request, jsonify, Response
 
-from src.config import GENERATED_IMAGES_DIR, COMIC_STRIPS_DIR, SETTINGS_DIR
+from src.config import SETTINGS_DIR
 from src.state.static_config import StaticConfig
 from src.state.comic_state import ComicState
 from settings.setting_registry import SettingRegistry
@@ -96,12 +95,12 @@ class ComicSession:
         if not self.comic_strip or self.comic_strip.get_panel_count() == 0:
             return {"error": "No panels to export"}
 
-        strip_path = self.comic_strip.generate_comic_strip()
-        if not strip_path:
+        strip_bytes = self.comic_strip.generate_comic_strip()
+        if not strip_bytes:
             return {"error": "Failed to generate comic strip"}
 
         return {
-            "strip_image": self._image_to_base64(strip_path),
+            "strip_image": base64.b64encode(strip_bytes).decode("utf-8"),
             "panel_count": self.comic_strip.get_panel_count()
         }
 
@@ -171,7 +170,7 @@ class ComicSession:
         })
 
         # Generate title card image with streaming
-        title_card_path = None
+        title_card_bytes = None
 
         for event in self._generate_title_card_streaming(
             response.title_card,
@@ -185,7 +184,7 @@ class ComicSession:
                     "partial_index": event["partial_index"],
                 })
             elif event["type"] == "complete":
-                title_card_path = event["image_path"]
+                title_card_bytes = event["image_bytes"]
                 yield json.dumps({
                     "type": "complete_title_card",
                     "panel_number": 0,
@@ -199,7 +198,7 @@ class ComicSession:
         # Store title card panel data
         self.panels_data.append({
             "panel_number": 0,
-            "image_path": title_card_path,
+            "image_bytes": title_card_bytes,
             "elements": [],
             "user_input_text": None,
             "detected_bubbles": [],
@@ -208,9 +207,9 @@ class ComicSession:
         })
 
         # Add title card to comic strip
-        if self.comic_strip and title_card_path:
+        if self.comic_strip and title_card_bytes:
             self.comic_strip.add_panel(
-                title_card_path,
+                title_card_bytes,
                 f"{self.config.blueprint.title} - {response.title_card.atmosphere}",
                 0,
                 elements=[],
@@ -229,7 +228,7 @@ class ComicSession:
         })
 
         # Generate first panel image with streaming
-        first_panel_path = None
+        first_panel_bytes = None
         first_panel_bubbles = []
 
         for event in self._generate_image_streaming(elements=response.first_panel.elements):
@@ -241,7 +240,7 @@ class ComicSession:
                     "partial_index": event["partial_index"],
                 })
             elif event["type"] == "complete":
-                first_panel_path = event["image_path"]
+                first_panel_bytes = event["image_bytes"]
                 first_panel_bubbles = event["detected_bubbles"]
                 yield json.dumps({
                     "type": "complete",
@@ -257,7 +256,7 @@ class ComicSession:
         # Store first panel data
         self.panels_data.append({
             "panel_number": 1,
-            "image_path": first_panel_path,
+            "image_bytes": first_panel_bytes,
             "elements": response.first_panel.elements,
             "user_input_text": None,
             "detected_bubbles": first_panel_bubbles,
@@ -285,10 +284,10 @@ class ComicSession:
 
         # Add to comic strip
         panel_num = len(self.panels_data)
-        self.state.add_panel(narrative_text, current_panel["image_path"])
+        self.state.add_panel(narrative_text)
         if self.comic_strip:
             self.comic_strip.add_panel(
-                current_panel["image_path"],
+                current_panel["image_bytes"],
                 narrative_text,
                 panel_num,
                 elements=current_panel.get("elements"),
@@ -323,7 +322,7 @@ class ComicSession:
             })
 
             # Generate image with streaming
-            image_path = None
+            image_bytes = None
             detected_bubbles = []
 
             for event in self._generate_image_streaming(elements=panel_data.elements):
@@ -335,7 +334,7 @@ class ComicSession:
                         "partial_index": event["partial_index"],
                     })
                 elif event["type"] == "complete":
-                    image_path = event["image_path"]
+                    image_bytes = event["image_bytes"]
                     detected_bubbles = event["detected_bubbles"]
                     yield json.dumps({
                         "type": complete_type,
@@ -358,10 +357,10 @@ class ComicSession:
             # For auto panels, add to state and comic strip immediately
             if is_auto:
                 auto_narrative = self._build_narrative(panel_data.elements, "")
-                self.state.add_panel(auto_narrative, image_path)
+                self.state.add_panel(auto_narrative)
                 if self.comic_strip:
                     self.comic_strip.add_panel(
-                        image_path, auto_narrative, next_panel_num,
+                        image_bytes, auto_narrative, next_panel_num,
                         elements=panel_data.elements,
                         user_input_text=None,
                         detected_bubbles=detected_bubbles,
@@ -370,19 +369,12 @@ class ComicSession:
             # Store panel data
             self.panels_data.append({
                 "panel_number": next_panel_num,
-                "image_path": image_path,
+                "image_bytes": image_bytes,
                 "elements": panel_data.elements,
                 "user_input_text": None,
                 "detected_bubbles": detected_bubbles,
                 "is_auto": is_auto,
             })
-
-    def _image_to_base64(self, image_path):
-        """Convert an image file to base64 string."""
-        if not image_path or not Path(image_path).exists():
-            return None
-        with open(image_path, "rb") as f:
-            return base64.b64encode(f.read()).decode("utf-8")
 
 
 @app.route("/")
@@ -490,6 +482,4 @@ def submit_panel_stream():
 
 
 if __name__ == "__main__":
-    Path(GENERATED_IMAGES_DIR).mkdir(parents=True, exist_ok=True)
-    Path(COMIC_STRIPS_DIR).mkdir(parents=True, exist_ok=True)
     app.run(debug=True, port=5000)

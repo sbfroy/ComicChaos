@@ -1,13 +1,11 @@
 """Comic strip collector and generation functionality."""
 
-from pathlib import Path
-from datetime import datetime
+from io import BytesIO
 from typing import Optional, List, Dict, Any
 
 from PIL import Image, ImageDraw
 
-from .config import COMIC_STRIPS_DIR
-from .image_gen.bubble_detector import BubbleDetector
+from .image_gen.bubble_detector import BubbleDetector, DetectedBubble
 from .image_gen.text_renderer import TextRenderer, TextElement
 
 
@@ -16,11 +14,8 @@ class ComicStrip:
 
 
     def __init__(self, title: str = "My Comic"):
-        self.output_dir = Path(COMIC_STRIPS_DIR)
-        self.output_dir.mkdir(parents=True, exist_ok=True)
         self.title = title
         self.panels: list[dict] = []
-        self.session_id = datetime.now().strftime("%Y%m%d_%H%M%S")
 
         # Initialize bubble detection and text rendering for final strip
         self.bubble_detector = BubbleDetector()
@@ -28,7 +23,7 @@ class ComicStrip:
 
     def add_panel(
         self,
-        image_path: str | None,
+        image_bytes: bytes | None,
         narrative: str,
         panel_number: int,
         elements: List[Dict[str, Any]] | None = None,
@@ -38,7 +33,7 @@ class ComicStrip:
         """Add a panel to the comic strip.
 
         Args:
-            image_path: Path to the panel image.
+            image_bytes: Raw PNG image bytes for the panel.
             narrative: Text narrative for the panel.
             panel_number: The panel number.
             elements: Optional list of elements with text content.
@@ -46,7 +41,7 @@ class ComicStrip:
             detected_bubbles: Optional list of detected bubble positions.
         """
         self.panels.append({
-            "image_path": image_path,
+            "image_bytes": image_bytes,
             "narrative": narrative,
             "panel_number": panel_number,
             "elements": elements or [],
@@ -58,17 +53,20 @@ class ComicStrip:
         """Get the number of panels in the comic."""
         return len(self.panels)
 
-    def generate_comic_strip(self, max_panels_per_row: int = 3) -> Optional[str]:
+    def generate_comic_strip(self, max_panels_per_row: int = 3) -> Optional[bytes]:
         """Generate a single image showing all panels as a comic strip.
 
         This method processes each panel to detect bubbles and render text
         into them before compositing the final strip.
+
+        Returns:
+            PNG image as bytes, or None on failure.
         """
         if not self.panels:
             return None
 
         # Filter panels that have valid images
-        valid_panels = [p for p in self.panels if p["image_path"] and Path(p["image_path"]).exists()]
+        valid_panels = [p for p in self.panels if p["image_bytes"]]
 
         if not valid_panels:
             return None
@@ -97,7 +95,7 @@ class ComicStrip:
                     )
                     images.append(processed_img)
                 else:
-                    img = Image.open(panel["image_path"])
+                    img = Image.open(BytesIO(panel["image_bytes"]))
                     img = img.resize((panel_size, panel_size), Image.Resampling.LANCZOS)
                     images.append(img)
             except Exception as e:
@@ -163,11 +161,10 @@ class ComicStrip:
             img_y = cell_y + panel_border
             strip.paste(img, (img_x, img_y))
 
-        # Save the comic strip
-        output_path = self.output_dir / f"comic_strip_{self.session_id}.png"
-        strip.save(output_path)
-
-        return str(output_path)
+        # Return as PNG bytes
+        buf = BytesIO()
+        strip.save(buf, format="PNG")
+        return buf.getvalue()
 
     def _process_panel_bubbles(self, panel: dict) -> Optional[Image.Image]:
         """Process a panel to render text into detected bubbles.
@@ -176,26 +173,25 @@ class ComicStrip:
         Narration boxes are drawn in corners (not part of the generated image).
 
         Args:
-            panel: Panel dictionary with image_path, elements, user_input_text, detected_bubbles.
+            panel: Panel dictionary with image_bytes, elements, user_input_text, detected_bubbles.
 
         Returns:
             Processed PIL Image with text rendered, or None on failure.
         """
-        image_path = panel.get("image_path")
+        image_bytes = panel.get("image_bytes")
         elements = panel.get("elements", [])
         user_input_text = panel.get("user_input_text")
         stored_bubbles = panel.get("detected_bubbles", [])
 
-        if not image_path or not Path(image_path).exists():
+        if not image_bytes:
             return None
 
         try:
-            # Load the image
-            img = Image.open(image_path)
+            # Load the image from bytes
+            img = Image.open(BytesIO(image_bytes))
             img_width, img_height = img.size
 
             # Convert stored bubble dicts to DetectedBubble objects
-            from .image_gen.bubble_detector import DetectedBubble
             detected_bubbles = []
             for b in stored_bubbles:
                 detected_bubbles.append(DetectedBubble(
@@ -208,7 +204,7 @@ class ComicStrip:
 
             # If no stored bubbles, try to detect them
             if not detected_bubbles:
-                detected_bubbles = self.bubble_detector.detect_bubbles(image_path)
+                detected_bubbles = self.bubble_detector.detect_bubbles(image_bytes)
 
             # Render text into detected bubbles for all element types
             # Falls back to programmatic overlay when no detected bubble available
@@ -251,4 +247,3 @@ class ComicStrip:
         except Exception as e:
             print(f"Error processing panel bubbles: {e}")
             return None
-

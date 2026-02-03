@@ -6,15 +6,12 @@ Run this file to start the web server.
 """
 
 from app import app
-from src.config import GENERATED_IMAGES_DIR, COMIC_STRIPS_DIR
+from src.config import LOGS_DIR
 from pathlib import Path
 
 
 def main():
     """Entry point - starts the web server."""
-    Path(GENERATED_IMAGES_DIR).mkdir(parents=True, exist_ok=True)
-    Path(COMIC_STRIPS_DIR).mkdir(parents=True, exist_ok=True)
-    from src.config import LOGS_DIR
     Path(LOGS_DIR).mkdir(parents=True, exist_ok=True)
 
     print("Starting Comic Chaos...")
