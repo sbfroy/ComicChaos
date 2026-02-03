@@ -30,13 +30,6 @@
             --border-thick: 4px solid var(--color-black);
             --border-medium: 3px solid var(--color-black);
 
-            /* Shadows - softer shadow color for natural 3D effect */
-            --color-shadow: rgba(0, 0, 0, 0.15);
-            --shadow-heavy: 6px 6px 0 var(--color-shadow);
-            --shadow-medium: 4px 4px 0 var(--color-shadow);
-            --shadow-light: 3px 3px 0 var(--color-shadow);
-            --shadow-hover: 8px 8px 0 var(--color-shadow);
-
             /* Typography */
             --font-display: 'Roboto Mono', monospace;
             --font-ui: 'Roboto Mono', monospace;
@@ -498,14 +491,12 @@
             font-weight: 700;
             cursor: pointer;
             letter-spacing: 2px;
-            transition: transform 0.15s ease, box-shadow 0.15s ease;
+            transition: transform 0.15s ease;
             padding: 12px 24px;
-            box-shadow: var(--shadow-medium);
         }
 
         .finish-btn-small:hover:not(:disabled) {
             transform: translateY(-2px);
-            box-shadow: var(--shadow-hover);
         }
 
         .finish-btn-small:disabled {
@@ -535,7 +526,6 @@
             border: var(--border-thick);
             margin: 0;
             padding: 0;
-            box-shadow: var(--shadow-heavy);
         }
 
         /* Comic Page - single continuous grid */
@@ -903,7 +893,6 @@
             border: var(--border-thick);
             border-radius: 8px;
             margin-bottom: 20px;
-            box-shadow: var(--shadow-heavy);
             background: var(--color-paper);
         }
 
@@ -933,14 +922,12 @@
             font-weight: 700;
             cursor: pointer;
             letter-spacing: 2px;
-            transition: transform 0.15s ease, box-shadow 0.15s ease;
+            transition: transform 0.15s ease;
             padding: 12px 24px;
-            box-shadow: var(--shadow-medium);
         }
 
         .download-btn:hover {
             transform: translateY(-2px);
-            box-shadow: var(--shadow-hover);
         }
 
         /* Create Another - simple white text link */
