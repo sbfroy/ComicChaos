@@ -955,13 +955,13 @@
             top: 20px;
             right: 20px;
             padding: 14px 24px;
-            background: var(--color-chrome);
+            background: var(--color-paper);
             border: var(--border-thick);
-            border-radius: 8px;
             color: var(--color-black);
-            font-family: var(--font-ui);
-            font-weight: 600;
+            font-family: var(--font-display);
+            font-weight: 700;
             font-size: 0.9rem;
+            letter-spacing: 1px;
             opacity: 0;
             transform: translateX(100%);
             transition: all 0.3s;
@@ -1883,14 +1883,7 @@
                 markCurrentAsCompleted(userInput);
             }
 
-            const totalPanels = state.completedPanels.length;
-            if (totalPanels < 1) {
-                showNotification('Create at least one panel first!');
-                return;
-            }
-
             setLoading(true);
-            showNotification('Generating your comic strip...');
 
             try {
                 const response = await fetch('/api/finish', {
