@@ -891,11 +891,9 @@
 
         .final-content h2 {
             font-family: var(--font-display);
-            color: var(--color-accent-yellow);
+            color: var(--color-paper);
             margin-bottom: 20px;
-            text-transform: uppercase;
-            text-shadow: 3px 3px 0 var(--color-accent-red), 5px 5px 0 var(--color-black);
-            font-size: 2.2rem;
+            font-size: 1.6rem;
             letter-spacing: 3px;
             flex-shrink: 0;
         }
@@ -920,28 +918,50 @@
             margin-bottom: 15px;
         }
 
-        /* Create Another button - gradient style without shadow */
-        .new-comic-btn {
-            padding: 16px 35px;
-            background: linear-gradient(180deg, var(--color-accent-red-light) 0%, var(--color-accent-red) 100%);
-            color: var(--color-paper);
+        .final-buttons {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex-shrink: 0;
+        }
+
+        /* Download button - matches finish button style */
+        .download-btn {
+            background: var(--color-accent-yellow);
+            color: var(--color-black);
             border: var(--border-thick);
-            border-radius: 8px;
             font-family: var(--font-display);
-            font-size: 1.15rem;
-            font-weight: bold;
+            font-size: 1.1rem;
+            font-weight: 700;
             cursor: pointer;
-            text-transform: uppercase;
             letter-spacing: 2px;
-            transition: all 0.15s ease;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+            padding: 12px 24px;
+            box-shadow: var(--shadow-medium);
+        }
+
+        .download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        /* Create Another - simple white text link */
+        .new-comic-btn {
+            background: none;
+            border: none;
+            color: var(--color-paper);
+            font-family: var(--font-display);
+            font-size: 1rem;
+            cursor: pointer;
+            letter-spacing: 1px;
+            padding: 0;
+            text-decoration: underline;
+            text-underline-offset: 4px;
+            transition: opacity 0.15s ease;
         }
 
         .new-comic-btn:hover {
-            background: linear-gradient(180deg, #f87171 0%, var(--color-accent-red-light) 100%);
-        }
-
-        .new-comic-btn:active {
-            background: linear-gradient(180deg, var(--color-accent-red) 0%, #b91c1c 100%);
+            opacity: 0.75;
         }
 
         /* ========================================
@@ -1116,10 +1136,13 @@
             <div class="rotating-stripes final-stripes"></div>
             <div class="vignette final-vignette"></div>
             <div class="final-content">
-                <h2>Your Comic Strip!</h2>
+                <h2>Your Comic Strip</h2>
                 <img id="strip-image" src="" alt="Comic Strip" />
                 <p id="panel-count"></p>
-                <button class="new-comic-btn" onclick="location.reload()">Create Another</button>
+                <div class="final-buttons">
+                    <button class="download-btn" id="download-btn">Download</button>
+                    <button class="new-comic-btn" onclick="location.reload()">Create Another</button>
+                </div>
             </div>
         </div>
     </div>
@@ -1185,6 +1208,7 @@
             finalStrip: document.getElementById('final-strip'),
             stripImage: document.getElementById('strip-image'),
             panelCount: document.getElementById('panel-count'),
+            downloadBtn: document.getElementById('download-btn'),
             notification: document.getElementById('notification')
         };
 
@@ -1914,6 +1938,15 @@
 
         // Event listeners
         elements.finishBtn.addEventListener('click', finishComic);
+
+        elements.downloadBtn.addEventListener('click', () => {
+            const src = elements.stripImage.src;
+            if (!src) return;
+            const link = document.createElement('a');
+            link.href = src;
+            link.download = 'comic-chaos.png';
+            link.click();
+        });
 
         // Submit on Enter key
         document.addEventListener('keydown', (e) => {

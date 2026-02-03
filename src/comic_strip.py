@@ -4,7 +4,7 @@ from pathlib import Path
 from datetime import datetime
 from typing import Optional, List, Dict, Any
 
-from PIL import Image
+from PIL import Image, ImageDraw
 
 from .config import COMIC_STRIPS_DIR
 from .image_gen.bubble_detector import BubbleDetector
@@ -73,27 +73,32 @@ class ComicStrip:
         if not valid_panels:
             return None
 
-        # Panel dimensions for the comic strip
-        panel_width = 512
-        panel_height = 512
-        border = 4
-        gap = 2
+        # Layout constants matching the CSS workspace styling
+        panel_size = 512
+        gap = 12                # matches CSS grid gap: 12px
+        page_padding = 12      # matches CSS .comic-page padding: 12px
+        panel_border = 4       # matches CSS --border-thick: 4px
+        outer_border = 4       # matches CSS .pages-wrapper border
+        page_margin = 20       # margin around the page wrapper
+
+        # Colors matching CSS variables
+        color_paper = (245, 240, 230)       # --color-paper: #f5f0e6
+        color_border = (17, 17, 17)         # --color-black: #111
+        color_bg = (23, 101, 185)           # --color-primary-blue: #1765B9
 
         # Process and load all images
         images = []
         for panel in valid_panels:
             try:
-                # Process bubbles for this panel
                 processed_img = self._process_panel_bubbles(panel)
                 if processed_img:
                     processed_img = processed_img.resize(
-                        (panel_width, panel_height), Image.Resampling.LANCZOS
+                        (panel_size, panel_size), Image.Resampling.LANCZOS
                     )
                     images.append(processed_img)
                 else:
-                    # Fall back to raw image
                     img = Image.open(panel["image_path"])
-                    img = img.resize((panel_width, panel_height), Image.Resampling.LANCZOS)
+                    img = img.resize((panel_size, panel_size), Image.Resampling.LANCZOS)
                     images.append(img)
             except Exception as e:
                 print(f"Error processing panel: {e}")
@@ -102,27 +107,61 @@ class ComicStrip:
         if not images:
             return None
 
-        # Calculate layout
+        # Calculate grid layout
         num_panels = len(images)
         cols = min(num_panels, max_panels_per_row)
         rows = (num_panels + cols - 1) // cols
 
-        # Calculate total dimensions
-        total_width = cols * panel_width + (cols - 1) * gap + border * 2
-        total_height = rows * panel_height + (rows - 1) * gap + border * 2
+        # Each panel cell includes its border
+        cell_size = panel_size + panel_border * 2
 
-        # Create the comic strip image
-        strip = Image.new("RGB", (total_width, total_height), "black")
+        # Page interior dimensions (the paper area inside the outer border)
+        page_inner_w = page_padding * 2 + cols * cell_size + (cols - 1) * gap
+        page_inner_h = page_padding * 2 + rows * cell_size + (rows - 1) * gap
 
-        # Place panels
+        # Total canvas includes margin + outer border + page interior
+        total_width = page_margin * 2 + outer_border * 2 + page_inner_w
+        total_height = page_margin * 2 + outer_border * 2 + page_inner_h
+
+        # Create canvas with blue background
+        strip = Image.new("RGB", (total_width, total_height), color_bg)
+        draw = ImageDraw.Draw(strip)
+
+        # Draw the outer border rectangle (pages-wrapper)
+        outer_x = page_margin
+        outer_y = page_margin
+        outer_w = outer_border * 2 + page_inner_w
+        outer_h = outer_border * 2 + page_inner_h
+        draw.rectangle(
+            [outer_x, outer_y, outer_x + outer_w - 1, outer_y + outer_h - 1],
+            fill=color_paper,
+            outline=color_border,
+            width=outer_border,
+        )
+
+        # Origin for panel placement (inside outer border + page padding)
+        origin_x = page_margin + outer_border + page_padding
+        origin_y = page_margin + outer_border + page_padding
+
+        # Place panels with individual borders
         for i, img in enumerate(images):
             row = i // cols
             col = i % cols
 
-            x = border + col * (panel_width + gap)
-            y = border + row * (panel_height + gap)
+            cell_x = origin_x + col * (cell_size + gap)
+            cell_y = origin_y + row * (cell_size + gap)
 
-            strip.paste(img, (x, y))
+            # Draw panel border
+            draw.rectangle(
+                [cell_x, cell_y, cell_x + cell_size - 1, cell_y + cell_size - 1],
+                outline=color_border,
+                width=panel_border,
+            )
+
+            # Paste image inside the border
+            img_x = cell_x + panel_border
+            img_y = cell_y + panel_border
+            strip.paste(img, (img_x, img_y))
 
         # Save the comic strip
         output_path = self.output_dir / f"comic_strip_{self.session_id}.png"
