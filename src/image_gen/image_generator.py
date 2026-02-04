@@ -339,13 +339,17 @@ class ImageGenerator:
         if el_type == "speech":
             return (
                 "Include ONE empty white oval speech bubble with a black outline and a pointed tail, "
-                "positioned near the main character. The bubble should be large enough to contain "
+                "positioned near the main character, but inset slightly from the image edges "
+                "(the bubble must not touch or go over the edges). "
+                "The bubble should be large enough to contain "
                 "a sentence, completely empty inside with no text. The entire bubble must be visible."
             )
         elif el_type == "thought":
             return (
                 "Include ONE empty white cloud-shaped thought bubble with small circular tail dots, "
-                "positioned near the main character's head. The bubble should be large enough to "
+                "positioned near the main character's head, but inset slightly from the image edges "
+                "(the bubble must not touch or go over the edges). "
+                "The bubble should be large enough to "
                 "contain a thought, completely empty inside with no text. The entire bubble must be visible."
             )
         elif el_type == "narration":
