@@ -310,8 +310,8 @@ class ImageGenerator:
             if bubble_instructions:
                 prompt_parts.append(bubble_instructions)
 
-        # Add instruction to not include borders
-        prompt_parts.append("No borders, no frames, no panel edges.")
+        # Add instruction to not include frames or panel edges
+        prompt_parts.append("No frames and no panel edges.")
 
         # Join all parts into a coherent prompt
         full_prompt = " ".join(prompt_parts)
@@ -338,22 +338,23 @@ class ImageGenerator:
 
         if el_type == "speech":
             return (
-                "Include ONE empty white oval speech bubble with black outline and pointed tail, "
+                "Include ONE empty white oval speech bubble with a black outline and a pointed tail, "
                 "positioned near the main character. The bubble should be large enough to contain "
-                "a short sentence, completely empty inside with no text. The whole bubble must be visible."
+                "a sentence, completely empty inside with no text. The entire bubble must be visible."
             )
         elif el_type == "thought":
             return (
                 "Include ONE empty white cloud-shaped thought bubble with small circular tail dots, "
                 "positioned near the main character's head. The bubble should be large enough to "
-                "contain a short thought, completely empty inside with no text. The whole bubble must be visible."
+                "contain a thought, completely empty inside with no text. The entire bubble must be visible."
             )
         elif el_type == "narration":
             return (
-                "Include ONE empty rectangular white narration box with a thin black border and "
-                "white fill, positioned in the top-left corner of the panel. "
-                "The box should be roughly 50% of the panel width and tall enough for "
-                "2-3 lines of text. Completely empty inside with no text. "
+                "Include ONE empty rectangular white narration box with a black outline, "
+                "positioned in one of the corners, but inset slightly from the image edges "
+                "(the box must not touch the edges). "
+                "The box should be roughly half the image width and tall enough for "
+                "2–3 lines of text. Completely empty inside with no text. "
                 "The box must have sharp 90-degree corners (not rounded)."
             )
 
