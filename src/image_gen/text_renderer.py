@@ -26,10 +26,18 @@ class TextElement:
 class TextRenderer:
     """Renders text into comic bubble regions."""
 
+    # Font sizes at 1024x1024 (2x browser sizes of 13/12/11/10/9px)
+    FONT_SIZES = [
+        (15, 26),   # < 15 chars -> 26px (13px at 512)
+        (30, 24),   # < 30 chars -> 24px (12px at 512)
+        (50, 22),   # < 50 chars -> 22px (11px at 512)
+        (70, 20),   # < 70 chars -> 20px (10px at 512)
+        (None, 18), # >= 70 chars -> 18px (9px at 512)
+    ]
+
     def __init__(
         self,
         font_path: Optional[str] = None,
-        default_font_size: int = 20,
         min_font_size: int = 12,
         padding_ratio: float = 0.15,
         line_spacing: float = 1.2,
@@ -38,23 +46,20 @@ class TextRenderer:
 
         Args:
             font_path: Path to a TrueType font file. Uses default if None.
-            default_font_size: Starting font size to try.
             min_font_size: Minimum font size before giving up.
             padding_ratio: Ratio of bubble size to use as padding.
             line_spacing: Line spacing multiplier.
         """
         self.font_path = font_path
-        self.default_font_size = default_font_size
         self.min_font_size = min_font_size
         self.padding_ratio = padding_ratio
         self.line_spacing = line_spacing
 
-    def _get_font(self, size: int, bold: bool = False) -> ImageFont.FreeTypeFont:
+    def _get_font(self, size: int) -> ImageFont.FreeTypeFont:
         """Get a font at the specified size.
 
         Args:
             size: Font size in pixels.
-            bold: Whether to use bold variant.
 
         Returns:
             PIL ImageFont object.
@@ -65,14 +70,15 @@ class TextRenderer:
             except (OSError, IOError):
                 pass
 
-        # Try common comic-style fonts
+        # Try bundled Comic Neue first, then common comic-style fonts
+        import os
+        base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
         comic_fonts = [
+            os.path.join(base_dir, "static", "fonts", "ComicNeue-Regular.ttf"),
             "Comic Sans MS",
             "ComicSansMS",
             "comic.ttf",
             "/usr/share/fonts/truetype/msttcorefonts/comic.ttf",
-            "/usr/share/fonts/truetype/freefont/FreeSansBold.ttf",
-            "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
             "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
         ]
 
@@ -179,21 +185,34 @@ class TextRenderer:
 
         return max_width, total_height
 
+    def _get_target_font_size(self, text: str) -> int:
+        """Get the target font size based on text length, matching frontend sizing.
+
+        Args:
+            text: The text to size.
+
+        Returns:
+            Font size in pixels (at 1024x1024 scale).
+        """
+        text_length = len(text)
+        for threshold, size in self.FONT_SIZES:
+            if threshold is None or text_length < threshold:
+                return size
+        return self.FONT_SIZES[-1][1]
+
     def _find_best_font_size(
         self,
         text: str,
         bubble: DetectedBubble,
-        character_name: Optional[str] = None,
-    ) -> Tuple[ImageFont.FreeTypeFont, List[str], int]:
+    ) -> Tuple[ImageFont.FreeTypeFont, List[str]]:
         """Find the best font size that fits text in the bubble.
 
         Args:
             text: Text to render.
             bubble: Bubble to fit text into.
-            character_name: Optional character name to include.
 
         Returns:
-            Tuple of (font, wrapped_lines, name_height).
+            Tuple of (font, wrapped_lines).
         """
         # Calculate usable area with padding
         padding_x = int(bubble.width * self.padding_ratio)
@@ -201,44 +220,10 @@ class TextRenderer:
         usable_width = bubble.width - (2 * padding_x)
         usable_height = bubble.height - (2 * padding_y)
 
-        # Scale starting font size based on text length, matching frontend
-        # Images are 1024x1024, bubbles are typically 150-250px in that space
-        # In the 512x512 final strip, that's 75-125px
-        # We want fonts around 13px for short text, scaling down
+        target_size = self._get_target_font_size(text)
 
-        text_length = len(text)
-
-        # Use text length as primary factor (matching frontend exactly)
-        if text_length < 15:
-            target_size = 26  # Will scale down to ~13px at 512x512
-        elif text_length < 30:
-            target_size = 24  # ~12px
-        elif text_length < 50:
-            target_size = 22  # ~11px
-        elif text_length < 70:
-            target_size = 20  # ~10px
-        else:
-            target_size = 18  # ~9px
-
-        # Cap based on bubble size to avoid overflow
-        bubble_min_dim = min(bubble.width, bubble.height)
-        max_size = int(bubble_min_dim * 0.15)
-
-        scaled_start_size = max(self.min_font_size, min(target_size, max_size))
-
-        # Account for character name if present
-        name_height = 0
-
-        for font_size in range(scaled_start_size, self.min_font_size - 1, -1):
+        for font_size in range(target_size, self.min_font_size - 1, -1):
             font = self._get_font(font_size)
-            name_font = self._get_font(max(font_size - 4, 10), bold=True)
-
-            # Calculate name height
-            if character_name:
-                name_bbox = name_font.getbbox(character_name.upper())
-                name_height = int((name_bbox[3] - name_bbox[1]) * 1.5)
-
-            available_height = usable_height - name_height
 
             # Wrap text
             lines = self._wrap_text(text, font, usable_width)
@@ -246,20 +231,13 @@ class TextRenderer:
             # Check if it fits
             text_width, text_height = self._calculate_text_bounds(lines, font)
 
-            if text_width <= usable_width and text_height <= available_height:
-                return font, lines, name_height
+            if text_width <= usable_width and text_height <= usable_height:
+                return font, lines
 
         # If text doesn't fit even at minimum size, truncate from end
         font = self._get_font(self.min_font_size)
-        name_font = self._get_font(max(self.min_font_size - 4, 10), bold=True)
-
-        if character_name:
-            name_bbox = name_font.getbbox(character_name.upper())
-            name_height = int((name_bbox[3] - name_bbox[1]) * 1.5)
-
-        available_height = usable_height - name_height
-        lines = self._truncate_text_to_fit(text, font, usable_width, available_height)
-        return font, lines, name_height
+        lines = self._truncate_text_to_fit(text, font, usable_width, usable_height)
+        return font, lines
 
     def render_text_on_image(
         self,
@@ -285,49 +263,25 @@ class TextRenderer:
         draw = ImageDraw.Draw(img)
 
         # Find best font size and wrap text
-        font, lines, name_height = self._find_best_font_size(
-            element.text,
-            bubble,
-            element.character_name if element.element_type in ("speech", "thought") else None,
-        )
+        font, lines = self._find_best_font_size(element.text, bubble)
 
         # Calculate padding
-        padding_x = int(bubble.width * self.padding_ratio)
         padding_y = int(bubble.height * self.padding_ratio)
 
-        # Calculate text positioning
+        # Calculate text positioning (centered in bubble)
         _, text_height = self._calculate_text_bounds(lines, font)
-
-        # Start position (centered in bubble)
-        total_content_height = name_height + text_height
-        start_y = bubble.y + padding_y + (bubble.height - 2 * padding_y - total_content_height) // 2
+        start_y = bubble.y + padding_y + (bubble.height - 2 * padding_y - text_height) // 2
 
         # Set colors based on element type
         if element.element_type == "sfx":
             text_color = (220, 38, 38)  # Red for SFX
             outline_color = (251, 191, 36)  # Yellow outline
-        elif element.element_type == "narration":
-            text_color = (17, 17, 17)  # Dark for narration
-            outline_color = None
         else:
-            text_color = (17, 17, 17)  # Dark for speech/thought
+            text_color = (17, 17, 17)  # Dark for speech/thought/narration
             outline_color = None
-
-        # Draw character name if applicable
-        current_y = start_y
-        if element.character_name and element.element_type in ("speech", "thought"):
-            name_font = self._get_font(max(font.size - 4 if hasattr(font, 'size') else 14, 10))
-            name_text = element.character_name.upper()
-            name_bbox = name_font.getbbox(name_text)
-            name_width = name_bbox[2] - name_bbox[0]
-            name_x = bubble.x + (bubble.width - name_width) // 2
-
-            # Name color based on type
-            name_color = (220, 38, 38) if element.element_type == "speech" else (6, 182, 212)
-            draw.text((name_x, current_y), name_text, font=name_font, fill=name_color)
-            current_y += name_height
 
         # Draw each line of text
+        current_y = start_y
         for line in lines:
             line_bbox = font.getbbox(line)
             line_width = line_bbox[2] - line_bbox[0]

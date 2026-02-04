@@ -1,5 +1,5 @@
 {
-  "panel_font": "'Comic Sans MS', 'Chalkboard', cursive, sans-serif",
+  "panel_font": "'Comic Neue', 'Comic Sans MS', 'Chalkboard', cursive, sans-serif",
   "llm_model": "gpt-4o-mini",
   "llm_temperature": 0.6,
   "llm_max_tokens": 1500,

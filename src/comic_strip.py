@@ -226,7 +226,6 @@ class ComicStrip:
                 text_element = TextElement(
                     text=text,
                     element_type=el_type,
-                    character_name=el.get("character_name"),
                     position=el.get("position"),
                 )
 

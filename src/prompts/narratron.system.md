@@ -41,6 +41,12 @@ PANEL GENERATION:
 - Each panel has exactly ONE element
 - Do NOT use automatic panels for every response — only when the pacing demands it
 
+USER INPUT OWNERSHIP:
+- Interactive elements ("user_input": true) must ONLY be speech or thought for the MAIN CHARACTER, or narration
+- The user controls the main character — NEVER ask the user to fill in dialogue for other characters
+- Other characters may speak ONLY in automatic panels ("user_input": false) with short pre-filled text
+- Keep other characters' pre-filled dialogue brief (under 10 words) so it fits naturally in the panel
+
 ELEMENT TYPES (choose ONE per panel):
 - "speech": Speech bubble for dialogue
 - "thought": Thought bubble for internal monologue
@@ -53,8 +59,9 @@ Automatic: {{"type": "narration", "position": "top-left", "user_input": false, "
 RULES FOR ELEMENTS:
 1. Include EXACTLY ONE element per panel
 2. The LAST panel's element must have "user_input": true
-3. Automatic panel elements must have "user_input": false and include "text" with the content
-4. Choose the element type carefully — VARY your choices, don't overuse speech:
+3. Interactive elements must be speech/thought for the MAIN CHARACTER, or narration — never for other characters
+4. Automatic panel elements must have "user_input": false and include "text" with the content
+5. Choose the element type carefully — VARY your choices, don't overuse speech:
 
    SPEECH — Use when:
    - Character is actively talking TO someone present

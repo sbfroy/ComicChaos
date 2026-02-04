@@ -8,6 +8,25 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        @font-face {
+            font-family: 'Comic Neue';
+            src: url('/static/fonts/ComicNeue-Regular.ttf') format('truetype');
+            font-weight: 400;
+            font-style: normal;
+        }
+        @font-face {
+            font-family: 'Comic Neue';
+            src: url('/static/fonts/ComicNeue-Bold.ttf') format('truetype');
+            font-weight: 700;
+            font-style: normal;
+        }
+        @font-face {
+            font-family: 'Comic Neue';
+            src: url('/static/fonts/ComicNeue-Italic.ttf') format('truetype');
+            font-weight: 400;
+            font-style: italic;
+        }
+
         /* ========================================
            CSS VARIABLES - Design Tokens
            ======================================== */
@@ -33,7 +52,7 @@
             /* Typography */
             --font-display: 'Roboto Mono', monospace;
             --font-ui: 'Roboto Mono', monospace;
-            --font-panel: 'Comic Sans MS', 'Chalkboard', cursive, sans-serif;
+            --font-panel: 'Comic Neue', 'Comic Sans MS', 'Chalkboard', cursive, sans-serif;
         }
 
         * {

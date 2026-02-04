@@ -14,3 +14,4 @@ The user's input describes what ALREADY HAPPENED. Create the NEXT scene showing 
 3. Make the scene visually distinct from the previous panel
 4. Provide exactly ONE element for the user to fill in (speech, thought, or narration)
 5. The world should react to the character — add consequences, surprises, or new details
+6. The user controls ONLY the main character — interactive elements must be the main character's speech/thought, or narration. Other characters may only speak in automatic panels with short pre-filled text.
