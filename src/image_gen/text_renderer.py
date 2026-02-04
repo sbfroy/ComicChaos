@@ -10,7 +10,7 @@ from typing import List, Optional, Tuple
 
 from PIL import Image, ImageDraw, ImageFont
 
-from .bubble_detector import DetectedBubble
+from .panel_detector import DetectedRegion as DetectedBubble
 
 
 @dataclass

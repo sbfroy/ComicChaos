@@ -18,7 +18,7 @@ from openai import OpenAI
 from ..state.comic_state import RenderState
 from ..state.static_config import ComicConfig
 from ..logging.interaction_logger import InteractionLogger
-from .bubble_detector import BubbleDetector
+from .panel_detector import PanelDetector
 
 
 class ImageGenerator:
@@ -32,7 +32,7 @@ class ImageGenerator:
     Attributes:
         client: OpenAI client for making API calls.
         output_dir: Path to the directory where generated images are saved.
-        bubble_detector: Detector for finding empty speech bubbles.
+        panel_detector: Detector for finding empty speech bubbles and narration boxes.
         text_renderer: Renderer for adding text to bubbles.
     """
 
@@ -55,8 +55,8 @@ class ImageGenerator:
         )
         self.logger: Optional[InteractionLogger] = logger
 
-        # Initialize bubble detection
-        self.bubble_detector = BubbleDetector()
+        # Initialize panel element detection
+        self.panel_detector = PanelDetector()
 
     def generate_image(
         self,
@@ -103,9 +103,9 @@ class ImageGenerator:
             if elements:
                 el_type = elements[0].get("type", "") if elements else ""
                 if el_type == "narration":
-                    bubbles = self.bubble_detector.detect_narration_boxes(image_bytes)
+                    bubbles = self.panel_detector.detect_narration_boxes(image_bytes)
                 else:
-                    bubbles = self.bubble_detector.detect_bubbles(image_bytes)
+                    bubbles = self.panel_detector.detect_bubbles(image_bytes)
                 for bubble in bubbles:
                     detected_bubbles.append({
                         "x": bubble.x,
@@ -213,9 +213,9 @@ class ImageGenerator:
                 if elements:
                     el_type = elements[0].get("type", "") if elements else ""
                     if el_type == "narration":
-                        bubbles = self.bubble_detector.detect_narration_boxes(image_bytes)
+                        bubbles = self.panel_detector.detect_narration_boxes(image_bytes)
                     else:
-                        bubbles = self.bubble_detector.detect_bubbles(image_bytes)
+                        bubbles = self.panel_detector.detect_bubbles(image_bytes)
                     for bubble in bubbles:
                         detected_bubbles.append({
                             "x": bubble.x,
@@ -350,9 +350,9 @@ class ImageGenerator:
             )
         elif el_type == "narration":
             return (
-                "Include ONE empty rectangular narration box with a thin black border and "
-                "light yellow/cream fill, positioned in the top-left corner of the panel. "
-                "The box should be roughly 25-30% of the panel width and tall enough for "
+                "Include ONE empty rectangular white narration box with a thin black border and "
+                "white fill, positioned in the top-left corner of the panel. "
+                "The box should be roughly 50% of the panel width and tall enough for "
                 "2-3 lines of text. Completely empty inside with no text. "
                 "The box must have sharp 90-degree corners (not rounded)."
             )

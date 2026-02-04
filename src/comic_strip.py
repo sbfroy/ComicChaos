@@ -5,7 +5,7 @@ from typing import Optional, List, Dict, Any
 
 from PIL import Image, ImageDraw
 
-from .image_gen.bubble_detector import BubbleDetector, DetectedBubble
+from .image_gen.panel_detector import PanelDetector, DetectedRegion as DetectedBubble
 from .image_gen.text_renderer import TextRenderer, TextElement
 
 
@@ -17,8 +17,8 @@ class ComicStrip:
         self.title = title
         self.panels: list[dict] = []
 
-        # Initialize bubble detection and text rendering for final strip
-        self.bubble_detector = BubbleDetector()
+        # Initialize panel detection and text rendering for final strip
+        self.panel_detector = PanelDetector()
         self.text_renderer = TextRenderer()
 
     def add_panel(
@@ -204,7 +204,7 @@ class ComicStrip:
 
             # If no stored bubbles, try to detect them
             if not detected_bubbles:
-                detected_bubbles = self.bubble_detector.detect_bubbles(image_bytes)
+                detected_bubbles = self.panel_detector.detect_bubbles(image_bytes)
 
             # Render text into detected bubbles for all element types
             # Falls back to programmatic overlay when no detected bubble available
