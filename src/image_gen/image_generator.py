@@ -357,8 +357,8 @@ class ImageGenerator:
                 "Include ONE empty rectangular white narration box with a black outline, "
                 "positioned in one of the corners, but inset slightly from the image edges "
                 "(the box must not touch the edges). "
-                "The box should be roughly two-thirds of the image width and tall enough for "
-                "2–3 lines of text. Completely empty inside with no text. "
+                "The box should be no less than two-thirds of the image width and approximately "
+                "one-third of the image height. Completely empty inside with no text. "
                 "The box must have sharp 90-degree corners (not rounded)."
             )
 

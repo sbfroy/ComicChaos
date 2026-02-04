@@ -1229,25 +1229,21 @@
         }
 
 
+        function getBubbleFontSize(length) {
+            if (length < 15) return 13;
+            if (length < 30) return 12;
+            if (length < 50) return 11;
+            if (length < 70) return 10;
+            return 9;
+        }
+
         function adjustBubbleTextSize(input) {
             if (!input) return;
 
             const text = input.value;
             const length = text.length;
 
-            // Dynamic font sizing based on character count
-            let fontSize;
-            if (length < 15) {
-                fontSize = 13; // Starting size
-            } else if (length < 30) {
-                fontSize = 12;
-            } else if (length < 50) {
-                fontSize = 11;
-            } else if (length < 70) {
-                fontSize = 10;
-            } else {
-                fontSize = 9; // Minimum
-            }
+            const fontSize = getBubbleFontSize(length);
 
             input.style.fontSize = fontSize + 'px';
 
@@ -1374,13 +1370,7 @@
                     if (isEditable && isUserInput) {
                         content = `<textarea class="element-input" placeholder="${el.placeholder || 'Narrate...'}" style="background: transparent; resize: none;">${displayText}</textarea>`;
                     } else {
-                        const textLength = displayText.length;
-                        let fontSize;
-                        if (textLength < 15) fontSize = 13;
-                        else if (textLength < 30) fontSize = 12;
-                        else if (textLength < 50) fontSize = 11;
-                        else if (textLength < 70) fontSize = 10;
-                        else fontSize = 9;
+                        const fontSize = getBubbleFontSize(displayText.length);
                         content = `<div class="element-text" style="font-size: ${fontSize}px; font-style: italic;">${displayText}</div>`;
                     }
                 } else {
@@ -1424,20 +1414,7 @@
                     if (isEditable && isUserInput) {
                         content = `<textarea class="element-input" placeholder="${el.placeholder || 'Say something...'}" style="background: transparent; resize: none;">${displayText}</textarea>`;
                     } else {
-                        // Calculate font size for static text based on length
-                        const textLength = displayText.length;
-                        let fontSize;
-                        if (textLength < 15) {
-                            fontSize = 13;
-                        } else if (textLength < 30) {
-                            fontSize = 12;
-                        } else if (textLength < 50) {
-                            fontSize = 11;
-                        } else if (textLength < 70) {
-                            fontSize = 10;
-                        } else {
-                            fontSize = 9;
-                        }
+                        const fontSize = getBubbleFontSize(displayText.length);
                         content = `<div class="element-text" style="font-size: ${fontSize}px;">${displayText}</div>`;
                     }
                 } else {
@@ -1450,20 +1427,7 @@
                     if (isEditable && isUserInput) {
                         content += `<textarea class="element-input" placeholder="${el.placeholder || 'Say something...'}">${displayText}</textarea>`;
                     } else {
-                        // Calculate font size for static text based on length
-                        const textLength = displayText.length;
-                        let fontSize;
-                        if (textLength < 15) {
-                            fontSize = 14;
-                        } else if (textLength < 30) {
-                            fontSize = 13;
-                        } else if (textLength < 50) {
-                            fontSize = 12;
-                        } else if (textLength < 70) {
-                            fontSize = 11;
-                        } else {
-                            fontSize = 10;
-                        }
+                        const fontSize = getBubbleFontSize(displayText.length);
                         content += `<div class="element-text" style="font-size: ${fontSize}px;">${displayText}</div>`;
                     }
                 }
@@ -1534,12 +1498,13 @@
                 currentPanelEl.classList.remove('current');
                 currentPanelEl.classList.add('completed');
 
-                // Replace input with static text
+                // Replace input with static text, preserving the font size
                 const inputEl = currentPanelEl.querySelector('.user-input .element-input');
                 if (inputEl) {
                     const textDiv = document.createElement('div');
                     textDiv.className = 'element-text';
                     textDiv.textContent = userInputText;
+                    textDiv.style.fontSize = getBubbleFontSize(userInputText.length) + 'px';
                     inputEl.replaceWith(textDiv);
                 }
 

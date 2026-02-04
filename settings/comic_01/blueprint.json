@@ -1,7 +1,7 @@
 {
   "title": "Buddy the Otter",
   "synopsis": "A simple comic where small events lead to trouble and humor.",
-  "visual_style": "Classic mid-20th-century comic style, flat and faded colors, strong black outlines, simple backgrounds, minimal detail, traditional hand-drawn look, and panels are clean and easy to read.",
+  "visual_style": "Classic mid-20th-century comic illustration style, flat and slightly faded colors, moderate line work, simple background, minimal detail, traditional hand-drawn look, single full-bleed image, no frames, no borders, no panel structure.",
   "locations": [
     {
       "name": "Town Square",
@@ -11,7 +11,7 @@
   "characters": [
     {
       "name": "Buddy",
-      "description": "An otter with simple design and clear expressions, wearing a blue t-shirt and jeans. Straightforward and honest."
+      "description": "A cute otter with simple design and clear expressions, wearing a blue t-shirt and jeans. Straightforward and honest."
     }
   ],
   "rules": [

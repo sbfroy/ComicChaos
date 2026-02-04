@@ -26,13 +26,13 @@ class TextElement:
 class TextRenderer:
     """Renders text into comic bubble regions."""
 
-    # Font sizes at 1024x1024 (2x browser sizes of 13/12/11/10/9px)
+    # Font sizes at 1024x1024 render resolution
     FONT_SIZES = [
-        (15, 26),   # < 15 chars -> 26px (13px at 512)
-        (30, 24),   # < 30 chars -> 24px (12px at 512)
-        (50, 22),   # < 50 chars -> 22px (11px at 512)
-        (70, 20),   # < 70 chars -> 20px (10px at 512)
-        (None, 18), # >= 70 chars -> 18px (9px at 512)
+        (15, 46),   # < 15 chars
+        (30, 40),   # < 30 chars
+        (50, 36),   # < 50 chars
+        (70, 32),   # < 70 chars
+        (None, 28), # >= 70 chars
     ]
 
     def __init__(
@@ -215,10 +215,10 @@ class TextRenderer:
             Tuple of (font, wrapped_lines).
         """
         # Calculate usable area with padding
-        padding_x = int(bubble.width * self.padding_ratio)
-        padding_y = int(bubble.height * self.padding_ratio)
-        usable_width = bubble.width - (2 * padding_x)
-        usable_height = bubble.height - (2 * padding_y)
+        # CSS padding: 15% is relative to width for all sides, so match that
+        padding = int(bubble.width * self.padding_ratio)
+        usable_width = bubble.width - (2 * padding)
+        usable_height = bubble.height - (2 * padding)
 
         target_size = self._get_target_font_size(text)
 
@@ -265,12 +265,12 @@ class TextRenderer:
         # Find best font size and wrap text
         font, lines = self._find_best_font_size(element.text, bubble)
 
-        # Calculate padding
-        padding_y = int(bubble.height * self.padding_ratio)
+        # Calculate padding (CSS padding: 15% is relative to width for all sides)
+        padding = int(bubble.width * self.padding_ratio)
 
         # Calculate text positioning (centered in bubble)
         _, text_height = self._calculate_text_bounds(lines, font)
-        start_y = bubble.y + padding_y + (bubble.height - 2 * padding_y - text_height) // 2
+        start_y = bubble.y + padding + (bubble.height - 2 * padding - text_height) // 2
 
         # Set colors based on element type
         if element.element_type == "sfx":
