@@ -1905,7 +1905,7 @@
                 elements.panelCount.textContent = `${data.panel_count} panels`;
 
             } catch (error) {
-                showNotification('Failed to generate comic strip');
+                console.error(error);
             }
 
             setLoading(false);
