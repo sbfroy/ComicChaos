@@ -377,7 +377,7 @@ class ImageGenerator:
             return (
                 "Include ONE large empty white oval speech bubble with a black outline and a pointed tail, "
                 "positioned near the main character. "
-                "The bubble must be at least one-quarter of the image width and one-fifth of the image height. "
+                "The bubble must be at least one-fifth of the image width and one-sixth of the image height. "
                 "Keep at least 30 pixels of clear margin between the bubble and all image edges — "
                 "the bubble must not touch or overlap any edge of the image. "
                 "Completely empty inside with no text. The entire bubble must be visible."
@@ -386,7 +386,7 @@ class ImageGenerator:
             return (
                 "Include ONE large empty white cloud-shaped thought bubble with small circular tail dots, "
                 "positioned near the main character's head. "
-                "The bubble must be at least one-quarter of the image width and one-fifth of the image height. "
+                "The bubble must be at least one-fifth of the image width and one-sixth of the image height. "
                 "Keep at least 30 pixels of clear margin between the bubble and all image edges — "
                 "the bubble must not touch or overlap any edge of the image. "
                 "Completely empty inside with no text. The entire bubble must be visible."
