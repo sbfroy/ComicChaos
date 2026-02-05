@@ -4,14 +4,14 @@
   "visual_style": "Visually colorful yet softly faded, using a limited mid-20th-century color palette. Flat colors, minimal shading, clean and confident line work, and very little detail. Backgrounds are suggestive rather than descriptive, creating a calm, artistic, and pleasant atmosphere. Traditional hand-drawn look with a single full-bleed image, no frames, no borders, and no panel structure.",
   "locations": [
     {
-      "name": "Town Square",
-      "description": "A plain town square with boxy buildings, large windows, and minimal details."
+      "name": "Woodland Village",
+      "description": "A cozy clearing in the woods with small rustic cottages, a wooden notice board, tree-stump seats, and string lights between the branches. Civilized forest life with cobblestone paths winding between the trees."
     }
   ],
   "characters": [
     {
       "name": "Otto",
-      "description": "A charming otter with a simple design and clear expressions, wearing a blue t-shirt and jeans. Well-intentioned and earnest. Well-intentioned, earnest, and subtly socially unaware."
+      "description": "A charming otter with a simple design and clear expressions, wearing a blue t-shirt and jeans. Well-intentioned, earnest, and subtly socially unaware."
     }
   ],
   "rules": [
