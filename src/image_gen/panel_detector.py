@@ -89,29 +89,6 @@ class PanelDetector:
 
         return contours, height, width
 
-    def _is_near_edge(self, x: int, y: int, w: int, h: int, img_width: int, img_height: int, margin: int = 10) -> bool:
-        """Check if a region is a background-like edge region that should be skipped.
-
-        Returns True if the region touches an image edge and spans more than
-        50% of that edge, indicating it is likely background rather than a
-        bubble or box.
-        """
-        if x < margin or y < margin or x + w > img_width - margin or y + h > img_height - margin:
-            edge_ratio = 0
-            if x < margin:
-                edge_ratio = max(edge_ratio, h / img_height)
-            if y < margin:
-                edge_ratio = max(edge_ratio, w / img_width)
-            if x + w > img_width - margin:
-                edge_ratio = max(edge_ratio, h / img_height)
-            if y + h > img_height - margin:
-                edge_ratio = max(edge_ratio, w / img_width)
-
-            if edge_ratio > 0.5:
-                return True
-
-        return False
-
     def _build_region(self, contour: np.ndarray, x: int, y: int, w: int, h: int, img_height: int, img_width: int, area: int) -> DetectedRegion:
         """Create a DetectedRegion with a binary mask from a contour."""
         mask = np.zeros((img_height, img_width), dtype=np.uint8)
@@ -151,8 +128,6 @@ class PanelDetector:
                 continue
 
             x, y, w, h = cv2.boundingRect(contour)
-            if self._is_near_edge(x, y, w, h, width, height):
-                continue
 
             bubbles.append(self._build_region(contour, x, y, w, h, height, width, int(area)))
 
@@ -189,9 +164,6 @@ class PanelDetector:
             rect_area = w * h
             rectangularity = area / rect_area if rect_area > 0 else 0
             if rectangularity < self.min_rectangularity:
-                continue
-
-            if self._is_near_edge(x, y, w, h, width, height):
                 continue
 
             boxes.append(self._build_region(contour, x, y, w, h, height, width, int(area)))
