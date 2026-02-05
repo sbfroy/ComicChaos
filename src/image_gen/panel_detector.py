@@ -63,6 +63,65 @@ class PanelDetector:
         self.min_circularity = min_circularity
         self.min_rectangularity = min_rectangularity
 
+    def _preprocess_image(self, image_data: bytes):
+        """Decode image bytes and extract contours from white regions.
+
+        Args:
+            image_data: Raw image bytes (e.g. PNG).
+
+        Returns:
+            Tuple of (contours, height, width) or None if decoding fails.
+        """
+        img = cv2.imdecode(np.frombuffer(image_data, np.uint8), cv2.IMREAD_COLOR)
+        if img is None:
+            return None
+
+        height, width = img.shape[:2]
+
+        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        _, binary = cv2.threshold(gray, self.white_threshold, 255, cv2.THRESH_BINARY)
+        inverse = cv2.bitwise_not(binary)
+
+        kernel = np.ones((self.kernel_size, self.kernel_size), np.uint8)
+        cleaned = cv2.morphologyEx(inverse, cv2.MORPH_CLOSE, kernel, iterations=2)
+
+        contours, _ = cv2.findContours(cleaned, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+
+        return contours, height, width
+
+    def _is_near_edge(self, x: int, y: int, w: int, h: int, img_width: int, img_height: int, margin: int = 10) -> bool:
+        """Check if a region is a background-like edge region that should be skipped.
+
+        Returns True if the region touches an image edge and spans more than
+        50% of that edge, indicating it is likely background rather than a
+        bubble or box.
+        """
+        if x < margin or y < margin or x + w > img_width - margin or y + h > img_height - margin:
+            edge_ratio = 0
+            if x < margin:
+                edge_ratio = max(edge_ratio, h / img_height)
+            if y < margin:
+                edge_ratio = max(edge_ratio, w / img_width)
+            if x + w > img_width - margin:
+                edge_ratio = max(edge_ratio, h / img_height)
+            if y + h > img_height - margin:
+                edge_ratio = max(edge_ratio, w / img_width)
+
+            if edge_ratio > 0.5:
+                return True
+
+        return False
+
+    def _build_region(self, contour: np.ndarray, x: int, y: int, w: int, h: int, img_height: int, img_width: int, area: int) -> DetectedRegion:
+        """Create a DetectedRegion with a binary mask from a contour."""
+        mask = np.zeros((img_height, img_width), dtype=np.uint8)
+        cv2.drawContours(mask, [contour], -1, 255, -1)
+
+        return DetectedRegion(
+            x=x, y=y, width=w, height=h,
+            contour=contour, mask=mask, area=area,
+        )
+
     def detect_bubbles(self, image_data: bytes) -> List[DetectedRegion]:
         """Detect speech bubbles in an image.
 
@@ -72,97 +131,31 @@ class PanelDetector:
         Returns:
             List of DetectedRegion objects, sorted by position (top-to-bottom, left-to-right).
         """
-        img = cv2.imdecode(np.frombuffer(image_data, np.uint8), cv2.IMREAD_COLOR)
-        if img is None:
+        result = self._preprocess_image(image_data)
+        if result is None:
             return []
 
-        return self._detect_bubbles_from_array(img)
-
-    def _detect_bubbles_from_array(self, img: np.ndarray) -> List[DetectedRegion]:
-        """Internal method to detect bubbles from a numpy array.
-
-        Args:
-            img: OpenCV image array (BGR format).
-
-        Returns:
-            List of DetectedRegion objects.
-        """
-        height, width = img.shape[:2]
-
-        # Convert to grayscale
-        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-
-        # Apply threshold to find white regions (bubbles are typically white)
-        _, binary = cv2.threshold(gray, self.white_threshold, 255, cv2.THRESH_BINARY)
-
-        # Apply morphological operations to clean up the mask
-        kernel = np.ones((self.kernel_size, self.kernel_size), np.uint8)
-
-        inverse = cv2.bitwise_not(binary)
-
-        after_close = cv2.morphologyEx(inverse, cv2.MORPH_CLOSE, kernel, iterations=2)
-
-        # Find contours
-        contours, _ = cv2.findContours(after_close, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-
+        contours, height, width = result
         bubbles = []
 
         for contour in contours:
-            # Calculate area
             area = cv2.contourArea(contour)
-
-            # Filter by area
             if area < self.min_area or area > self.max_area:
                 continue
 
-            # Calculate circularity (4 * pi * area / perimeter^2)
             perimeter = cv2.arcLength(contour, True)
             if perimeter == 0:
                 continue
             circularity = 4 * np.pi * area / (perimeter * perimeter)
-
-            # Filter by circularity (bubbles are generally rounded)
             if circularity < self.min_circularity:
                 continue
 
-            # Get bounding rectangle
             x, y, w, h = cv2.boundingRect(contour)
+            if self._is_near_edge(x, y, w, h, width, height):
+                continue
 
-            # Filter out regions that are too close to edges (likely background)
-            margin = 10
-            if x < margin or y < margin or x + w > width - margin or y + h > height - margin:
-                # Check if it's a large portion of the edge - if so, skip
-                edge_ratio = 0
-                if x < margin:
-                    edge_ratio = max(edge_ratio, h / height)
-                if y < margin:
-                    edge_ratio = max(edge_ratio, w / width)
-                if x + w > width - margin:
-                    edge_ratio = max(edge_ratio, h / height)
-                if y + h > height - margin:
-                    edge_ratio = max(edge_ratio, w / width)
+            bubbles.append(self._build_region(contour, x, y, w, h, height, width, int(area)))
 
-                # If more than 50% of an edge, it's probably background
-                if edge_ratio > 0.5:
-                    continue
-
-            # Create a mask for this specific bubble
-            mask = np.zeros((height, width), dtype=np.uint8)
-            cv2.drawContours(mask, [contour], -1, 255, -1)
-
-            bubble = DetectedRegion(
-                x=x,
-                y=y,
-                width=w,
-                height=h,
-                contour=contour,
-                mask=mask,
-                area=int(area)
-            )
-            bubbles.append(bubble)
-
-        # Sort by position: top-to-bottom, then left-to-right
-        # Using a grid-based approach to group bubbles in rows
         if bubbles:
             bubbles = self._sort_reading_order(bubbles, height)
 
@@ -171,7 +164,7 @@ class PanelDetector:
     def detect_narration_boxes(self, image_data: bytes) -> List[DetectedRegion]:
         """Detect rectangular narration boxes using white-threshold approach.
 
-        Uses the same grayscale white-threshold detection as speech bubbles,
+        Uses the same preprocessing as speech bubbles,
         but filters for rectangular shapes instead of circular ones.
 
         Args:
@@ -180,68 +173,29 @@ class PanelDetector:
         Returns:
             List of DetectedRegion objects for detected narration boxes.
         """
-        img = cv2.imdecode(np.frombuffer(image_data, np.uint8), cv2.IMREAD_COLOR)
-        if img is None:
+        result = self._preprocess_image(image_data)
+        if result is None:
             return []
 
-        height, width = img.shape[:2]
-
-        # Convert to grayscale and threshold for white regions (same as bubble detection)
-        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-        _, binary = cv2.threshold(gray, self.white_threshold, 255, cv2.THRESH_BINARY)
-
-        # Invert so white regions become foreground
-        inverse = cv2.bitwise_not(binary)
-
-        # Morphological cleanup
-        kernel = np.ones((self.kernel_size, self.kernel_size), np.uint8)
-        cleaned = cv2.morphologyEx(inverse, cv2.MORPH_CLOSE, kernel, iterations=2)
-
-        contours, _ = cv2.findContours(cleaned, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-
+        contours, height, width = result
         boxes = []
+
         for contour in contours:
             area = cv2.contourArea(contour)
-
-            # Filter by area
             if area < self.min_area or area > self.max_area:
                 continue
 
-            # Check rectangularity: compare contour area to bounding rect area
             x, y, w, h = cv2.boundingRect(contour)
             rect_area = w * h
             rectangularity = area / rect_area if rect_area > 0 else 0
-
             if rectangularity < self.min_rectangularity:
                 continue
 
-            # Filter out regions that are too close to edges (likely background)
-            margin = 10
-            if x < margin or y < margin or x + w > width - margin or y + h > height - margin:
-                edge_ratio = 0
-                if x < margin:
-                    edge_ratio = max(edge_ratio, h / height)
-                if y < margin:
-                    edge_ratio = max(edge_ratio, w / width)
-                if x + w > width - margin:
-                    edge_ratio = max(edge_ratio, h / height)
-                if y + h > height - margin:
-                    edge_ratio = max(edge_ratio, w / width)
+            if self._is_near_edge(x, y, w, h, width, height):
+                continue
 
-                if edge_ratio > 0.5:
-                    continue
+            boxes.append(self._build_region(contour, x, y, w, h, height, width, int(area)))
 
-            # Create a mask for this box
-            box_mask = np.zeros((height, width), dtype=np.uint8)
-            cv2.drawContours(box_mask, [contour], -1, 255, -1)
-
-            boxes.append(DetectedRegion(
-                x=x, y=y, width=w, height=h,
-                contour=contour, mask=box_mask,
-                area=int(area),
-            ))
-
-        # Sort in reading order if multiple boxes found
         if boxes:
             boxes = self._sort_reading_order(boxes, height)
 

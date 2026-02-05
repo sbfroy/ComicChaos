@@ -57,6 +57,7 @@ class ImageGenerator:
 
         # Initialize panel element detection
         self.panel_detector = PanelDetector()
+        self.max_detection_retries = 3
 
     def generate_image(
         self,
@@ -71,6 +72,9 @@ class ImageGenerator:
         then calls the API to generate the image. After generation,
         detects bubble regions and returns their positions.
 
+        If elements require a bubble/box and detection fails, the image is
+        regenerated up to max_detection_retries times before giving up.
+
         Args:
             render_state: The current render state containing scene information.
             visual_style: The visual style description for the comic.
@@ -81,77 +85,70 @@ class ImageGenerator:
                 - image_bytes: Raw PNG bytes (or None on failure)
                 - detected_bubbles: List of bubble position dicts with x, y, width, height
         """
-        # Build the detailed prompt from render state and visual style
         prompt = self._build_prompt(render_state, visual_style, elements, main_character_description)
+        needs_detection = self._needs_detection(elements)
+        last_image_bytes = None
 
-        try:
-            # Call API to generate the image
-            result = self.client.images.generate(
-                model=self.comic_config.image_model,
-                prompt=prompt,
-                size=self.comic_config.image_size,
-                quality=self.comic_config.image_quality,
-                moderation=self.comic_config.image_moderation,
-            )
-
-            # Extract base64-encoded image data from response
-            image_base64 = result.data[0].b64_json
-            image_bytes = base64.b64decode(image_base64)
-
-            # Detect bubbles/boxes in the generated image
-            detected_bubbles = []
-            if elements:
-                el_type = elements[0].get("type", "") if elements else ""
-                if el_type == "narration":
-                    bubbles = self.panel_detector.detect_narration_boxes(image_bytes)
-                else:
-                    bubbles = self.panel_detector.detect_bubbles(image_bytes)
-                for bubble in bubbles:
-                    detected_bubbles.append({
-                        "x": bubble.x,
-                        "y": bubble.y,
-                        "width": bubble.width,
-                        "height": bubble.height,
-                        "center_x": bubble.center_x,
-                        "center_y": bubble.center_y,
-                    })
-
-            # Log successful generation
-            if self.logger:
-                self.logger.log_image_generation(
-                    prompt=prompt,
-                    image_path=None,
+        for attempt in range(self.max_detection_retries):
+            try:
+                result = self.client.images.generate(
                     model=self.comic_config.image_model,
+                    prompt=prompt,
                     size=self.comic_config.image_size,
                     quality=self.comic_config.image_quality,
-                    success=True
+                    moderation=self.comic_config.image_moderation,
                 )
 
-            return {
-                "image_bytes": image_bytes,
-                "detected_bubbles": detected_bubbles,
-            }
+                image_base64 = result.data[0].b64_json
+                image_bytes = base64.b64decode(image_base64)
+                last_image_bytes = image_bytes
 
-        except Exception as error:
-            # Log error and return None on failure
-            print(f"Image generation failed: {error}")
+                detected_bubbles = self._detect_elements(image_bytes, elements) if needs_detection else []
 
-            # Log failed generation
-            if self.logger:
-                self.logger.log_image_generation(
-                    prompt=prompt,
-                    image_path=None,
-                    model=self.comic_config.image_model,
-                    size=self.comic_config.image_size,
-                    quality=self.comic_config.image_quality,
-                    success=False,
-                    error_message=str(error)
-                )
+                if needs_detection and not detected_bubbles and attempt < self.max_detection_retries - 1:
+                    print(f"No bubble/box detected on attempt {attempt + 1}, retrying...")
+                    continue
 
-            return {
-                "image_bytes": None,
-                "detected_bubbles": [],
-            }
+                if self.logger:
+                    self.logger.log_image_generation(
+                        prompt=prompt,
+                        image_path=None,
+                        model=self.comic_config.image_model,
+                        size=self.comic_config.image_size,
+                        quality=self.comic_config.image_quality,
+                        success=True
+                    )
+
+                return {
+                    "image_bytes": image_bytes,
+                    "detected_bubbles": detected_bubbles,
+                }
+
+            except Exception as error:
+                print(f"Image generation failed: {error}")
+
+                if self.logger:
+                    self.logger.log_image_generation(
+                        prompt=prompt,
+                        image_path=None,
+                        model=self.comic_config.image_model,
+                        size=self.comic_config.image_size,
+                        quality=self.comic_config.image_quality,
+                        success=False,
+                        error_message=str(error)
+                    )
+
+                return {
+                    "image_bytes": None,
+                    "detected_bubbles": [],
+                }
+
+        # All retries exhausted — return last image with no detected bubbles
+        print(f"All {self.max_detection_retries} detection attempts failed, falling back to programmatic placement.")
+        return {
+            "image_bytes": last_image_bytes,
+            "detected_bubbles": [],
+        }
 
     def generate_image_streaming(
         self,
@@ -164,7 +161,9 @@ class ImageGenerator:
         """Generate an image with streaming partial images.
 
         Yields partial images as they are generated, then the final image
-        with bubble detection.
+        with bubble detection. If elements require a bubble/box and detection
+        fails, the image is regenerated (without streaming) up to
+        max_detection_retries total attempts before giving up.
 
         Args:
             render_state: The current render state containing scene information.
@@ -181,8 +180,10 @@ class ImageGenerator:
                 - detected_bubbles: List of bubble positions (for complete type)
         """
         prompt = self._build_prompt(render_state, visual_style, elements, main_character_description)
+        needs_detection = self._needs_detection(elements)
 
         try:
+            # First attempt: stream partials to the client
             stream = self.client.images.generate(
                 model=self.comic_config.image_model,
                 prompt=prompt,
@@ -205,44 +206,49 @@ class ImageGenerator:
                 elif event.type == "image_generation.completed":
                     final_image_base64 = event.b64_json
 
-            if final_image_base64:
-                image_bytes = base64.b64decode(final_image_base64)
+            if not final_image_base64:
+                return
 
-                # Detect bubbles/boxes
-                detected_bubbles = []
-                if elements:
-                    el_type = elements[0].get("type", "") if elements else ""
-                    if el_type == "narration":
-                        bubbles = self.panel_detector.detect_narration_boxes(image_bytes)
-                    else:
-                        bubbles = self.panel_detector.detect_bubbles(image_bytes)
-                    for bubble in bubbles:
-                        detected_bubbles.append({
-                            "x": bubble.x,
-                            "y": bubble.y,
-                            "width": bubble.width,
-                            "height": bubble.height,
-                            "center_x": bubble.center_x,
-                            "center_y": bubble.center_y,
-                        })
+            image_bytes = base64.b64decode(final_image_base64)
+            detected_bubbles = self._detect_elements(image_bytes, elements) if needs_detection else []
 
-                # Log successful generation
-                if self.logger:
-                    self.logger.log_image_generation(
-                        prompt=prompt,
-                        image_path=None,
+            # Retry without streaming if detection failed
+            if needs_detection and not detected_bubbles:
+                for attempt in range(1, self.max_detection_retries):
+                    print(f"No bubble/box detected on attempt {attempt}, retrying...")
+                    retry_result = self.client.images.generate(
                         model=self.comic_config.image_model,
+                        prompt=prompt,
                         size=self.comic_config.image_size,
                         quality=self.comic_config.image_quality,
-                        success=True
+                        moderation=self.comic_config.image_moderation,
                     )
+                    final_image_base64 = retry_result.data[0].b64_json
+                    image_bytes = base64.b64decode(final_image_base64)
+                    detected_bubbles = self._detect_elements(image_bytes, elements)
 
-                yield {
-                    "type": "complete",
-                    "image_base64": final_image_base64,
-                    "image_bytes": image_bytes,
-                    "detected_bubbles": detected_bubbles,
-                }
+                    if detected_bubbles:
+                        break
+
+                if not detected_bubbles:
+                    print(f"All {self.max_detection_retries} detection attempts failed, falling back to programmatic placement.")
+
+            if self.logger:
+                self.logger.log_image_generation(
+                    prompt=prompt,
+                    image_path=None,
+                    model=self.comic_config.image_model,
+                    size=self.comic_config.image_size,
+                    quality=self.comic_config.image_quality,
+                    success=True
+                )
+
+            yield {
+                "type": "complete",
+                "image_base64": final_image_base64,
+                "image_bytes": image_bytes,
+                "detected_bubbles": detected_bubbles,
+            }
 
         except Exception as error:
             print(f"Streaming image generation failed: {error}")
@@ -260,6 +266,37 @@ class ImageGenerator:
                 "type": "error",
                 "error": str(error),
             }
+
+    def _needs_detection(self, elements: Optional[List[Dict[str, Any]]]) -> bool:
+        """Check if elements require bubble/box detection."""
+        if not elements:
+            return False
+        el_type = elements[0].get("type", "")
+        return el_type in ("speech", "thought", "narration")
+
+    def _detect_elements(self, image_bytes: bytes, elements: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        """Run bubble or box detection based on element type.
+
+        Returns:
+            List of detected region dicts with x, y, width, height, center_x, center_y.
+        """
+        el_type = elements[0].get("type", "") if elements else ""
+        if el_type == "narration":
+            regions = self.panel_detector.detect_narration_boxes(image_bytes)
+        else:
+            regions = self.panel_detector.detect_bubbles(image_bytes)
+
+        return [
+            {
+                "x": r.x,
+                "y": r.y,
+                "width": r.width,
+                "height": r.height,
+                "center_x": r.center_x,
+                "center_y": r.center_y,
+            }
+            for r in regions
+        ]
 
     def _build_prompt(
         self,
@@ -338,27 +375,31 @@ class ImageGenerator:
 
         if el_type == "speech":
             return (
-                "Include ONE empty white oval speech bubble with a black outline and a pointed tail, "
-                "positioned near the main character, but inset slightly from the image edges "
-                "(the bubble must not touch or go over the edges). "
-                "The bubble should be large enough to contain "
-                "a sentence, completely empty inside with no text. The entire bubble must be visible."
+                "Include ONE large empty white oval speech bubble with a black outline and a pointed tail, "
+                "positioned near the main character. "
+                "The bubble must be at least one-quarter of the image width and one-fifth of the image height. "
+                "Keep at least 30 pixels of clear margin between the bubble and all image edges — "
+                "the bubble must not touch or overlap any edge of the image. "
+                "Completely empty inside with no text. The entire bubble must be visible."
             )
         elif el_type == "thought":
             return (
-                "Include ONE empty white cloud-shaped thought bubble with small circular tail dots, "
-                "positioned near the main character's head, but inset slightly from the image edges "
-                "(the bubble must not touch or go over the edges). "
-                "The bubble should be large enough to "
-                "contain a thought, completely empty inside with no text. The entire bubble must be visible."
+                "Include ONE large empty white cloud-shaped thought bubble with small circular tail dots, "
+                "positioned near the main character's head. "
+                "The bubble must be at least one-quarter of the image width and one-fifth of the image height. "
+                "Keep at least 30 pixels of clear margin between the bubble and all image edges — "
+                "the bubble must not touch or overlap any edge of the image. "
+                "Completely empty inside with no text. The entire bubble must be visible."
             )
         elif el_type == "narration":
             return (
                 "Include ONE empty rectangular white narration box with a black outline, "
-                "positioned in one of the corners, but inset slightly from the image edges "
-                "(the box must not touch the edges). "
+                "positioned in one of the corners. "
                 "The box should be no less than two-thirds of the image width and approximately "
-                "one-third of the image height. Completely empty inside with no text. "
+                "one-third of the image height. "
+                "Keep at least 30 pixels of clear margin between the box and all image edges — "
+                "the box must not touch or overlap any edge of the image. "
+                "Completely empty inside with no text. "
                 "The box must have sharp 90-degree corners (not rounded)."
             )
 
