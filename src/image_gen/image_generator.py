@@ -57,7 +57,7 @@ class ImageGenerator:
 
         # Initialize panel element detection
         self.panel_detector = PanelDetector()
-        self.max_detection_retries = 3
+        self.max_detection_retries = 2
 
     def generate_image(
         self,
@@ -393,14 +393,15 @@ class ImageGenerator:
             )
         elif el_type == "narration":
             return (
-                "Include ONE empty rectangular white narration box with a black outline, "
-                "positioned in one of the corners. "
+                "Include ONE empty rectangular white narration box with a thick black outline. "
+                "Position it in one of the corners BUT with significant space from the edges. "
                 "The box should be no less than two-thirds of the image width and approximately "
                 "one-third of the image height. "
-                "Keep at least 30 pixels of clear margin between the box and all image edges — "
-                "the box must not touch or overlap any edge of the image. "
+                "CRITICAL: Keep at least 40-50 pixels of clear space between the box's border and ALL image edges. "
+                "The entire black outline must be fully visible and complete on all four sides. "
+                "The box must NOT touch or go near any edge of the image. "
                 "Completely empty inside with no text. "
-                "The box must have sharp 90-degree corners (not rounded)."
+                "Sharp 90-degree corners (not rounded)."
             )
 
         return ""
