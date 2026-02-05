@@ -1,6 +1,6 @@
 {
-  "title": "Mr. Otto the Otter",
-  "synopsis": "A simple comic where small events turn to trouble, with the otter failing comedically every time.",
+  "title": "Otto the Otter",
+  "synopsis": "A simple comic where small events turn to trouble, with Otto failing comedically every time.",
   "visual_style": "Visually colorful yet softly faded, using a limited mid-20th-century color palette. Flat colors, minimal shading, clean and confident line work, and very little detail. Backgrounds are suggestive rather than descriptive, creating a calm, artistic, and pleasant atmosphere. Traditional hand-drawn look with a single full-bleed image, no frames, no borders, and no panel structure.",
   "locations": [
     {
@@ -10,7 +10,7 @@
   ],
   "characters": [
     {
-      "name": "Mr. Otto",
+      "name": "Otto",
       "description": "A charming otter with a simple design and clear expressions, wearing a blue t-shirt and jeans. Well-intentioned and earnest. Well-intentioned, earnest, and subtly socially unaware."
     }
   ],
