@@ -1217,10 +1217,10 @@
             return 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
         }
 
-        function showNotification(message) {
+        function showNotification(message, duration = 3000) {
             elements.notification.textContent = message;
             elements.notification.classList.add('show');
-            setTimeout(() => elements.notification.classList.remove('show'), 3000);
+            setTimeout(() => elements.notification.classList.remove('show'), duration);
         }
 
         function setLoading(isLoading) {
@@ -1484,8 +1484,11 @@
 
         function getUserInput() {
             const currentPanel = document.querySelector('.comic-panel.current');
+            console.log('getUserInput - currentPanel:', currentPanel);
             if (!currentPanel) return '';
             const input = currentPanel.querySelector('.user-input .element-input');
+            console.log('getUserInput - input element:', input);
+            console.log('getUserInput - input value:', input ? input.value : 'null');
             return input ? input.value.trim() : '';
         }
 
@@ -1715,8 +1718,10 @@
                 return;
             }
 
-            // Mark current as completed
-            markCurrentAsCompleted(userInput);
+            // Disable input but don't mark as completed yet — wait for success
+            const currentPanelEl = document.querySelector('.comic-panel.current');
+            let inputEl = currentPanelEl ? currentPanelEl.querySelector('.user-input .element-input') : null;
+            if (inputEl) inputEl.disabled = true;
 
             // Add streaming panel
             addStreamingPanel();
@@ -1725,6 +1730,79 @@
             let pendingElements = [];
             let pendingPanelNumber = state.completedPanels.length + 1;
             let pendingIsAuto = false;
+            let hasCommitted = false;
+
+            function commitCurrentPanel() {
+                if (hasCommitted) return;
+                console.log('Committing current panel');
+                hasCommitted = true;
+                markCurrentAsCompleted(userInput);
+            }
+
+            function recoverFromError(message) {
+                console.log('Error recovery triggered:', message);
+                console.log('hasCommitted:', hasCommitted);
+                console.log('inputEl:', inputEl);
+
+                // Remove any streaming panels and auto panels added during this attempt
+                document.querySelectorAll('.streaming-panel').forEach(p => p.remove());
+
+                // If we committed the panel, we need to undo it
+                if (hasCommitted && state.completedPanels.length > 0) {
+                    console.log('Reverting committed panel');
+                    // Remove the last completed panel from state
+                    state.completedPanels.pop();
+                    // Find and convert the last panel back to editable
+                    const panels = document.querySelectorAll('.comic-panel.completed');
+                    const lastCompleted = panels[panels.length - 1];
+                    if (lastCompleted) {
+                        lastCompleted.classList.remove('completed');
+                        lastCompleted.classList.add('current');
+
+                        // Find the element container (detected-bubble, speech-bubble, etc.)
+                        const bubbleEl = lastCompleted.querySelector('.comic-element');
+                        if (bubbleEl) {
+                            // Re-add user-input class
+                            bubbleEl.classList.add('user-input');
+
+                            // Replace static text with input
+                            const textDiv = bubbleEl.querySelector('.element-text');
+                            if (textDiv) {
+                                const textarea = document.createElement('textarea');
+                                textarea.className = 'element-input';
+                                textarea.placeholder = 'What happens next?';
+                                textarea.style.background = 'transparent';
+                                textarea.style.resize = 'none';
+                                textarea.value = userInput;
+                                textarea.style.fontSize = getBubbleFontSize(userInput.length) + 'px';
+                                textDiv.replaceWith(textarea);
+                                inputEl = textarea; // Update reference
+                                console.log('Created new textarea:', textarea);
+                            }
+                        }
+                    }
+                    state.currentPanel = null;
+                }
+
+                // Always re-enable the input
+                if (inputEl) {
+                    console.log('Re-enabling input');
+                    inputEl.disabled = false;
+                    // Flash the input to draw attention
+                    inputEl.style.backgroundColor = '#fff3cd';
+                    setTimeout(() => {
+                        inputEl.style.backgroundColor = '';
+                        inputEl.focus();
+                    }, 300);
+                }
+
+                // Show a friendlier error message
+                const friendlyMessage = message.includes('safety system') || message.includes('content policy')
+                    ? "OpenAI didn't like that — try something else!"
+                    : "Something went wrong — try again!";
+                showNotification(friendlyMessage, 5000);  // Show for 5 seconds
+                setLoading(false);
+            }
 
             try {
                 const response = await fetch('/api/submit-stream', {
@@ -1754,10 +1832,7 @@
                                 const data = JSON.parse(line.slice(6));
 
                                 if (data.type === 'error') {
-                                    showNotification(data.error);
-                                    const streamingPanel = document.querySelector('.streaming-panel');
-                                    if (streamingPanel) streamingPanel.remove();
-                                    setLoading(false);
+                                    recoverFromError(data.error);
                                     return;
                                 }
 
@@ -1766,7 +1841,6 @@
                                     pendingElements = data.elements || [];
                                     pendingPanelNumber = data.panel_number;
                                     pendingIsAuto = true;
-                                    // Streaming panel already added
                                 }
 
                                 // Interactive panel init
@@ -1781,11 +1855,15 @@
                                 }
 
                                 if (data.type === 'partial') {
+                                    // Commit the previous panel now that we know image gen started successfully
+                                    commitCurrentPanel();
                                     updateStreamingImage(data.image_base64);
                                 }
 
                                 // Auto panel complete
                                 if (data.type === 'complete_auto') {
+                                    // Commit the previous panel if not already committed
+                                    commitCurrentPanel();
                                     const autoElements = data.elements || pendingElements;
                                     const autoPanel = createPanel(
                                         pendingPanelNumber,
@@ -1813,6 +1891,8 @@
 
                                 // Interactive panel complete
                                 if (data.type === 'complete') {
+                                    // Commit the previous panel if not already committed
+                                    commitCurrentPanel();
                                     state.currentPanel = {
                                         panel_number: pendingPanelNumber,
                                         image: data.image_base64,
@@ -1849,9 +1929,8 @@
                     }
                 }
             } catch (error) {
-                showNotification('Failed to continue story');
-                const streamingPanel = document.querySelector('.streaming-panel');
-                if (streamingPanel) streamingPanel.remove();
+                recoverFromError('Failed to continue story');
+                return;
             }
 
             setLoading(false);

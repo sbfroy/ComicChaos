@@ -264,15 +264,31 @@ class ComicSession:
             "is_auto": False,
         })
 
+    def _rollback_state(self, state_snapshot, comic_strip_count: int, panels_data_count: int):
+        """Restore session to a previous snapshot after a failed panel generation."""
+        self.state = state_snapshot
+        if self.comic_strip:
+            self.comic_strip.panels = self.comic_strip.panels[:comic_strip_count]
+        self.panels_data = self.panels_data[:panels_data_count]
+        if self.panels_data:
+            self.panels_data[-1]["user_input_text"] = None
+
     def submit_panel_streaming(self, user_input_text: str):
         """Submit user's input and stream the next panel(s) generation.
 
         May yield one or two panels: an optional automatic transition panel
-        followed by an interactive panel.
+        followed by an interactive panel. If image generation fails (e.g.
+        content policy rejection), all state changes are rolled back so the
+        user can retry with different input.
         """
         if not self.state or not self.narratron:
             yield json.dumps({"type": "error", "error": "Session not started"})
             return
+
+        # Snapshot state for rollback on error
+        state_snapshot = self.state.model_copy(deep=True)
+        comic_strip_count = len(self.comic_strip.panels) if self.comic_strip else 0
+        panels_data_count = len(self.panels_data)
 
         # Update current panel with user's input
         if self.panels_data:
@@ -345,9 +361,8 @@ class ComicSession:
                         "is_auto": is_auto,
                     })
                 elif event["type"] == "error":
+                    self._rollback_state(state_snapshot, comic_strip_count, panels_data_count)
                     yield json.dumps({"type": "error", "error": event["error"]})
-                    if saved_render:
-                        self.state.render = saved_render
                     return
 
             # Restore render state after auto panel
