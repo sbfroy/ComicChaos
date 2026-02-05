@@ -1,24 +1,25 @@
 {
-  "title": "Buddy the Otter",
-  "synopsis": "A simple comic where small events lead to trouble and humor.",
-  "visual_style": "Classic mid-20th-century comic illustration style, flat and slightly faded colors, moderate line work, simple background, minimal detail, traditional hand-drawn look, single full-bleed image, no frames, no borders, no panel structure.",
+  "title": "Mr. Otto the Otter",
+  "synopsis": "A simple comic where small events turn to trouble, with the otter failing comedically every time.",
+  "visual_style": "Visually colorful yet softly faded, using a limited mid-20th-century color palette. Flat colors, minimal shading, clean and confident line work, and very little detail. Backgrounds are suggestive rather than descriptive, creating a calm, artistic, and pleasant atmosphere. Traditional hand-drawn look with a single full-bleed image, no frames, no borders, and no panel structure.",
   "locations": [
     {
       "name": "Town Square",
-      "description": "A plain town square with boxy buildings and large windows."
+      "description": "A plain town square with boxy buildings, large windows, and minimal details."
     }
   ],
   "characters": [
     {
-      "name": "Buddy",
-      "description": "A cute otter with simple design and clear expressions, wearing a blue t-shirt and jeans. Straightforward and honest."
+      "name": "Mr. Otto",
+      "description": "A charming otter with a simple design and clear expressions, wearing a blue t-shirt and jeans. Well-intentioned and earnest. Well-intentioned, earnest, and subtly socially unaware."
     }
   ],
   "rules": [
-    "You can not access the moon or outer space.",
-    "Magic does not exist in this world."
+    "You can not access the moon or outer space."
   ],
   "long_term_goals": [
-    "Navigate small-town trouble with honesty and good humor"
+    "Consistently try to be kind, helpful, and responsible in everyday situations.",
+    "Solve small problems for others, even when it backfires.",
+    "Maintain optimism and decency despite repeated, humorous failures."
   ]
 }
