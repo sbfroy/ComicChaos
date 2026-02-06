@@ -1,0 +1,10 @@
+{
+  "panel_font": "'Comic Neue', 'Comic Sans MS', 'Chalkboard', cursive, sans-serif",
+  "llm_model": "gpt-4o-mini",
+  "llm_temperature": 0.6,
+  "llm_max_tokens": 1500,
+  "image_model": "gpt-image-1.5",
+  "image_size": "1024x1024",
+  "image_quality": "medium",
+  "image_moderation": "low"
+}

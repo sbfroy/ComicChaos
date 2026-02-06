@@ -1,0 +1,39 @@
+{
+  "title": "The Great Escape",
+  "synopsis": "A bumbling burglar's increasingly absurd attempts to flee the police after a bank robbery gone wrong.",
+  "visual_style": "Classic retro comic strip style with bold outlines, halftone dot shading, and a bright, saturated but slightly faded color palette. Light and playful atmosphere with exaggerated expressions and slapstick compositions. Reminiscent of mid-century newspaper comic strips. Single full-bleed image, no frames, no borders, and no panel structure.",
+  "locations": [
+    {
+      "name": "Downtown Streets",
+      "description": "Busy city streets with shop fronts, fire hydrants, mailboxes, and narrow alleyways. Police sirens echo in the distance."
+    },
+    {
+      "name": "The Bank",
+      "description": "A grand old bank with marble columns and a vault door left swinging open. The scene of the crime."
+    },
+    {
+      "name": "The Suburbs",
+      "description": "Quiet residential streets with picket fences, garden gnomes, and nosy neighbors peeking through curtains."
+    }
+  ],
+  "characters": [
+    {
+      "name": "Vinnie",
+      "description": "A scrawny burglar in a black-and-white striped shirt, dark beanie, and a domino mask. Has a friendly, goofy face with big eyes and a gap-toothed grin. Looks like a classic cartoon crook — lovable but clearly not the sharpest tool in the shed."
+    }
+  ],
+  "rules": [
+    "Vinnie is spectacularly incompetent — his escape plans are creative but always backfire in hilarious ways.",
+    "The police are always just one step behind, creating constant tension and near-misses.",
+    "The tone is pure slapstick comedy — think Home Alone burglars. Never dark or violent.",
+    "Vinnie's mistakes should involve physical comedy, misunderstandings, and terrible luck."
+  ],
+  "long_term_narrative": [
+    "Vinnie stumbles from one hiding spot to the next, each more ridiculous than the last.",
+    "The police net tightens with every failed escape attempt."
+  ],
+  "final_outcomes": [
+    "Vinnie somehow bumbles his way to freedom through sheer dumb luck",
+    "Vinnie gets caught by the police in the most embarrassing way possible"
+  ]
+}
