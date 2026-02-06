@@ -31,8 +31,7 @@ class TextRenderer:
         (15, 46),   # < 15 chars
         (30, 40),   # < 30 chars
         (50, 36),   # < 50 chars
-        (70, 32),   # < 70 chars
-        (None, 28), # >= 70 chars
+        (None, 32), # >= 50 chars
     ]
 
     def __init__(
