@@ -8,10 +8,10 @@ import base64
 from dotenv import load_dotenv
 from flask import Flask, render_template, request, jsonify, Response
 
-from src.config import SETTINGS_DIR
+from src.config import COMICS_DIR
 from src.state.static_config import StaticConfig
 from src.state.comic_state import ComicState
-from settings.setting_registry import SettingRegistry
+from comics.comic_registry import ComicRegistry
 from src.narratron.narratron import Narratron, TitleCardPanel
 from src.state.comic_state import RenderState
 from src.image_gen.image_generator import ImageGenerator, MockImageGenerator
@@ -32,8 +32,8 @@ class ComicSession:
 
     def __init__(self, comic_id: str, use_real_images: bool = True):
         self.api_key = os.getenv("OPENAI_API_KEY")
-        registry = SettingRegistry(settings_dir=SETTINGS_DIR)
-        config_dir = registry.get_setting_config_dir(comic_id)
+        registry = ComicRegistry(comics_dir=COMICS_DIR)
+        config_dir = registry.get_comic_config_dir(comic_id)
 
         if not config_dir:
             raise ValueError(f"Comic '{comic_id}' not found")
@@ -469,17 +469,17 @@ def index():
 @app.route("/api/comics")
 def list_comics():
     """List available comics."""
-    registry = SettingRegistry(settings_dir=SETTINGS_DIR)
-    settings = registry.get_available_settings()
+    registry = ComicRegistry(comics_dir=COMICS_DIR)
+    comics = registry.get_available_comics()
     return jsonify([
         {
-            "id": s.id,
-            "name": s.name,
-            "description": s.description,
-            "style": s.style,
-            "panel_font": s.panel_font,
+            "id": c.id,
+            "name": c.name,
+            "description": c.description,
+            "style": c.style,
+            "panel_font": c.panel_font,
         }
-        for s in settings
+        for c in comics
     ])
 
 

@@ -26,6 +26,10 @@ assets/generated/*.txt
 # Saves
 /output
 
+# Archived comics
+comics/archive/*
+!comics/archive/.gitkeep
+
 # OS
 .DS_Store
 Thumbs.db

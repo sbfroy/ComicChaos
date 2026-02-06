@@ -25,6 +25,6 @@ IMAGE_MODERATION = "low"
 LOGS_DIR = "output/logs"
 
 # =============================================================================
-# Settings Directory
+# Comics Directory
 # =============================================================================
-SETTINGS_DIR = "settings"
+COMICS_DIR = "comics"
