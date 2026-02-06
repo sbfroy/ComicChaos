@@ -1,11 +1,11 @@
 {
   "title": "Paul the Panda",
   "synopsis": "Paul's clumsy attempts to win the heart of Grace the Giraffe at the city zoo.",
-  "visual_style": "1920s vintage illustration style with colorful but faded tones and restrained ink linework. Illustrative and slightly imperfect, with organic line variation and a subtle animated feel, yet confident and deliberate like professional studio artwork. Extremely minimal detail: sparse backgrounds, few elements, and generous empty space. Artistic and intentionally unpolished, with nothing modern or childish.",
+  "visual_style": "1940s comic inspired style with muted, slightly unnatural colors and strong contrast. Clean, restrained ink linework and flat color fills, creating a professional, graphic look with restrained expressions and mature proportions. Extremely minimal detail with sparse backgrounds, few elements, and generous empty space. Full bleed composition with no borders, frames, or panel lines. Artistic, intentionally simple, and free of anything modern or cute.",
   "locations": [
     {
       "name": "City Zoo",
-      "description": "A large traditional zoo with stone-walled enclosures, winding visitor paths, old oak trees, and a central fountain. Animals roam freely between exhibits during social hours."
+      "description": "A small traditional zoo with stone-walled enclosures, winding visitor paths, old oak trees, and a central fountain. Animals roam freely between exhibits during social hours."
     },
     {
       "name": "Panda Enclosure",
@@ -13,7 +13,7 @@
     },
     {
       "name": "Giraffe Paddock",
-      "description": "A tall-fenced open paddock with acacia trees and elevated feeding platforms. Grace's elegant domain."
+      "description": "A tall-fenced open paddock with acacia trees. Grace's elegant domain."
     }
   ],
   "characters": [
