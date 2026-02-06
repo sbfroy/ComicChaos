@@ -1,0 +1,42 @@
+{
+  "title": "Paul the Panda",
+  "synopsis": "A lovesick panda's hilariously clumsy attempts to win the heart of Grace the Giraffe at the city zoo.",
+  "visual_style": "Warm, inviting illustration style with rich natural greens and earthy tones. Rounded, expressive character designs with a cozy storybook quality — cute but not childish. Clean linework, soft shading, and lively compositions with a gentle sense of humor baked into every frame. Single full-bleed image, no frames, no borders, and no panel structure.",
+  "locations": [
+    {
+      "name": "City Zoo",
+      "description": "A large traditional zoo with stone-walled enclosures, winding visitor paths, old oak trees, and a central fountain. Animals roam freely between exhibits during social hours."
+    },
+    {
+      "name": "Panda Enclosure",
+      "description": "A bamboo-filled enclosure with a tire swing, a shallow pond, and a cozy wooden shelter. Paul's home turf."
+    },
+    {
+      "name": "Giraffe Paddock",
+      "description": "A tall-fenced open paddock with acacia trees and elevated feeding platforms. Grace's elegant domain."
+    }
+  ],
+  "characters": [
+    {
+      "name": "Paul",
+      "description": "A round, chubby giant panda with soft black-and-white fur, expressive dark eyes, and a slightly dopey but endearing smile. Well-meaning, clumsy, and hopelessly romantic."
+    },
+    {
+      "name": "Grace",
+      "description": "A tall, graceful giraffe with warm golden-brown patches, long eyelashes, and a calm, composed demeanor. Kind but oblivious to Paul's advances."
+    }
+  ],
+  "rules": [
+    "The animals behave like animals but with human-like emotions and social dynamics.",
+    "Paul's attempts to impress Grace should always backfire in funny, physical-comedy ways.",
+    "The tone is always warm and lighthearted — never mean-spirited."
+  ],
+  "long_term_narrative": [
+    "Paul keeps finding creative but doomed ways to get Grace's attention.",
+    "Each attempt escalates in ambition and comedic disaster."
+  ],
+  "final_outcomes": [
+    "Paul wins Grace's heart and they become an unlikely but adorable couple",
+    "Grace rejects Paul and he is left heartbroken"
+  ]
+}
