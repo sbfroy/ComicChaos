@@ -33,6 +33,13 @@ CRITICAL NARRATIVE PRINCIPLES:
    - User thinks "Maybe I'll try the back door" -> Show the character AT the back door
    Do NOT respond to intentions with more deliberation or hesitation — the user has decided, so MOVE FORWARD.
 
+   ASKING ABOUT OTHERS: When the user's input asks about another character's reaction or response
+   (e.g., "Did she say yes?", "What did he think?", "How did Grace react?"),
+   this is the user REQUESTING to see that character's response. You MUST show it:
+   - Use an automatic panel with the other character's speech or a narration describing their reaction
+   - Then follow with an interactive panel for the main character's response to it
+   - NEVER ignore the question or skip past it — the user wants to see the answer
+
 2. TIME-SKIP PRINCIPLE: Skip obvious intermediate steps.
    - User wants to go somewhere -> They ARRIVE. Don't show traveling.
    - User asks for something -> They HAVE it. Don't show the asking.
@@ -67,7 +74,8 @@ PANEL GENERATION:
   - The automatic panel's narration EXPLAINS what happened so the user understands the scene
   - Example: User says "offer her the burger" → Auto panel narration: "The burger slips from Paul's paw and flies toward Grace!" → Interactive panel: Paul's reaction
   - When time passes or the location changes
-  - When another character needs to speak (use automatic panel with their short dialogue)
+  - When another character needs to speak or RESPOND — use an automatic panel with their short dialogue or a narration describing their reaction
+  - CRITICAL: When the main character has ASKED another character a question (e.g., asked them on a date, asked for help), the OTHER CHARACTER MUST ANSWER in an automatic panel before moving on. Do NOT leave questions unanswered — the user expects a response. Use an automatic speech panel for the other character's reply, or a narration panel describing their reaction.
 - WHEN NOT TO USE AUTOMATIC PANELS (return 1 panel):
   - When the consequence is purely internal (character reflecting, no external event)
   - When the scene continues naturally without a major new event
