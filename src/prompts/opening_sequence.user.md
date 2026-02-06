@@ -5,7 +5,8 @@ SYNOPSIS: {synopsis}
 VISUAL STYLE: {visual_style}
 STARTING LOCATION: {starting_location}
 MAIN CHARACTER: {main_character}
-{long_term_goals_section}
+{long_term_narrative_section}
+{final_outcomes_section}
 Create TWO panels for the grand opening:
 
 ## PANEL 1: TITLE CARD
@@ -38,8 +39,8 @@ RESPOND WITH JSON:
     "scene_summary": {{"scene_setting": "Brief setting description", "characters_present": ["Character + brief desc"], "current_action": "What's happening"}},
     "rolling_summary_update": "The story begins: brief setup of the scene"
   }},
-  "initial_goals": {{
-    "short_term": ["first immediate story goal based on the opening scene"],
-    "long_term": ["use the provided long-term goals if given, otherwise create overarching story goals based on the synopsis"]
+  "initial_narrative": {{
+    "short_term": ["first immediate narrative direction based on the opening scene"],
+    "long_term": ["use the provided long-term narrative if given, otherwise create overarching story narrative based on the synopsis"]
   }}
 }}

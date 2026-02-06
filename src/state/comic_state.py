@@ -20,16 +20,16 @@ class ComicPanel(BaseModel):
     is_auto: bool = Field(default=False, description="Whether this is an automatic transition panel")
 
 
-class StoryGoals(BaseModel):
+class NarrativeDirection(BaseModel):
     """Internal story direction tracking."""
 
     short_term: list[str] = Field(
         default_factory=list,
-        description="Goals for the next 1-3 panels, responsive to recent user input"
+        description="Narrative direction for the next 1-3 panels, responsive to recent user input"
     )
     long_term: list[str] = Field(
         default_factory=list,
-        description="Broader arc goals: character development, plot progression"
+        description="Broader arc narrative: character development, plot progression"
     )
 
 
@@ -41,7 +41,7 @@ class NarrativeState(BaseModel):
         default="The comic has just begun.",
         description="Short summary of the comic so far"
     )
-    goals: StoryGoals = Field(default_factory=StoryGoals)
+    direction: NarrativeDirection = Field(default_factory=NarrativeDirection)
 
 
 class RenderState(BaseModel):
@@ -73,6 +73,7 @@ class ComicState(BaseModel):
     meta: MetaInfo = Field(default_factory=MetaInfo)
     main_character_name: str = Field(default="", description="Name of the main character")
     main_character_description: str = Field(default="", description="Description of the main character")
+    reached_outcome: str | None = Field(default=None, description="Set when a final outcome has been reached, triggering the ending sequence")
 
     @classmethod
     def initialize_from_config(cls, config: StaticConfig) -> "ComicState":
@@ -84,14 +85,14 @@ class ComicState(BaseModel):
         starting_loc = blueprint.starting_location
         main_char = blueprint.main_character
 
-        goals = StoryGoals(
-            long_term=blueprint.long_term_goals if blueprint.long_term_goals else []
+        direction = NarrativeDirection(
+            long_term=blueprint.long_term_narrative if blueprint.long_term_narrative else []
         )
 
         narrative = NarrativeState(
             panels=[],
             rolling_summary=f"{blueprint.synopsis}",
-            goals=goals,
+            direction=direction,
         )
 
         render = RenderState(

@@ -391,6 +391,74 @@ class ComicSession:
                 "is_auto": is_auto,
             })
 
+        # Check if the story has reached a final outcome
+        if self.state.reached_outcome:
+            finale_panel_num = next_panel_num + 1
+
+            finale_card = TitleCardPanel(
+                scene_description=(
+                    f"A dramatic, cinematic closing shot for {self.config.blueprint.title}. "
+                    f"The words 'The End' are displayed prominently in the scene. "
+                    f"{self.state.reached_outcome}"
+                ),
+                title_treatment="The End",
+                atmosphere="finale",
+            )
+
+            yield json.dumps({
+                "type": "init_finale",
+                "panel_number": finale_panel_num,
+                "title": "The End",
+                "reached_outcome": self.state.reached_outcome,
+                "is_finale": True,
+            })
+
+            finale_bytes = None
+            for event in self._generate_title_card_streaming(
+                finale_card,
+                self.config.blueprint.visual_style
+            ):
+                if event["type"] == "partial":
+                    yield json.dumps({
+                        "type": "partial",
+                        "panel_number": finale_panel_num,
+                        "image_base64": event["image_base64"],
+                        "partial_index": event["partial_index"],
+                    })
+                elif event["type"] == "complete":
+                    finale_bytes = event["image_bytes"]
+                    yield json.dumps({
+                        "type": "complete_finale",
+                        "panel_number": finale_panel_num,
+                        "image_base64": event["image_base64"],
+                        "is_finale": True,
+                        "reached_outcome": self.state.reached_outcome,
+                    })
+                elif event["type"] == "error":
+                    yield json.dumps({"type": "error", "error": event["error"]})
+
+            # Store finale panel data
+            self.panels_data.append({
+                "panel_number": finale_panel_num,
+                "image_bytes": finale_bytes,
+                "elements": [],
+                "user_input_text": None,
+                "detected_bubbles": [],
+                "is_finale": True,
+                "is_auto": False,
+            })
+
+            # Add finale to comic strip
+            if self.comic_strip and finale_bytes:
+                self.comic_strip.add_panel(
+                    finale_bytes,
+                    f"The End - {self.state.reached_outcome}",
+                    finale_panel_num,
+                    elements=[],
+                    user_input_text=None,
+                    detected_bubbles=[],
+                )
+
 
 @app.route("/")
 def index():

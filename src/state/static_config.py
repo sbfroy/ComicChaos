@@ -48,9 +48,13 @@ class Blueprint(BaseModel):
         default_factory=list,
         description="Rules/constraints for the world that the LLM should follow"
     )
-    long_term_goals: list[str] = Field(
+    long_term_narrative: list[str] = Field(
         default_factory=list,
-        description="Blueprint-defined long-term story goals that anchor the narrative arc"
+        description="Blueprint-defined long-term narrative directions that anchor the story arc"
+    )
+    final_outcomes: list[str] = Field(
+        default_factory=list,
+        description="Optional list of mutually exclusive story outcomes. When present, the story ends when one is reached."
     )
 
     @property

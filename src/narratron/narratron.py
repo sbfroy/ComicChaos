@@ -45,8 +45,9 @@ _FALLBACK_RESPONSE = {
         }
     ],
     "scene_summary": {},
-    "short_term_goals": [],
-    "long_term_goals": [],
+    "short_term_narrative": [],
+    "long_term_narrative": [],
+    "reached_outcome": None,
 }
 
 
@@ -115,8 +116,9 @@ class NarratronResponse:
         # Top-level fields
         self.scene_summary: Dict[str, Any] = raw_response.get("scene_summary", {})
         self.rolling_summary_update: str = raw_response.get("rolling_summary_update", "")
-        self.short_term_goals: List[str] = raw_response.get("short_term_goals", [])
-        self.long_term_goals: List[str] = raw_response.get("long_term_goals", [])
+        self.short_term_narrative: List[str] = raw_response.get("short_term_narrative", [])
+        self.long_term_narrative: List[str] = raw_response.get("long_term_narrative", [])
+        self.reached_outcome: Optional[str] = raw_response.get("reached_outcome", None)
 
 
 @dataclass
@@ -142,17 +144,17 @@ class OpeningSequenceResponse:
 
     title_card: TitleCardPanel
     first_panel: NarratronResponse
-    initial_goals: Dict[str, List[str]]
+    initial_narrative: Dict[str, List[str]]
 
     @classmethod
     def from_raw(cls, raw_response: Dict[str, Any]) -> "OpeningSequenceResponse":
         title_card_data = raw_response.get("title_card", {})
         first_panel_data = raw_response.get("first_panel", {})
-        initial_goals = raw_response.get("initial_goals", {"short_term": [], "long_term": []})
+        initial_narrative = raw_response.get("initial_narrative", {"short_term": [], "long_term": []})
         return cls(
             title_card=TitleCardPanel.from_dict(title_card_data),
             first_panel=NarratronResponse(first_panel_data),
-            initial_goals=initial_goals,
+            initial_narrative=initial_narrative,
         )
 
 
@@ -264,22 +266,29 @@ class Narratron:
                 panel_lines.append(f"P{panel.panel_number}: {narrative}")
             recent_panels = "RECENT:\n" + "\n".join(panel_lines)
 
-        # Format story goals
-        story_goals = ""
-        goals = comic_state.narrative.goals
-        if goals.short_term or goals.long_term:
-            goals_parts = []
-            if goals.short_term:
-                goals_parts.append("SHORT-TERM: " + "; ".join(goals.short_term))
-            if goals.long_term:
-                goals_parts.append("LONG-TERM: " + "; ".join(goals.long_term))
-            story_goals = "STORY GOALS:\n" + "\n".join(goals_parts)
+        # Format story narrative direction
+        story_narrative = ""
+        direction = comic_state.narrative.direction
+        if direction.short_term or direction.long_term:
+            narrative_parts = []
+            if direction.short_term:
+                narrative_parts.append("SHORT-TERM: " + "; ".join(direction.short_term))
+            if direction.long_term:
+                narrative_parts.append("LONG-TERM: " + "; ".join(direction.long_term))
+            story_narrative = "STORY NARRATIVE:\n" + "\n".join(narrative_parts)
+
+        # Format final outcomes (if defined in blueprint)
+        final_outcomes = ""
+        if self.config.blueprint.final_outcomes:
+            outcomes_str = "\n".join(f"  - {o}" for o in self.config.blueprint.final_outcomes)
+            final_outcomes = f"POSSIBLE ENDINGS:\n{outcomes_str}"
 
         return load_prompt(
             _PROMPTS_DIR / "panel.user.md",
             main_character=main_char,
             rolling_summary=comic_state.narrative.rolling_summary,
-            story_goals=story_goals,
+            story_narrative=story_narrative,
+            final_outcomes=final_outcomes,
             recent_panels=recent_panels,
             user_input=user_input,
         )
@@ -309,11 +318,15 @@ class Narratron:
                 ),
             )
 
-        # Update story goals
-        if isinstance(response.short_term_goals, list) and response.short_term_goals:
-            comic_state.narrative.goals.short_term = response.short_term_goals
-        if isinstance(response.long_term_goals, list) and response.long_term_goals:
-            comic_state.narrative.goals.long_term = response.long_term_goals
+        # Update story narrative direction
+        if isinstance(response.short_term_narrative, list) and response.short_term_narrative:
+            comic_state.narrative.direction.short_term = response.short_term_narrative
+        if isinstance(response.long_term_narrative, list) and response.long_term_narrative:
+            comic_state.narrative.direction.long_term = response.long_term_narrative
+
+        # Check for reached outcome
+        if response.reached_outcome:
+            comic_state.reached_outcome = response.reached_outcome
 
     def generate_opening_sequence(
         self, comic_state: ComicState
@@ -326,10 +339,15 @@ class Narratron:
 
         system_prompt = self._build_system_prompt()
 
-        long_term_goals_section = ""
-        if blueprint.long_term_goals:
-            goals_str = "; ".join(blueprint.long_term_goals)
-            long_term_goals_section = f"LONG-TERM GOALS (use these as-is for initial_goals.long_term): {goals_str}"
+        long_term_narrative_section = ""
+        if blueprint.long_term_narrative:
+            narrative_str = "; ".join(blueprint.long_term_narrative)
+            long_term_narrative_section = f"LONG-TERM NARRATIVE (use these as-is for initial_narrative.long_term): {narrative_str}"
+
+        final_outcomes_section = ""
+        if blueprint.final_outcomes:
+            outcomes_str = "\n".join(f"  - {o}" for o in blueprint.final_outcomes)
+            final_outcomes_section = f"POSSIBLE ENDINGS (these are the only ways the story can end):\n{outcomes_str}"
 
         user_message = load_prompt(
             _PROMPTS_DIR / "opening_sequence.user.md",
@@ -338,7 +356,8 @@ class Narratron:
             visual_style=blueprint.visual_style,
             starting_location=f"{blueprint.starting_location.name}: {blueprint.starting_location.description}",
             main_character=f"{blueprint.main_character.name}: {blueprint.main_character.description}",
-            long_term_goals_section=long_term_goals_section,
+            long_term_narrative_section=long_term_narrative_section,
+            final_outcomes_section=final_outcomes_section,
         )
 
         messages = [
@@ -376,20 +395,20 @@ class Narratron:
                     atmosphere=blueprint.synopsis,
                 ),
                 first_panel=NarratronResponse(_FALLBACK_RESPONSE),
-                initial_goals={"short_term": [], "long_term": []},
+                initial_narrative={"short_term": [], "long_term": []},
             )
 
         self._apply_state_changes(response.first_panel, comic_state)
 
-        # Apply initial story goals
-        if response.initial_goals:
-            st = response.initial_goals.get("short_term", [])
+        # Apply initial story narrative
+        if response.initial_narrative:
+            st = response.initial_narrative.get("short_term", [])
             if isinstance(st, list) and st:
-                comic_state.narrative.goals.short_term = st
-            # Only use LLM's long-term goals if the blueprint didn't define any
-            if not self.config.blueprint.long_term_goals:
-                lt = response.initial_goals.get("long_term", [])
+                comic_state.narrative.direction.short_term = st
+            # Only use LLM's long-term narrative if the blueprint didn't define any
+            if not self.config.blueprint.long_term_narrative:
+                lt = response.initial_narrative.get("long_term", [])
                 if isinstance(lt, list) and lt:
-                    comic_state.narrative.goals.long_term = lt
+                    comic_state.narrative.direction.long_term = lt
 
         return response

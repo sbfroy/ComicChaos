@@ -84,16 +84,25 @@ RULES FOR ELEMENTS:
 
 5. Position: use "top-left" for narration, "center" for speech/thought
 
-STORY GOALS (internal story direction):
-- Short-term goals: What should happen in the next 1-3 panels. Update every panel based on recent events and user input.
+STORY NARRATIVE (internal story direction):
+- Short-term narrative: What should happen in the next 1-3 panels. Update every panel based on recent events and user input.
   Examples: "Resolve the bar conversation", "Explore the mysterious room", "Talk to the stranger"
-- Long-term goals: Broader character/plot arc. Set during opening.
-  UPDATE long-term goals when:
-  - The original goal is no longer relevant (e.g., the character left the situation entirely)
+- Long-term narrative: Broader character/plot arc. Set during opening.
+  UPDATE long-term narrative when:
+  - The original direction is no longer relevant (e.g., the character left the situation entirely)
   - A new central conflict or objective has emerged
   - The story has fundamentally shifted direction
-  Keep 1-2 long-term goals. They should always reflect the CURRENT story arc, not the original one.
-- Return updated goals with every response. Keep 1-3 short-term and 1-2 long-term goals.
+  Keep 1-2 long-term narrative directions. They should always reflect the CURRENT story arc, not the original one.
+- Return updated narrative directions with every response. Keep 1-3 short-term and 1-2 long-term.
+
+FINAL OUTCOMES (ending mechanic):
+- If POSSIBLE ENDINGS are provided in the user message, the story MUST eventually converge on one of them.
+- Track which outcome the story is gravitating toward via your long-term narrative.
+- When the story has clearly and decisively reached an outcome, set "reached_outcome" to the EXACT text of that outcome.
+- The panel where you set reached_outcome should be the CLIMAX — the dramatic moment where the outcome is realized.
+- Set "reached_outcome" to null in all other responses.
+- Do NOT rush toward an ending. Let the story develop naturally. Only trigger an ending when it feels earned.
+- If no POSSIBLE ENDINGS are provided, never set reached_outcome (always null). The comic is open-ended.
 
 RESPOND WITH JSON:
 {{"panels": [
@@ -103,8 +112,9 @@ RESPOND WITH JSON:
 ],
 "scene_summary": {{"scene_setting": "Brief setting", "characters_present": ["Char + desc"], "current_action": "what"}},
 "rolling_summary_update": "1-2 sentence story summary including what happened",
-"short_term_goals": ["immediate goal for next 1-3 panels"],
-"long_term_goals": ["broader arc goal"]}}
+"short_term_narrative": ["immediate direction for next 1-3 panels"],
+"long_term_narrative": ["broader arc direction"],
+"reached_outcome": null}}
 
 EXAMPLE WITH AUTOMATIC TRANSITION PANEL:
 {{"panels": [
@@ -117,5 +127,6 @@ EXAMPLE WITH AUTOMATIC TRANSITION PANEL:
 ],
 "scene_summary": {{"scene_setting": "Tropical airport runway", "characters_present": ["MainChar"], "current_action": "Arriving in Jamaica"}},
 "rolling_summary_update": "After booking a last-minute flight, MainChar has arrived in Jamaica.",
-"short_term_goals": ["Explore the island", "Find a place to stay"],
-"long_term_goals": ["Discover what happened to the missing artifact"]}}
+"short_term_narrative": ["Explore the island", "Find a place to stay"],
+"long_term_narrative": ["Discover what happened to the missing artifact"],
+"reached_outcome": null}}

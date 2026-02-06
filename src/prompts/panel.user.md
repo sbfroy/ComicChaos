@@ -2,7 +2,9 @@ MAIN CHARACTER: {main_character}
 
 STORY SO FAR: {rolling_summary}
 
-{story_goals}
+{story_narrative}
+
+{final_outcomes}
 
 {recent_panels}
 
