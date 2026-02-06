@@ -362,6 +362,7 @@ class ImageGenerator:
         """Build instructions for generating ONE empty bubble or narration box.
 
         Generates bubble/box instructions for speech, thought, and narration elements.
+        For auto panels where another character speaks, the bubble points to that character.
 
         Args:
             elements: List of elements (should be exactly one).
@@ -376,10 +377,17 @@ class ImageGenerator:
         el = elements[0]
         el_type = el.get("type", "")
 
+        # Determine who the bubble should point to
+        character_name = el.get("character_name", "")
+        if character_name:
+            bubble_target = f"positioned near {character_name}"
+        else:
+            bubble_target = "positioned near the main character"
+
         if el_type == "speech":
             return (
                 "Include ONE large empty white oval speech bubble with a black outline and a pointed tail, "
-                "positioned near the main character. "
+                f"{bubble_target}. "
                 "The bubble must be at least one-fifth of the image width and one-sixth of the image height. "
                 "Keep at least 30 pixels of clear margin between the bubble and all image edges — "
                 "the bubble must not touch or overlap any edge of the image. "
@@ -388,7 +396,7 @@ class ImageGenerator:
         elif el_type == "thought":
             return (
                 "Include ONE large empty white cloud-shaped thought bubble with small circular tail dots, "
-                "positioned near the main character's head. "
+                f"{bubble_target}'s head. "
                 "The bubble must be at least one-fifth of the image width and one-sixth of the image height. "
                 "Keep at least 30 pixels of clear margin between the bubble and all image edges — "
                 "the bubble must not touch or overlap any edge of the image. "

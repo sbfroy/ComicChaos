@@ -258,6 +258,15 @@ class Narratron:
         """Build compact user message with all dynamic context."""
         main_char = f"{comic_state.main_character_name}: {comic_state.main_character_description}"
 
+        # All blueprint characters (so the LLM never forgets species/descriptions)
+        all_characters = ""
+        if self.config.blueprint.characters and len(self.config.blueprint.characters) > 1:
+            char_lines = [
+                f"- {c.name}: {c.description}"
+                for c in self.config.blueprint.characters[1:]  # Skip main char (already above)
+            ]
+            all_characters = "OTHER CHARACTERS:\n" + "\n".join(char_lines)
+
         # Recent panels (compact)
         recent_panels = ""
         if comic_state.narrative.panels:
@@ -287,6 +296,7 @@ class Narratron:
         return load_prompt(
             _PROMPTS_DIR / "panel.user.md",
             main_character=main_char,
+            all_characters=all_characters,
             rolling_summary=comic_state.narrative.rolling_summary,
             story_narrative=story_narrative,
             final_outcomes=final_outcomes,
