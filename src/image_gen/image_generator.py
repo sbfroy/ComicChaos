@@ -347,9 +347,12 @@ class ImageGenerator:
             if bubble_instructions:
                 prompt_parts.append(bubble_instructions)
 
-        """# Add instruction to not include frames or panel edges
-        prompt_parts.append("Single full-bleed image with no frames, borders, or panels.")"""
-   
+        # Add instruction to not include frames or panel edges
+        prompt_parts.append(
+            "IMPORTANT: Do not draw any lines, borders, frames, or bars along the edges of the image. "
+            "The artwork must extend fully to all edges with no decorative boundaries."
+        )
+
         # Join all parts into a coherent prompt
         full_prompt = " ".join(prompt_parts)
 
