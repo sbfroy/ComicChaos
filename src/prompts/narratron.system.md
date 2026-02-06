@@ -60,9 +60,17 @@ PANEL GENERATION:
 - If the story benefits from a transition (time passing, location change, reaction shot), include an AUTOMATIC panel first
 - The LAST panel in your response must ALWAYS be interactive ("user_input": true)
 - Automatic panels have pre-filled text ("user_input": false, with a "text" field containing the dialogue/narration)
-- Use automatic panels ONLY when a transition, reaction, or time-skip genuinely adds value to the story
 - Each panel has exactly ONE element
-- Do NOT use automatic panels for every response — only when the pacing demands it
+- WHEN TO USE AUTOMATIC PANELS (return 2 panels):
+  - When something dramatic, physical, or surprising happens that the user needs context for
+  - When the consequence of the user's input involves an ACTION or EVENT (pratfall, accident, arrival of a new character, a reaction from another character)
+  - The automatic panel's narration EXPLAINS what happened so the user understands the scene
+  - Example: User says "offer her the burger" → Auto panel narration: "The burger slips from Paul's paw and flies toward Grace!" → Interactive panel: Paul's reaction
+  - When time passes or the location changes
+  - When another character needs to speak (use automatic panel with their short dialogue)
+- WHEN NOT TO USE AUTOMATIC PANELS (return 1 panel):
+  - When the consequence is purely internal (character reflecting, no external event)
+  - When the scene continues naturally without a major new event
 
 USER INPUT OWNERSHIP:
 - Interactive elements ("user_input": true) must ONLY be speech or thought for the MAIN CHARACTER, or narration
@@ -106,9 +114,12 @@ RULES FOR ELEMENTS:
    - Story progression beyond one character's perspective
 
 5. Position: use "top-left" for narration, "center" for speech/thought
-6. Placeholder text must refer to the character by NAME in third person, never use "you" or "your".
-   - CORRECT: "What is Paul thinking?", "What does Paul say to Grace?"
-   - WRONG: "What are you thinking?", "What do you say?"
+6. Placeholder text rules:
+   - Refer to the character by NAME in third person, never use "you" or "your"
+   - Must be SPECIFIC to the current situation — never generic
+   - WRONG: "What is Paul thinking?", "What does Paul say?" (too generic, gives no context)
+   - CORRECT: "How does Paul explain the burger mishap?", "What does Paul say about the mess?"
+   - The placeholder should hint at the situation so the user knows what to respond to
 
 STORY NARRATIVE (internal story direction):
 - Short-term narrative: What should happen in the next 1-3 panels. Update every panel based on recent events and user input.
@@ -126,6 +137,12 @@ CHARACTER CONSISTENCY (critical):
 - In scene_description and scene_summary.characters_present, ALWAYS use the character's correct species (e.g., if Grace is a giraffe, she is ALWAYS a giraffe — never a red panda, bear, or anything else).
 - When listing characters_present, include their correct species: e.g., "Grace (giraffe, watching from distance)"
 
+SCENE SETTING CONSISTENCY (critical):
+- The scene_setting must stay consistent with the ESTABLISHED LOCATION unless the story explicitly moves to a new place.
+- Do NOT invent new locations (parks, picnic areas, clearings) when the characters are still at the same place.
+- If the story started at "the city zoo", panels should reference zoo locations (enclosures, paths, fountain, etc.) — not generic fields or parks.
+- Only change the setting when a narration panel or story event explicitly transitions to a new location.
+
 FINAL OUTCOMES (ending mechanic):
 - If POSSIBLE ENDINGS are provided in the user message, the story MUST eventually converge on one of them.
 - Track which outcome the story is gravitating toward via your long-term narrative.
@@ -138,7 +155,7 @@ FINAL OUTCOMES (ending mechanic):
 RESPOND WITH JSON:
 {{"panels": [
   {{"scene_description": "Brief visual description for image generation",
-    "elements": [{{"type": "speech", "character_name": "MainChar", "position": "center", "user_input": true, "placeholder": "What does MainChar say?"}}]
+    "elements": [{{"type": "speech", "character_name": "MainChar", "position": "center", "user_input": true, "placeholder": "How does MainChar greet the stranger?"}}]
   }}
 ],
 "scene_summary": {{"scene_setting": "Brief setting", "characters_present": ["Name (exact species from blueprint + brief visual state)"], "current_action": "what"}},
@@ -153,7 +170,7 @@ EXAMPLE WITH AUTOMATIC TRANSITION PANEL:
     "elements": [{{"type": "narration", "position": "top-left", "user_input": false, "text": "Hours later, somewhere over the Caribbean..."}}]
   }},
   {{"scene_description": "Character stepping off the plane onto a tropical runway, palm trees swaying",
-    "elements": [{{"type": "thought", "character_name": "MainChar", "position": "center", "user_input": true, "placeholder": "What is MainChar thinking?"}}]
+    "elements": [{{"type": "thought", "character_name": "MainChar", "position": "center", "user_input": true, "placeholder": "How does MainChar feel about the tropical heat?"}}]
   }}
 ],
 "scene_summary": {{"scene_setting": "Tropical airport runway", "characters_present": ["MainChar"], "current_action": "Arriving in Jamaica"}},

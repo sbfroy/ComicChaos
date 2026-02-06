@@ -63,8 +63,17 @@ class PanelDetector:
         self.min_circularity = min_circularity
         self.min_rectangularity = min_rectangularity
 
+    # Dark border added around the image so that white bubbles/boxes
+    # touching the edge still form closed contours during detection.
+    _PAD = 20
+
     def _preprocess_image(self, image_data: bytes):
         """Decode image bytes and extract contours from white regions.
+
+        A dark border is added around the image before processing so that
+        bubbles or narration boxes touching the image edge still produce
+        closed contours.  The returned contours have their coordinates
+        shifted back to the original image space.
 
         Args:
             image_data: Raw image bytes (e.g. PNG).
@@ -78,7 +87,13 @@ class PanelDetector:
 
         height, width = img.shape[:2]
 
-        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        # Pad with black so edge-touching white regions get closed contours
+        padded = cv2.copyMakeBorder(
+            img, self._PAD, self._PAD, self._PAD, self._PAD,
+            cv2.BORDER_CONSTANT, value=(0, 0, 0),
+        )
+
+        gray = cv2.cvtColor(padded, cv2.COLOR_BGR2GRAY)
         _, binary = cv2.threshold(gray, self.white_threshold, 255, cv2.THRESH_BINARY)
         inverse = cv2.bitwise_not(binary)
 
@@ -87,16 +102,35 @@ class PanelDetector:
 
         contours, _ = cv2.findContours(cleaned, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
-        return contours, height, width
+        # Shift contour coordinates back to original image space
+        shifted = []
+        for c in contours:
+            shifted.append(c - self._PAD)
+
+        return shifted, height, width
 
     def _build_region(self, contour: np.ndarray, x: int, y: int, w: int, h: int, img_height: int, img_width: int, area: int) -> DetectedRegion:
         """Create a DetectedRegion with a binary mask from a contour."""
+        # Clamp bounding box to image bounds (contours may extend slightly
+        # beyond the original image when the bubble touched the edge).
+        x2 = min(x + w, img_width)
+        y2 = min(y + h, img_height)
+        x = max(x, 0)
+        y = max(y, 0)
+        w = x2 - x
+        h = y2 - y
+
+        # Clamp contour points before drawing the mask
+        clamped = contour.copy()
+        clamped[:, :, 0] = np.clip(clamped[:, :, 0], 0, img_width - 1)
+        clamped[:, :, 1] = np.clip(clamped[:, :, 1], 0, img_height - 1)
+
         mask = np.zeros((img_height, img_width), dtype=np.uint8)
-        cv2.drawContours(mask, [contour], -1, 255, -1)
+        cv2.drawContours(mask, [clamped], -1, 255, -1)
 
         return DetectedRegion(
             x=x, y=y, width=w, height=h,
-            contour=contour, mask=mask, area=area,
+            contour=clamped, mask=mask, area=area,
         )
 
     def detect_bubbles(self, image_data: bytes) -> List[DetectedRegion]:
