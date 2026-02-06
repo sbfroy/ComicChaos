@@ -1,7 +1,7 @@
 {
   "title": "Paul the Panda",
   "synopsis": "Paul's clumsy attempts to win the heart of Grace the Giraffe at the city zoo.",
-  "visual_style": "1920s vintage illustration style with colorful but faded tones and restrained ink linework. Hand-drawn and slightly unfinished, with subtle imperfections and confident, deliberate lines from a professional illustrator. Extremely minimal detail: sparse backgrounds, few elements, and generous empty space. Artistic, old-fashioned, and unpolished—nothing modern or childish. Single full-bleed image with no frames, borders, or panels.",
+  "visual_style": "1920s vintage illustration style with colorful but faded tones and restrained ink linework. Illustrative and slightly imperfect, with organic line variation and a subtle animated feel, yet confident and deliberate like professional studio artwork. Extremely minimal detail: sparse backgrounds, few elements, and generous empty space. Artistic and intentionally unpolished, with nothing modern or childish.",
   "locations": [
     {
       "name": "City Zoo",
@@ -19,7 +19,7 @@
   "characters": [
     {
       "name": "Paul",
-      "description": "A round, chubby giant panda with soft black-and-white fur, expressive dark eyes, and a slightly dopey but endearing smile. Well-meaning, clumsy, and hopelessly romantic."
+      "description": "A round, chubby giant panda with expressive dark eyes and a slightly dopey, charming smile. Well-meaning, clumsy, and hopelessly romantic."
     },
     {
       "name": "Grace",
@@ -28,8 +28,7 @@
   ],
   "rules": [
     "The animals behave like animals but with human-like emotions and social dynamics.",
-    "Paul's attempts to impress Grace should always backfire in funny, physical-comedy ways.",
-    "The tone is always warm and lighthearted — never mean-spirited."
+    "Paul's attempts to impress Grace should always backfire in funny, physical-comedy ways."
   ],
   "long_term_narrative": [
     "Paul keeps finding creative but doomed ways to get Grace's attention.",
