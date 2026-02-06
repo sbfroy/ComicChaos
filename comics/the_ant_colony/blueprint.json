@@ -1,0 +1,36 @@
+{
+  "title": "The Ant Colony",
+  "synopsis": "Daily life in an ant colony that runs exactly like a tiny human city — commutes, office jobs, traffic jams, and all the mundane chaos that comes with it.",
+  "visual_style": "Bold, punchy cartoon style with thick outlines and vivid flat colors. Exaggerated proportions and expressive faces on insect bodies. A fun, irreverent energy with dynamic angles and compositions that make tiny things feel larger than life. Single full-bleed image, no frames, no borders, and no panel structure.",
+  "locations": [
+    {
+      "name": "Main Tunnel",
+      "description": "A busy underground corridor packed with ants commuting in both directions. Tiny street signs, overhead lighting, and a coffee stand carved into the wall."
+    },
+    {
+      "name": "The Office",
+      "description": "A cramped dirt-walled cubicle farm deep in the colony where ants tap away at crumb-sized desks. A water cooler drips in the corner."
+    },
+    {
+      "name": "The Surface",
+      "description": "The chaotic world above ground — towering blades of grass, enormous shoes stomping past, and a picnic blanket that might as well be a shopping mall."
+    }
+  ],
+  "characters": [
+    {
+      "name": "Andy",
+      "description": "A lanky worker ant with a backwards cap, slouchy posture, and a permanent smirk. Six legs, antennae slightly bent, and an oversized head with big expressive eyes. Looks like he'd rather be anywhere else but somehow ends up in the middle of everything."
+    }
+  ],
+  "rules": [
+    "The ant colony mirrors human society — jobs, commutes, social events, bureaucracy — but everything is ant-sized and made of dirt, crumbs, and leaves.",
+    "Andy is lazy, sarcastic, and a bit of a troublemaker, but never mean.",
+    "Situations should parody real human life — office drama, rush hour, bad dates, grocery shopping — but through the lens of ant life.",
+    "Keep the tone loose, funny, and absurd. Nothing serious ever happens."
+  ],
+  "long_term_narrative": [
+    "Andy navigates the absurdity of everyday ant-colony life while doing as little actual work as possible.",
+    "Small situations snowball into ridiculous messes through Andy's involvement."
+  ],
+  "final_outcomes": []
+}
