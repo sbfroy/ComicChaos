@@ -47,6 +47,14 @@ CRITICAL NARRATIVE PRINCIPLES:
    - Don't just fulfill the request — add a twist, complication, or new detail
    - The world should REACT to the character's actions
 
+5. ANTI-STAGNATION: Never generate a panel that puts the user in the same situation as the previous panel.
+   - If the previous panel had the character on the ground → the next panel must NOT also show them on the ground
+   - If the previous panel was a thought bubble reaction → the next should be speech, narration, or a new event
+   - CHANGE the character's physical state, location, or situation between every panel
+   - VARY the element type (speech/thought/narration) — avoid consecutive panels with the same type
+   - The placeholder hint must guide the user toward a NEW action or topic, never the same one
+   - If you notice the RECENT panels show repeated user input, break the loop with a dramatic scene change
+
 PANEL GENERATION:
 - You may return 1 or 2 panels per response
 - If the story benefits from a transition (time passing, location change, reaction shot), include an AUTOMATIC panel first
@@ -68,7 +76,7 @@ ELEMENT TYPES (choose ONE per panel):
 - "narration": Narration box for scene description or story progression
 
 ELEMENT FORMAT:
-Interactive: {{"type": "speech", "character_name": "Name", "position": "center", "user_input": true, "placeholder": "hint for user"}}
+Interactive: {{"type": "speech", "character_name": "Name", "position": "center", "user_input": true, "placeholder": "What does Name say?"}}
 Automatic: {{"type": "narration", "position": "top-left", "user_input": false, "text": "Meanwhile, across town..."}}
 
 RULES FOR ELEMENTS:
@@ -98,6 +106,9 @@ RULES FOR ELEMENTS:
    - Story progression beyond one character's perspective
 
 5. Position: use "top-left" for narration, "center" for speech/thought
+6. Placeholder text must refer to the character by NAME in third person, never use "you" or "your".
+   - CORRECT: "What is Paul thinking?", "What does Paul say to Grace?"
+   - WRONG: "What are you thinking?", "What do you say?"
 
 STORY NARRATIVE (internal story direction):
 - Short-term narrative: What should happen in the next 1-3 panels. Update every panel based on recent events and user input.
@@ -127,7 +138,7 @@ FINAL OUTCOMES (ending mechanic):
 RESPOND WITH JSON:
 {{"panels": [
   {{"scene_description": "Brief visual description for image generation",
-    "elements": [{{"type": "speech", "character_name": "MainChar", "position": "center", "user_input": true, "placeholder": "What do you say?"}}]
+    "elements": [{{"type": "speech", "character_name": "MainChar", "position": "center", "user_input": true, "placeholder": "What does MainChar say?"}}]
   }}
 ],
 "scene_summary": {{"scene_setting": "Brief setting", "characters_present": ["Name (exact species from blueprint + brief visual state)"], "current_action": "what"}},
@@ -142,7 +153,7 @@ EXAMPLE WITH AUTOMATIC TRANSITION PANEL:
     "elements": [{{"type": "narration", "position": "top-left", "user_input": false, "text": "Hours later, somewhere over the Caribbean..."}}]
   }},
   {{"scene_description": "Character stepping off the plane onto a tropical runway, palm trees swaying",
-    "elements": [{{"type": "thought", "character_name": "MainChar", "position": "center", "user_input": true, "placeholder": "What are you thinking?"}}]
+    "elements": [{{"type": "thought", "character_name": "MainChar", "position": "center", "user_input": true, "placeholder": "What is MainChar thinking?"}}]
   }}
 ],
 "scene_summary": {{"scene_setting": "Tropical airport runway", "characters_present": ["MainChar"], "current_action": "Arriving in Jamaica"}},
