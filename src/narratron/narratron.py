@@ -195,6 +195,7 @@ class Narratron:
             model=cc.llm_model,
             messages=messages,
             temperature=cc.llm_temperature,
+            top_p=cc.llm_top_p,
             max_tokens=cc.llm_max_tokens,
             response_format={"type": "json_object"},
         )

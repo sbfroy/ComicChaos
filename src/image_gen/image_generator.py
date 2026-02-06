@@ -348,8 +348,8 @@ class ImageGenerator:
                 prompt_parts.append(bubble_instructions)
 
         # Add instruction to not include frames or panel edges
-        prompt_parts.append("No frames and no panel edges.")
-
+        prompt_parts.append("Single full-bleed image with no frames, borders, or panels.")
+   
         # Join all parts into a coherent prompt
         full_prompt = " ".join(prompt_parts)
 

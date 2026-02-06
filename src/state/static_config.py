@@ -76,7 +76,8 @@ class ComicConfig(BaseModel):
         description="CSS font-family string for in-panel text"
     )
     llm_model: str = Field(default="gpt-4o-mini")
-    llm_temperature: float = Field(default=0.6)
+    llm_temperature: float = Field(default=0.8)
+    llm_top_p: float = Field(default=0.9)
     llm_max_tokens: int = Field(default=1500)
     image_model: str = Field(default="gpt-image-1-mini")
     image_size: str = Field(default="1024x1024")
