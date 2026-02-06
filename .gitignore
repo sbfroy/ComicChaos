@@ -27,8 +27,7 @@ assets/generated/*.txt
 /output
 
 # Archived comics
-comics/archive/*
-!comics/archive/.gitkeep
+comics/archive/
 
 # OS
 .DS_Store
