@@ -1,19 +1,15 @@
 {
   "title": "Paul the Panda",
-  "synopsis": "Paul's clumsy attempts to win the heart of Grace the Giraffe at the city zoo.",
-  "visual_style": "1940s comic inspired style with muted, slightly unnatural colors and strong contrast. Clean, restrained ink linework and flat color fills, creating a professional, graphic look with restrained expressions and mature proportions. Extremely minimal detail with sparse backgrounds, few elements, and generous empty space. Full bleed composition with no borders, frames, or panel lines. Artistic, intentionally simple, and free of anything modern or cute.",
+  "synopsis": "Paul's clumsy attempts to win the heart of Grace the Giraffe.",
+  "visual_style": "1940s comic inspired style with warm, faded colors and strong color contrast. Clean, restrained ink linework and flat color fills, creating a professional, graphic look. Extremely minimal detail, with sparse backgrounds, few elements, and generous empty space. Artistic, intentionally simple, and free of anything modern or cute.",
   "locations": [
     {
       "name": "City Zoo",
-      "description": "A small traditional zoo with stone-walled enclosures, winding visitor paths, old oak trees, and a central fountain. Animals roam freely between exhibits during social hours."
+      "description": "A small, traditional zoo with red brick walls, stone foundations, iron railings, and simple, old-fashioned animal enclosures typical of early 20th-century zoos."
     },
     {
       "name": "Panda Enclosure",
-      "description": "A bamboo-filled enclosure with a tire swing, a shallow pond, and a cozy wooden shelter. Paul's home turf."
-    },
-    {
-      "name": "Giraffe Paddock",
-      "description": "A tall-fenced open paddock with acacia trees. Grace's elegant domain."
+      "description": "A bamboo-filled enclosure with a tire swing, a shallow pond, and a small wooden shelter that is slightly too cramped for Paul."
     }
   ],
   "characters": [
@@ -23,7 +19,7 @@
     },
     {
       "name": "Grace",
-      "description": "A tall, graceful giraffe with warm golden-brown patches, long eyelashes, and a calm, composed demeanor. Kind but oblivious to Paul's advances."
+      "description": "A tall, graceful giraffe with a calm, kind demeanor. Amused and gently interested in Paul's shenanigans."
     }
   ],
   "rules": [
@@ -35,7 +31,7 @@
     "Each attempt escalates in ambition and comedic disaster."
   ],
   "final_outcomes": [
-    "Paul wins Grace's heart and they become an unlikely but adorable couple",
-    "Grace rejects Paul and he is left heartbroken"
+    "Paul wins Grace's heart and they become an unlikely but adorable couple.",
+    "Grace rejects Paul and he is left heartbroken."
   ]
 }
