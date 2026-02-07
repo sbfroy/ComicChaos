@@ -1,7 +1,7 @@
 {
   "title": "Paul the Panda",
   "synopsis": "Paul's clumsy attempts to win the heart of Grace the Giraffe.",
-  "visual_style": "1940s comic inspired style with warm, faded colors and strong color contrast. Clean, restrained ink linework and flat color fills, creating a professional, graphic look. Extremely minimal detail, with sparse backgrounds, few elements, and generous empty space. Artistic, intentionally simple, and free of anything modern or cute. Single full-bleed image, no frames, no borders, and no panel structure.",
+  "visual_style": "Minimal, graphic comic illustration with a cubist-inspired layout. Characters are highly readable silhouettes with thick, consistent black outlines and flat fills, with no gradients. Environments are abstract geometry: overlapping rectangles, arcs, and large color blocks that suggest location rather than depict it. Backgrounds are mostly empty with generous negative space, and each panel includes at most 1-2 symbolic props such as a sign block, a fence line, or a single tree shape. The overall detail level is intentionally lower than typical comics: no textures, no tiny objects, no complex patterns. The palette uses a warm ochre and off-white base with muted teal/blue and brick red accents plus black, and shadows appear only as single flat shapes. Facial direction is neutral-to-pleasant with calm, normal eyes and subtle smiles when appropriate; comedy comes primarily from body language and timing rather than exaggerated faces. Avoid cute or chibi proportions, big sparkly eyes, blush, angry or irritated default expressions, detailed fur, realistic scenery, clutter, painterly shading, and any modern glossy look.",
   "locations": [
     {
       "name": "City Zoo",
@@ -15,11 +15,11 @@
   "characters": [
     {
       "name": "Paul",
-      "description": "A round, chubby giant panda with expressive dark eyes and a slightly dopey, charming smile. Endlessly optimistic, physically incompetent, and completely lacking in self-awareness about how badly his plans go."
+      "description": "Paul is a stout panda built from simple rounded volumes with a big torso, a small head, and short limbs. His face is minimal, with small calm eyes and a simple mouth, and his default expression is neutral and slightly hopeful rather than angry. His humor is conveyed through big, readable physical-comedy poses, while the rendering stays very minimal with no fur detail, thick outlines, and flat black-and-white patches."
     },
     {
       "name": "Grace",
-      "description": "A tall, graceful giraffe with dry wit and an effortless cool. She finds Paul's disasters genuinely entertaining but would never admit it — her amusement comes through deadpan one-liners and raised eyebrows rather than open encouragement."
+      "description": "Grace is a tall giraffe reduced to clean geometry, with a long neck drawn as a single elegant curve or column and a head simplified into a wedge-like shape. Her spots are minimal, shown as only a few graphic marks, and her expression is composed and mildly amused with a subtle smile or softened eyes, never sweet or cute. Her humor is dry and understated, carried by posture and timing, and she is rendered with thick outlines and flat fills."
     }
   ],
   "rules": [
