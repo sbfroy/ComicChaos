@@ -10,12 +10,12 @@ MAIN CHARACTER: {main_character}
 Create TWO panels for the grand opening:
 
 ## PANEL 1: TITLE CARD
-A dramatic, cinematic establishing shot that:
-- MUST include the comic title "{title}" prominently displayed in the image (as stylized text, a sign, carved letters, neon, etc.)
-- Showcases the setting/atmosphere of the story
-- May include the main character as a silhouette, from behind, or in the distance
-- Sets the mood and tone for the story
-- NO speech bubbles or dialogue - this is purely visual with the title text
+A classic, clean title panel where the comic title dominates the frame:
+- The title "{title}" must be the clear visual focus — large, prominent typography that commands the composition
+- Background should be minimalist and restrained — it may subtly hint at the characters or setting, but nothing detailed or busy
+- Think classic comic opening panels: title dominates, everything else is secondary
+- NO speech bubbles, NO dialogue, NO detailed action or complex scenes
+- Keep the composition simple and elegant — the title is the star
 
 ## PANEL 2: FIRST INTERACTIVE PANEL
 The first story panel where:
@@ -27,9 +27,9 @@ The first story panel where:
 RESPOND WITH JSON:
 {{
   "title_card": {{
-    "scene_description": "Dramatic visual description that INCLUDES the title text '{title}' as part of the scene (e.g., 'The words COMIC TITLE glow in neon against a rainy cityscape...'). Be specific about composition, mood, and how the title appears.",
-    "title_treatment": "How the title appears visually (e.g., 'Bold neon letters', 'Carved into stone', 'Painted on a wall')",
-    "atmosphere": "The mood and feeling in 2-4 words (e.g., 'mysterious twilight adventure', 'bright morning chaos')"
+    "scene_description": "Clean, title-dominant composition. The title '{title}' must be described as large, prominent text that dominates the frame. Background is minimal — a simple color, subtle texture, or faint silhouette. No detailed scenes or action.",
+    "title_treatment": "How the title appears visually (e.g., 'Bold vintage lettering', 'Classic hand-drawn comic title', 'Large block letters')",
+    "atmosphere": "The mood and feeling in 2-4 words (e.g., 'warm and inviting', 'playful and bold')"
   }},
   "first_panel": {{
     "scene_description": "Visual description for first story panel - show the main character clearly in the starting location",
