@@ -12,6 +12,17 @@ from .image_gen.text_renderer import TextRenderer, TextElement
 class ComicStrip:
     """Collects comic panels and generates the final strip."""
 
+    @staticmethod
+    def _open_as_rgb(image_bytes: bytes) -> Image.Image:
+        """Open image bytes and ensure RGB mode with white background."""
+        img = Image.open(BytesIO(image_bytes))
+        if img.mode in ('RGBA', 'LA', 'PA'):
+            background = Image.new('RGB', img.size, (255, 255, 255))
+            background.paste(img, mask=img.split()[-1])
+            return background
+        if img.mode != 'RGB':
+            return img.convert('RGB')
+        return img
 
     def __init__(self, title: str = "My Comic"):
         self.title = title
@@ -95,7 +106,7 @@ class ComicStrip:
                     )
                     images.append(processed_img)
                 else:
-                    img = Image.open(BytesIO(panel["image_bytes"]))
+                    img = self._open_as_rgb(panel["image_bytes"])
                     img = img.resize((panel_size, panel_size), Image.Resampling.LANCZOS)
                     images.append(img)
             except Exception as e:
@@ -187,8 +198,8 @@ class ComicStrip:
             return None
 
         try:
-            # Load the image from bytes
-            img = Image.open(BytesIO(image_bytes))
+            # Load the image from bytes (ensure RGB with white background)
+            img = self._open_as_rgb(image_bytes)
             img_width, img_height = img.size
 
             # Convert stored bubble dicts to DetectedBubble objects
