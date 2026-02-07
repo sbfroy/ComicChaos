@@ -31,20 +31,29 @@
            CSS VARIABLES - Design Tokens
            ======================================== */
         :root {
-            /* Colors */
-            --color-primary-blue: #1765B9;
+            /* Colors - Primary */
+            --color-primary-blue: #0472D5;
             --color-accent-yellow: #FCE900;
-            --color-accent-red: #dc2626;
             --color-black: #111;
-            --color-white: #fff;
-            --color-paper: #f5f0e6;
-            --color-paper-dark: #e8e0d0;
-            --color-gray-light: #d1d5db;
+
+            /* Colors - UI surfaces */
+            --color-paper: #ECEDF1;
+            --color-paper-dark: #DDDEE3;
+            --color-narration-bg: #fef3c7;
+            --color-error-flash: #fff3cd;
+
+            /* Colors - Text */
+            --color-text-secondary: #444;
+            --color-text-muted: #999;
+            --color-text-fallback: #666;
             --color-gray-medium: #9ca3af;
+
+            /* Colors - Decorative */
+            --color-stripes: #D41008;
+            /* Note: vignette gradients use rgba(4,114,213,...) derived from --color-primary-blue */
 
             /* Borders */
             --border-thick: 4px solid var(--color-black);
-            --border-medium: 3px solid var(--color-black);
 
             /* Typography */
             --font-display: 'Roboto Mono', monospace;
@@ -74,7 +83,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: #1765B9;
+            background: var(--color-primary-blue);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -96,49 +105,49 @@
             transform: translate(-50%, -50%);
             background: conic-gradient(
                 transparent 0deg 1deg,
-                #111 1deg 1.5deg, #c42c1e 1.5deg 9deg, #111 9deg 9.5deg,
+                #111 1deg 1.5deg, var(--color-stripes) 1.5deg 9deg, #111 9deg 9.5deg,
                 transparent 9.5deg 16deg,
-                #111 16deg 16.5deg, #c42c1e 16.5deg 22deg, #111 22deg 22.5deg,
+                #111 16deg 16.5deg, var(--color-stripes) 16.5deg 22deg, #111 22deg 22.5deg,
                 transparent 22.5deg 31deg,
-                #111 31deg 31.5deg, #c42c1e 31.5deg 42deg, #111 42deg 42.5deg,
+                #111 31deg 31.5deg, var(--color-stripes) 31.5deg 42deg, #111 42deg 42.5deg,
                 transparent 42.5deg 47deg,
-                #111 47deg 47.5deg, #c42c1e 47.5deg 54deg, #111 54deg 54.5deg,
+                #111 47deg 47.5deg, var(--color-stripes) 47.5deg 54deg, #111 54deg 54.5deg,
                 transparent 54.5deg 64deg,
-                #111 64deg 64.5deg, #c42c1e 64.5deg 76deg, #111 76deg 76.5deg,
+                #111 64deg 64.5deg, var(--color-stripes) 64.5deg 76deg, #111 76deg 76.5deg,
                 transparent 76.5deg 82deg,
-                #111 82deg 82.5deg, #c42c1e 82.5deg 88deg, #111 88deg 88.5deg,
+                #111 82deg 82.5deg, var(--color-stripes) 82.5deg 88deg, #111 88deg 88.5deg,
                 transparent 88.5deg 97deg,
-                #111 97deg 97.5deg, #c42c1e 97.5deg 108deg, #111 108deg 108.5deg,
+                #111 97deg 97.5deg, var(--color-stripes) 97.5deg 108deg, #111 108deg 108.5deg,
                 transparent 108.5deg 113deg,
-                #111 113deg 113.5deg, #c42c1e 113.5deg 119deg, #111 119deg 119.5deg,
+                #111 113deg 113.5deg, var(--color-stripes) 113.5deg 119deg, #111 119deg 119.5deg,
                 transparent 119.5deg 129deg,
-                #111 129deg 129.5deg, #c42c1e 129.5deg 140deg, #111 140deg 140.5deg,
+                #111 129deg 129.5deg, var(--color-stripes) 129.5deg 140deg, #111 140deg 140.5deg,
                 transparent 140.5deg 146deg,
-                #111 146deg 146.5deg, #c42c1e 146.5deg 153deg, #111 153deg 153.5deg,
+                #111 146deg 146.5deg, var(--color-stripes) 146.5deg 153deg, #111 153deg 153.5deg,
                 transparent 153.5deg 161deg,
-                #111 161deg 161.5deg, #c42c1e 161.5deg 173deg, #111 173deg 173.5deg,
+                #111 161deg 161.5deg, var(--color-stripes) 161.5deg 173deg, #111 173deg 173.5deg,
                 transparent 173.5deg 180deg,
-                #111 180deg 180.5deg, #c42c1e 180.5deg 186deg, #111 186deg 186.5deg,
+                #111 180deg 180.5deg, var(--color-stripes) 180.5deg 186deg, #111 186deg 186.5deg,
                 transparent 186.5deg 194deg,
-                #111 194deg 194.5deg, #c42c1e 194.5deg 205deg, #111 205deg 205.5deg,
+                #111 194deg 194.5deg, var(--color-stripes) 194.5deg 205deg, #111 205deg 205.5deg,
                 transparent 205.5deg 211deg,
-                #111 211deg 211.5deg, #c42c1e 211.5deg 218deg, #111 218deg 218.5deg,
+                #111 211deg 211.5deg, var(--color-stripes) 211.5deg 218deg, #111 218deg 218.5deg,
                 transparent 218.5deg 227deg,
-                #111 227deg 227.5deg, #c42c1e 227.5deg 239deg, #111 239deg 239.5deg,
+                #111 227deg 227.5deg, var(--color-stripes) 227.5deg 239deg, #111 239deg 239.5deg,
                 transparent 239.5deg 244deg,
-                #111 244deg 244.5deg, #c42c1e 244.5deg 250deg, #111 250deg 250.5deg,
+                #111 244deg 244.5deg, var(--color-stripes) 244.5deg 250deg, #111 250deg 250.5deg,
                 transparent 250.5deg 260deg,
-                #111 260deg 260.5deg, #c42c1e 260.5deg 271deg, #111 271deg 271.5deg,
+                #111 260deg 260.5deg, var(--color-stripes) 260.5deg 271deg, #111 271deg 271.5deg,
                 transparent 271.5deg 277deg,
-                #111 277deg 277.5deg, #c42c1e 277.5deg 284deg, #111 284deg 284.5deg,
+                #111 277deg 277.5deg, var(--color-stripes) 277.5deg 284deg, #111 284deg 284.5deg,
                 transparent 284.5deg 293deg,
-                #111 293deg 293.5deg, #c42c1e 293.5deg 304deg, #111 304deg 304.5deg,
+                #111 293deg 293.5deg, var(--color-stripes) 293.5deg 304deg, #111 304deg 304.5deg,
                 transparent 304.5deg 309deg,
-                #111 309deg 309.5deg, #c42c1e 309.5deg 316deg, #111 316deg 316.5deg,
+                #111 309deg 309.5deg, var(--color-stripes) 309.5deg 316deg, #111 316deg 316.5deg,
                 transparent 316.5deg 325deg,
-                #111 325deg 325.5deg, #c42c1e 325.5deg 337deg, #111 337deg 337.5deg,
+                #111 325deg 325.5deg, var(--color-stripes) 325.5deg 337deg, #111 337deg 337.5deg,
                 transparent 337.5deg 343deg,
-                #111 343deg 343.5deg, #c42c1e 343.5deg 350deg, #111 350deg 350.5deg,
+                #111 343deg 343.5deg, var(--color-stripes) 343.5deg 350deg, #111 350deg 350.5deg,
                 transparent 350.5deg 360deg
             );
             animation: stripesRotate 40s linear infinite;
@@ -164,10 +173,8 @@
         .splash-vignette {
             background: radial-gradient(
                 ellipse 60% 60% at center,
-                var(--color-primary-blue) 0%,
-                var(--color-primary-blue) 30%,
-                rgba(23, 101, 185, 0.15) 60%,
-                rgba(23, 101, 185, 0.08) 80%
+                var(--color-primary-blue) 20%,
+                transparent 55%
             );
         }
 
@@ -231,15 +238,6 @@
             100% { transform: scale(1); opacity: 1; }
         }
 
-        .container {
-            max-width: 1100px;
-            margin: 0 auto;
-            padding: 20px;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-
         /* Comic Selection - full screen */
         .comic-select {
             position: fixed;
@@ -247,7 +245,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: #1765B9;
+            background: var(--color-primary-blue);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -265,10 +263,8 @@
         .select-vignette {
             background: radial-gradient(
                 ellipse 60% 60% at center,
-                var(--color-primary-blue) 0%,
-                var(--color-primary-blue) 30%,
-                rgba(23, 101, 185, 0.15) 60%,
-                rgba(23, 101, 185, 0.08) 80%
+                var(--color-primary-blue) 20%,
+                transparent 55%
             );
         }
 
@@ -372,10 +368,6 @@
             filter: brightness(1.1);
         }
 
-        .comic-bubble.selected {
-            filter: brightness(1.15) drop-shadow(0 0 15px rgba(251, 191, 36, 0.8));
-        }
-
         .comic-bubble.coming-soon {
             cursor: default;
             opacity: 0;
@@ -405,14 +397,14 @@
 
         .bubble-text p {
             font-family: var(--font-ui);
-            color: #444;
+            color: var(--color-text-secondary);
             font-size: 0.85rem;
             line-height: 1.4;
         }
 
         .bubble-text.muted h3,
         .bubble-text.muted p {
-            color: #999;
+            color: var(--color-text-muted);
         }
 
         /* ========================================
@@ -510,7 +502,7 @@
         .finish-btn-small:disabled {
             opacity: 0.5;
             cursor: not-allowed;
-            background: var(--color-gray-light);
+            background: var(--color-gray-medium);
         }
 
         /* ========================================
@@ -569,7 +561,7 @@
 
         .panel-image-container {
             position: relative;
-            background: var(--color-paper-dark);
+            background: var(--color-paper);
             overflow: hidden;
             width: 100%;
             height: 100%;
@@ -626,16 +618,6 @@
             z-index: 1;
         }
 
-        .speech-bubble .char-name {
-            font-family: var(--font-panel);
-            font-weight: bold;
-            font-size: 0.55rem;
-            color: var(--color-accent-red);
-            margin-bottom: 2px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
         /* Thought Bubble - with thick border */
         .thought-bubble {
             background: var(--color-paper);
@@ -648,7 +630,7 @@
             font-family: var(--font-panel);
             -webkit-text-stroke: 0;
             font-style: italic;
-            color: #444;
+            color: var(--color-text-secondary);
             line-height: 1.2;
         }
 
@@ -676,19 +658,9 @@
             border-radius: 50%;
         }
 
-        .thought-bubble .char-name {
-            font-family: var(--font-panel);
-            font-weight: bold;
-            font-size: 0.5rem;
-            color: #06b6d4;
-            margin-bottom: 2px;
-            font-style: normal;
-            letter-spacing: 0.5px;
-        }
-
         /* Narration Box - with thick border */
         .narration-box {
-            background: #fef3c7;
+            background: var(--color-narration-bg);
             border: 3px solid var(--color-black);
             padding: 5px 8px;
             min-width: 60px;
@@ -701,19 +673,6 @@
             line-height: 1.2;
         }
 
-        /* Sound Effect - comic style */
-        .sfx-text {
-            font-family: var(--font-panel);
-            font-size: 0.9rem;
-            font-weight: bold;
-            color: var(--color-accent-red);
-            text-shadow: 2px 2px 0 var(--color-accent-yellow), 3px 3px 0 var(--color-black);
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            transform: rotate(-8deg);
-            white-space: nowrap;
-        }
-
         /* User Input Element - highlighted */
         .comic-element.user-input {
             box-shadow: 0 0 0 3px var(--color-accent-yellow), 0 0 12px rgba(251, 191, 36, 0.6);
@@ -723,17 +682,6 @@
         @keyframes pulse {
             0%, 100% { box-shadow: 0 0 0 3px var(--color-accent-yellow), 0 0 12px rgba(251, 191, 36, 0.6); }
             50% { box-shadow: 0 0 0 4px var(--color-accent-yellow), 0 0 18px rgba(251, 191, 36, 0.8); }
-        }
-
-        .sfx-text.user-input {
-            box-shadow: none;
-            animation: none;
-        }
-
-        .sfx-text.user-input .element-input {
-            background: rgba(245, 240, 230, 0.95);
-            border: 3px solid var(--color-accent-yellow);
-            box-shadow: 0 0 10px rgba(251, 191, 36, 0.5);
         }
 
         /* Input inside user-input elements */
@@ -753,16 +701,6 @@
         .element-input::placeholder {
             color: var(--color-gray-medium);
             font-size: 0.55rem;
-        }
-
-        .sfx-text .element-input {
-            background: rgba(245, 240, 230, 0.95);
-            padding: 4px 8px;
-            border-radius: 4px;
-            text-align: center;
-            min-width: 50px;
-            min-height: auto;
-            font-style: normal;
         }
 
         /* Static text content */
@@ -815,7 +753,7 @@
             -webkit-text-stroke: 0;
             font-size: 13px;
             line-height: 1.2;
-            color: #111;
+            color: var(--color-black);
             padding: 15%;
             box-sizing: border-box;
             background: transparent !important;
@@ -865,11 +803,9 @@
 
         .final-vignette {
             background: radial-gradient(
-                ellipse 65% 65% at center,
-                var(--color-primary-blue) 0%,
+                ellipse 60% 60% at center,
                 var(--color-primary-blue) 20%,
-                rgba(23, 101, 185, 0.15) 50%,
-                rgba(23, 101, 185, 0.08) 75%
+                transparent 55%
             );
         }
 
@@ -902,15 +838,6 @@
             border-radius: 8px;
             margin-bottom: 20px;
             background: var(--color-paper);
-        }
-
-        .final-content p {
-            font-family: var(--font-ui);
-            color: var(--color-paper);
-            font-size: 1rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 15px;
         }
 
         .final-buttons {
@@ -1015,53 +942,6 @@
             transition: opacity 0.3s ease;
         }
 
-        .streaming-panel .loading-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(23, 101, 185, 0.7);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--color-paper);
-            font-family: var(--font-ui);
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-        }
-
-        .streaming-indicator {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .streaming-dots {
-            display: flex;
-            gap: 6px;
-        }
-
-        .streaming-dots span {
-            width: 10px;
-            height: 10px;
-            background: var(--color-white);
-            border: 2px solid var(--color-gray-light);
-            border-radius: 50%;
-            animation: streamPulse 1.4s infinite;
-        }
-
-        .streaming-dots span:nth-child(2) { animation-delay: 0.2s; }
-        .streaming-dots span:nth-child(3) { animation-delay: 0.4s; }
-
-        @keyframes streamPulse {
-            0%, 100% { opacity: 0.3; transform: scale(0.8); }
-            50% { opacity: 1; transform: scale(1); }
-        }
-
         /* ========================================
            RESPONSIVE ADJUSTMENTS
            ======================================== */
@@ -1090,49 +970,47 @@
         <div class="splash-text">Click to enter the chaos!</div>
     </div>
 
-    <div class="container">
-        <div id="comic-select" class="comic-select">
-            <div class="rotating-stripes select-stripes"></div>
-            <div class="vignette select-vignette"></div>
-            <div class="select-content">
-                <div class="bubbles-area">
-                    <div class="comic-bubble" id="bubble-0" style="background-image: url('/static/images/bubble_1.webp')">
-                        <div class="bubble-text"><h3>Loading...</h3><p></p></div>
-                    </div>
-                    <div class="comic-bubble coming-soon" id="bubble-1" style="background-image: url('/static/images/bubble_2.webp')">
-                        <div class="bubble-text muted"><h3>Coming Soon...</h3><p></p></div>
-                    </div>
-                    <div class="comic-bubble coming-soon" id="bubble-2" style="background-image: url('/static/images/bubble_3.webp')">
-                        <div class="bubble-text muted"><h3>Coming Soon...</h3><p></p></div>
-                    </div>
+    <div id="comic-select" class="comic-select">
+        <div class="rotating-stripes select-stripes"></div>
+        <div class="vignette select-vignette"></div>
+        <div class="select-content">
+            <div class="bubbles-area">
+                <div class="comic-bubble" id="bubble-0" style="background-image: url('/static/images/bubble_1.webp')">
+                    <div class="bubble-text"><h3>Loading...</h3><p></p></div>
                 </div>
-            </div>
-            <div class="select-label">Pick your comic!</div>
-        </div>
-
-        <div id="workspace" class="comic-workspace">
-            <button id="finish-btn" class="finish-btn-small" disabled>Finish</button>
-            <div class="workspace-content">
-                <div class="comic-title-bar">
-                    <h2 id="comic-title"></h2>
+                <div class="comic-bubble coming-soon" id="bubble-1" style="background-image: url('/static/images/bubble_2.webp')">
+                    <div class="bubble-text muted"><h3>Coming Soon...</h3><p></p></div>
                 </div>
-
-                <div class="panels-strip">
-                    <div id="pages-container" class="pages-wrapper"></div>
+                <div class="comic-bubble coming-soon" id="bubble-2" style="background-image: url('/static/images/bubble_3.webp')">
+                    <div class="bubble-text muted"><h3>Coming Soon...</h3><p></p></div>
                 </div>
             </div>
         </div>
+        <div class="select-label">Pick your comic!</div>
+    </div>
 
-        <div id="final-strip" class="final-strip">
-            <div class="rotating-stripes final-stripes"></div>
-            <div class="vignette final-vignette"></div>
-            <div class="final-content">
-                <h2>Your Comic Chaos strip!</h2>
-                <img id="strip-image" src="" alt="Comic Strip" />
-                <div class="final-buttons">
-                    <button class="download-btn" id="download-btn">Download</button>
-                    <button class="new-comic-btn" onclick="location.reload()">Create another?</button>
-                </div>
+    <div id="workspace" class="comic-workspace">
+        <button id="finish-btn" class="finish-btn-small" disabled>Finish</button>
+        <div class="workspace-content">
+            <div class="comic-title-bar">
+                <h2 id="comic-title"></h2>
+            </div>
+
+            <div class="panels-strip">
+                <div id="pages-container" class="pages-wrapper"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="final-strip" class="final-strip">
+        <div class="rotating-stripes final-stripes"></div>
+        <div class="vignette final-vignette"></div>
+        <div class="final-content">
+            <h2>Your Comic Chaos strip!</h2>
+            <img id="strip-image" src="" alt="Comic Strip" />
+            <div class="final-buttons">
+                <button class="download-btn" id="download-btn">Download</button>
+                <button class="new-comic-btn" onclick="location.reload()">Create another?</button>
             </div>
         </div>
     </div>
@@ -1197,7 +1075,6 @@
             finishBtn: document.getElementById('finish-btn'),
             finalStrip: document.getElementById('final-strip'),
             stripImage: document.getElementById('strip-image'),
-            panelCount: document.getElementById('panel-count'),
             downloadBtn: document.getElementById('download-btn'),
             notification: document.getElementById('notification')
         };
@@ -1270,13 +1147,6 @@
             panel.innerHTML = `
                 <div class="panel-image-container">
                     <img src="" alt="Generating..." style="opacity: 0;" />
-                    <div class="loading-overlay">
-                        <div class="streaming-indicator">
-                            <div class="streaming-dots">
-                                <span></span><span></span><span></span>
-                            </div>
-                        </div>
-                    </div>
                 </div>
             `;
             return panel;
@@ -1341,7 +1211,7 @@
             if (el.type === 'narration') {
                 if (detectedBubble) {
                     // Position inside the detected narration box
-                    div.classList.add('detected-bubble', 'narration-detected');
+                    div.classList.add('detected-bubble');
                     if (isUserInput) div.classList.add('user-input');
 
                     const imgSize = 1024;
@@ -1370,15 +1240,6 @@
                     } else {
                         content = `<div class="element-text">${displayText}</div>`;
                     }
-                }
-            } else if (el.type === 'sfx') {
-                // SFX uses grid positioning
-                div.classList.add('sfx-text', getPositionClass(el.position));
-                if (isUserInput) div.classList.add('user-input');
-                if (isEditable && isUserInput) {
-                    content = `<input type="text" class="element-input" placeholder="${el.placeholder || 'SOUND!'}" value="${displayText}" />`;
-                } else {
-                    content = displayText;
                 }
             } else if (el.type === 'speech' || el.type === 'thought') {
                 // Speech/thought bubbles use detected bubble positions if available
@@ -1411,7 +1272,6 @@
                     div.classList.add(getPositionClass(el.position));
                     if (isUserInput) div.classList.add('user-input');
 
-                    content = `<div class="char-name">${el.character_name || 'Character'}</div>`;
                     if (isEditable && isUserInput) {
                         content += `<textarea class="element-input" placeholder="${el.placeholder || 'Say something...'}">${displayText}</textarea>`;
                     } else {
@@ -1427,12 +1287,12 @@
 
         function createTitleCardPanel(imageBase64) {
             const panel = document.createElement('div');
-            panel.className = 'comic-panel title-card-panel completed';
+            panel.className = 'comic-panel completed';
             panel.dataset.panelNumber = 0;
             panel.dataset.isTitleCard = 'true';
             panel.innerHTML = `
                 <div class="panel-image-container">
-                    ${imageBase64 ? `<img src="data:image/png;base64,${imageBase64}" alt="Title Card" />` : '<div style="padding:20px;color:#666;">No image</div>'}
+                    ${imageBase64 ? `<img src="data:image/png;base64,${imageBase64}" alt="Title Card" />` : '<div style="padding:20px;color:var(--color-text-fallback);">No image</div>'}
                 </div>
             `;
             return panel;
@@ -1444,7 +1304,7 @@
             panel.dataset.panelNumber = panelNumber;
             panel.innerHTML = `
                 <div class="panel-image-container">
-                    ${imageBase64 ? `<img src="data:image/png;base64,${imageBase64}" alt="Panel ${panelNumber}" />` : '<div style="padding:20px;color:#666;">No image</div>'}
+                    ${imageBase64 ? `<img src="data:image/png;base64,${imageBase64}" alt="Panel ${panelNumber}" />` : '<div style="padding:20px;color:var(--color-text-fallback);">No image</div>'}
                 </div>
             `;
 
@@ -1472,11 +1332,8 @@
 
         function getUserInput() {
             const currentPanel = document.querySelector('.comic-panel.current');
-            console.log('getUserInput - currentPanel:', currentPanel);
             if (!currentPanel) return '';
             const input = currentPanel.querySelector('.user-input .element-input');
-            console.log('getUserInput - input element:', input);
-            console.log('getUserInput - input value:', input ? input.value : 'null');
             return input ? input.value.trim() : '';
         }
 
@@ -1722,22 +1579,16 @@
 
             function commitCurrentPanel() {
                 if (hasCommitted) return;
-                console.log('Committing current panel');
                 hasCommitted = true;
                 markCurrentAsCompleted(userInput);
             }
 
             function recoverFromError(message) {
-                console.log('Error recovery triggered:', message);
-                console.log('hasCommitted:', hasCommitted);
-                console.log('inputEl:', inputEl);
-
                 // Remove any streaming panels and auto panels added during this attempt
                 document.querySelectorAll('.streaming-panel').forEach(p => p.remove());
 
                 // If we committed the panel, we need to undo it
                 if (hasCommitted && state.completedPanels.length > 0) {
-                    console.log('Reverting committed panel');
                     // Remove the last completed panel from state
                     state.completedPanels.pop();
                     // Find and convert the last panel back to editable
@@ -1764,8 +1615,7 @@
                                 textarea.value = userInput;
                                 textarea.style.fontSize = getBubbleFontSize(userInput.length) + 'px';
                                 textDiv.replaceWith(textarea);
-                                inputEl = textarea; // Update reference
-                                console.log('Created new textarea:', textarea);
+                                inputEl = textarea;
                             }
                         }
                     }
@@ -1774,10 +1624,9 @@
 
                 // Always re-enable the input
                 if (inputEl) {
-                    console.log('Re-enabling input');
                     inputEl.disabled = false;
                     // Flash the input to draw attention
-                    inputEl.style.backgroundColor = '#fff3cd';
+                    inputEl.style.backgroundColor = 'var(--color-error-flash)';
                     setTimeout(() => {
                         inputEl.style.backgroundColor = '';
                         inputEl.focus();
@@ -1861,8 +1710,6 @@
                                         null,
                                         data.detected_bubbles || []
                                     );
-                                    autoPanel.classList.add('auto-panel');
-
                                     addPanelToPage(autoPanel);
 
                                     // Record as completed
@@ -1953,10 +1800,9 @@
                 elements.workspace.classList.remove('active');
                 elements.finalStrip.classList.add('active');
                 elements.stripImage.src = `data:image/png;base64,${data.strip_image}`;
-                elements.panelCount.textContent = `${data.panel_count} panels`;
 
             } catch (error) {
-                console.error(error);
+                showNotification('Failed to finish comic');
             }
 
             setLoading(false);
