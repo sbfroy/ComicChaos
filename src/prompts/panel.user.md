@@ -5,7 +5,7 @@ STORY SO FAR: {rolling_summary}
 
 {story_narrative}
 
-{final_outcomes}
+{narrative_premise}
 
 {recent_panels}
 

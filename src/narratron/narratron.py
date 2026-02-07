@@ -47,7 +47,6 @@ _FALLBACK_RESPONSE = {
     "scene_summary": {},
     "short_term_narrative": [],
     "long_term_narrative": [],
-    "reached_outcome": None,
 }
 
 
@@ -118,7 +117,6 @@ class NarratronResponse:
         self.rolling_summary_update: str = raw_response.get("rolling_summary_update", "")
         self.short_term_narrative: List[str] = raw_response.get("short_term_narrative", [])
         self.long_term_narrative: List[str] = raw_response.get("long_term_narrative", [])
-        self.reached_outcome: Optional[str] = raw_response.get("reached_outcome", None)
 
 
 @dataclass
@@ -287,11 +285,10 @@ class Narratron:
                 narrative_parts.append("LONG-TERM: " + "; ".join(direction.long_term))
             story_narrative = "STORY NARRATIVE:\n" + "\n".join(narrative_parts)
 
-        # Format final outcomes (if defined in blueprint)
-        final_outcomes = ""
-        if self.config.blueprint.final_outcomes:
-            outcomes_str = "\n".join(f"  - {o}" for o in self.config.blueprint.final_outcomes)
-            final_outcomes = f"POSSIBLE ENDINGS:\n{outcomes_str}"
+        # Format narrative premise (if defined in blueprint)
+        narrative_premise = ""
+        if self.config.blueprint.narrative_premise:
+            narrative_premise = f"NARRATIVE PREMISE: {self.config.blueprint.narrative_premise}"
 
         return load_prompt(
             _PROMPTS_DIR / "panel.user.md",
@@ -299,7 +296,7 @@ class Narratron:
             all_characters=all_characters,
             rolling_summary=comic_state.narrative.rolling_summary,
             story_narrative=story_narrative,
-            final_outcomes=final_outcomes,
+            narrative_premise=narrative_premise,
             recent_panels=recent_panels,
             user_input=user_input,
         )
@@ -335,10 +332,6 @@ class Narratron:
         if isinstance(response.long_term_narrative, list) and response.long_term_narrative:
             comic_state.narrative.direction.long_term = response.long_term_narrative
 
-        # Check for reached outcome
-        if response.reached_outcome:
-            comic_state.reached_outcome = response.reached_outcome
-
     def generate_opening_sequence(
         self, comic_state: ComicState
     ) -> OpeningSequenceResponse:
@@ -355,10 +348,9 @@ class Narratron:
             narrative_str = "; ".join(blueprint.long_term_narrative)
             long_term_narrative_section = f"LONG-TERM NARRATIVE (use these as-is for initial_narrative.long_term): {narrative_str}"
 
-        final_outcomes_section = ""
-        if blueprint.final_outcomes:
-            outcomes_str = "\n".join(f"  - {o}" for o in blueprint.final_outcomes)
-            final_outcomes_section = f"POSSIBLE ENDINGS (these are the only ways the story can end):\n{outcomes_str}"
+        narrative_premise_section = ""
+        if blueprint.narrative_premise:
+            narrative_premise_section = f"NARRATIVE PREMISE: {blueprint.narrative_premise}"
 
         user_message = load_prompt(
             _PROMPTS_DIR / "opening_sequence.user.md",
@@ -368,7 +360,7 @@ class Narratron:
             starting_location=f"{blueprint.starting_location.name}: {blueprint.starting_location.description}",
             main_character=f"{blueprint.main_character.name}: {blueprint.main_character.description}",
             long_term_narrative_section=long_term_narrative_section,
-            final_outcomes_section=final_outcomes_section,
+            narrative_premise_section=narrative_premise_section,
         )
 
         messages = [

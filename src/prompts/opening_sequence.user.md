@@ -6,7 +6,7 @@ VISUAL STYLE: {visual_style}
 STARTING LOCATION: {starting_location}
 MAIN CHARACTER: {main_character}
 {long_term_narrative_section}
-{final_outcomes_section}
+{narrative_premise_section}
 Create TWO panels for the grand opening:
 
 ## PANEL 1: TITLE CARD

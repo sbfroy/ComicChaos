@@ -151,15 +151,6 @@ SCENE SETTING CONSISTENCY (critical):
 - If the story started at "the city zoo", panels should reference zoo locations (enclosures, paths, fountain, etc.) — not generic fields or parks.
 - Only change the setting when a narration panel or story event explicitly transitions to a new location.
 
-FINAL OUTCOMES (ending mechanic):
-- If POSSIBLE ENDINGS are provided in the user message, the story MUST eventually converge on one of them.
-- Track which outcome the story is gravitating toward via your long-term narrative.
-- When the story has clearly and decisively reached an outcome, set "reached_outcome" to the EXACT text of that outcome.
-- The panel where you set reached_outcome should be the CLIMAX — the dramatic moment where the outcome is realized.
-- Set "reached_outcome" to null in all other responses.
-- Do NOT rush toward an ending. Let the story develop naturally. Only trigger an ending when it feels earned.
-- If no POSSIBLE ENDINGS are provided, never set reached_outcome (always null). The comic is open-ended.
-
 RESPOND WITH JSON:
 {{"panels": [
   {{"scene_description": "Brief visual description for image generation",
@@ -170,7 +161,7 @@ RESPOND WITH JSON:
 "rolling_summary_update": "1-2 sentence story summary including what happened",
 "short_term_narrative": ["immediate direction for next 1-3 panels"],
 "long_term_narrative": ["broader arc direction"],
-"reached_outcome": null}}
+}}
 
 EXAMPLE WITH AUTOMATIC TRANSITION PANEL:
 {{"panels": [
@@ -185,4 +176,4 @@ EXAMPLE WITH AUTOMATIC TRANSITION PANEL:
 "rolling_summary_update": "After booking a last-minute flight, MainChar has arrived in Jamaica.",
 "short_term_narrative": ["Explore the island", "Find a place to stay"],
 "long_term_narrative": ["Discover what happened to the missing artifact"],
-"reached_outcome": null}}
+}}

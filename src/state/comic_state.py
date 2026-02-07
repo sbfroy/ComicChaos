@@ -73,7 +73,6 @@ class ComicState(BaseModel):
     meta: MetaInfo = Field(default_factory=MetaInfo)
     main_character_name: str = Field(default="", description="Name of the main character")
     main_character_description: str = Field(default="", description="Description of the main character")
-    reached_outcome: str | None = Field(default=None, description="Set when a final outcome has been reached, triggering the ending sequence")
 
     @classmethod
     def initialize_from_config(cls, config: StaticConfig) -> "ComicState":

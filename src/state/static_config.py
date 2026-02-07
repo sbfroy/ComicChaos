@@ -52,9 +52,9 @@ class Blueprint(BaseModel):
         default_factory=list,
         description="Blueprint-defined long-term narrative directions that anchor the story arc"
     )
-    final_outcomes: list[str] = Field(
-        default_factory=list,
-        description="Optional list of mutually exclusive story outcomes. When present, the story ends when one is reached."
+    narrative_premise: str = Field(
+        default="",
+        description="The thematic engine of the comic — what the story is fundamentally about. Guides tone and conflict without implying an ending."
     )
 
     @property

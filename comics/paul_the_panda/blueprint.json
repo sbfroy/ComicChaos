@@ -15,23 +15,24 @@
   "characters": [
     {
       "name": "Paul",
-      "description": "A round, chubby giant panda with expressive dark eyes and a slightly dopey, charming smile. Well-meaning, clumsy, and hopelessly romantic."
+      "description": "A round, chubby giant panda with expressive dark eyes and a slightly dopey, charming smile. Endlessly optimistic, physically incompetent, and completely lacking in self-awareness about how badly his plans go."
     },
     {
       "name": "Grace",
-      "description": "A tall, graceful giraffe with a calm, kind demeanor. Amused and gently interested in Paul's shenanigans."
+      "description": "A tall, graceful giraffe with dry wit and an effortless cool. She finds Paul's disasters genuinely entertaining but would never admit it — her amusement comes through deadpan one-liners and raised eyebrows rather than open encouragement."
     }
   ],
   "rules": [
     "The animals behave like animals but with human-like emotions and social dynamics.",
-    "Paul's attempts to impress Grace should always backfire in funny, physical-comedy ways."
+    "Paul's attempts to impress Grace should always backfire in funny, physical-comedy ways.",
+    "The tone is light, witty, and slightly silly — think Pixar humor: accessible on the surface, with subtle irony, self-awareness, and understated jokes that adults recognize and enjoy.",
+    "Grace's dialogue should be dry, deadpan, and cleverly understated — never sweet, encouraging, or overly kind. She's amused, not charmed.",
+    "Narration should be wry and observational, like a nature documentary narrator who's slowly losing professional composure. Avoid anything earnest, sentimental, or children's-book-like.",
+    "Placeholder hints should be playful and specific, with a sense of comedic timing — nudging the user toward funny responses rather than generic ones."
   ],
   "long_term_narrative": [
     "Paul keeps finding creative but doomed ways to get Grace's attention.",
     "Each attempt escalates in ambition and comedic disaster."
   ],
-  "final_outcomes": [
-    "Paul wins Grace's heart and they become an unlikely but adorable couple.",
-    "Grace rejects Paul and he is left heartbroken."
-  ]
+  "narrative_premise": "Paul is hopelessly in love with Grace and keeps finding creative but doomed ways to win her heart. His attempts always backfire in spectacular physical-comedy fashion, but he never gives up — and Grace is always just entertained enough by the chaos to stick around, though she'd never let him know that."
 }
