@@ -929,16 +929,29 @@
             gap: 6px;
         }
 
+        .lang-switcher.hidden-on-workspace {
+            display: none !important;
+        }
+
         .lang-flag {
             background: none;
             border: 2px solid transparent;
             border-radius: 4px;
-            font-size: 1.6rem;
             cursor: pointer;
-            padding: 2px 4px;
+            padding: 2px;
             line-height: 1;
             opacity: 0.5;
             transition: opacity 0.2s, border-color 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .lang-flag svg {
+            width: 28px;
+            height: 20px;
+            display: block;
+            border-radius: 2px;
         }
 
         .lang-flag:hover {
@@ -1018,9 +1031,29 @@
 </head>
 <body>
     <!-- Language Switcher -->
-    <div class="lang-switcher">
-        <button class="lang-flag" data-lang="no" onclick="setLanguage('no')">&#127475;&#127476;</button>
-        <button class="lang-flag" data-lang="en" onclick="setLanguage('en')">&#127468;&#127463;</button>
+    <div class="lang-switcher" id="lang-switcher">
+        <button class="lang-flag" data-lang="no" onclick="setLanguage('no')">
+            <svg viewBox="0 0 22 16" xmlns="http://www.w3.org/2000/svg">
+                <rect width="22" height="16" fill="#BA0C2F"/>
+                <rect x="6" y="0" width="4" height="16" fill="#fff"/>
+                <rect x="0" y="6" width="22" height="4" fill="#fff"/>
+                <rect x="7" y="0" width="2" height="16" fill="#00205B"/>
+                <rect x="0" y="7" width="22" height="2" fill="#00205B"/>
+            </svg>
+        </button>
+        <button class="lang-flag" data-lang="en" onclick="setLanguage('en')">
+            <svg viewBox="0 0 60 30" xmlns="http://www.w3.org/2000/svg">
+                <clipPath id="s"><path d="M0,0 v30 h60 v-30 z"/></clipPath>
+                <clipPath id="t"><path d="M30,15 h30 v15 z v15 h-30 z h-30 v-15 z v-15 h30 z"/></clipPath>
+                <g clip-path="url(#s)">
+                    <path d="M0,0 v30 h60 v-30 z" fill="#012169"/>
+                    <path d="M0,0 L60,30 M60,0 L0,30" stroke="#fff" stroke-width="6"/>
+                    <path d="M0,0 L60,30 M60,0 L0,30" clip-path="url(#t)" stroke="#C8102E" stroke-width="4"/>
+                    <path d="M30,0 v30 M0,15 h60" stroke="#fff" stroke-width="10"/>
+                    <path d="M30,0 v30 M0,15 h60" stroke="#C8102E" stroke-width="6"/>
+                </g>
+            </svg>
+        </button>
     </div>
 
     <!-- Splash Screen -->
@@ -1135,6 +1168,15 @@
             document.querySelectorAll('.lang-flag').forEach(f => {
                 f.classList.toggle('active', f.dataset.lang === lang);
             });
+        }
+
+        function setLangSwitcherVisible(visible) {
+            const switcher = document.getElementById('lang-switcher');
+            if (visible) {
+                switcher.classList.remove('hidden-on-workspace');
+            } else {
+                switcher.classList.add('hidden-on-workspace');
+            }
         }
 
         function applyTranslations() {
@@ -1564,6 +1606,7 @@
             // Show workspace and prepare for streaming
             elements.comicSelect.classList.add('hidden');
             elements.workspace.classList.add('active');
+            setLangSwitcherVisible(false);
 
             // Reset state
             state.completedPanels = [];
@@ -1609,6 +1652,7 @@
                                     setLoading(false);
                                     elements.workspace.classList.remove('active');
                                     elements.comicSelect.classList.remove('hidden');
+                                    setLangSwitcherVisible(true);
                                     return;
                                 }
 
@@ -1692,6 +1736,7 @@
                 showNotification(t('failedStart'));
                 elements.workspace.classList.remove('active');
                 elements.comicSelect.classList.remove('hidden');
+                setLangSwitcherVisible(true);
             }
 
             setLoading(false);
@@ -1945,6 +1990,7 @@
                 elements.workspace.classList.remove('active');
                 elements.finalStrip.classList.add('active');
                 elements.stripImage.src = `data:image/png;base64,${data.strip_image}`;
+                setLangSwitcherVisible(true);
 
             } catch (error) {
                 showNotification(t('failedFinish'));
