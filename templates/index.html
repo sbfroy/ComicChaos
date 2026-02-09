@@ -339,34 +339,25 @@
         }
 
         .comic-bubble.landed {
-            animation: bubblePopIn 0.5s ease-out forwards, bubbleFloat 3s ease-in-out infinite;
+            opacity: 1;
+            animation: bubbleFloat 4s ease-in-out infinite;
         }
 
         .comic-bubble:nth-child(1).landed {
-            animation: bubblePopIn 0.5s ease-out forwards, bubbleFloat 3s ease-in-out 0.6s infinite;
+            animation: bubbleFloat 4s ease-in-out infinite;
         }
 
         .comic-bubble:nth-child(2).landed {
-            animation: bubblePopIn 0.5s ease-out forwards, bubbleFloat2 3.5s ease-in-out 0.8s infinite;
+            animation: bubbleFloat 4.5s ease-in-out 0.3s infinite;
         }
 
         .comic-bubble:nth-child(3).landed {
-            animation: bubblePopIn 0.5s ease-out forwards, bubbleFloat3 4s ease-in-out 1.0s infinite;
+            animation: bubbleFloat 5s ease-in-out 0.6s infinite;
         }
 
         @keyframes bubbleFloat {
             0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-12px); }
-        }
-
-        @keyframes bubbleFloat2 {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
-        }
-
-        @keyframes bubbleFloat3 {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-15px); }
+            50% { transform: translateY(-5px); }
         }
 
         .comic-bubble:hover {
@@ -1579,10 +1570,11 @@
                     });
                 });
 
-                // Start floating animation after pop-in completes
+                // Start floating animation after all pop-ins complete
+                // (last bubble: 0.5s delay + 0.5s duration = 1.0s)
                 setTimeout(() => {
                     document.querySelectorAll('.comic-bubble').forEach(b => b.classList.add('landed'));
-                }, 800);
+                }, 1100);
             } catch (error) {
                 showNotification(t('failedLoad'));
             }
