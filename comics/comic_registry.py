@@ -12,7 +12,9 @@ class ComicInfo(BaseModel):
 
     id: str = Field(description="Unique comic identifier (directory name)")
     name: str = Field(description="Display name")
+    name_no: str = Field(default="", description="Display name in Norwegian")
     description: str = Field(description="Brief description")
+    description_no: str = Field(default="", description="Brief description in Norwegian")
     style: str = Field(description="Visual style description")
     panel_font: str = Field(
         default="'Comic Sans MS', 'Chalkboard', cursive, sans-serif",
@@ -41,6 +43,16 @@ class ComicRegistry:
                     with open(blueprint_file) as f:
                         bp_data = json.load(f)
 
+                    # Load Norwegian blueprint for translated name/description
+                    name_no = ""
+                    description_no = ""
+                    bp_no_file = comic_path / "blueprint.no.json"
+                    if bp_no_file.exists():
+                        with open(bp_no_file) as f:
+                            bp_no_data = json.load(f)
+                        name_no = bp_no_data.get("title", "")
+                        description_no = bp_no_data.get("synopsis", "")
+
                     # Load panel font from config.json if present
                     panel_font = "'Comic Sans MS', 'Chalkboard', cursive, sans-serif"
                     config_file = comic_path / "config.json"
@@ -52,7 +64,9 @@ class ComicRegistry:
                     self._comics[comic_path.name] = ComicInfo(
                         id=comic_path.name,
                         name=bp_data.get("title", comic_path.name),
+                        name_no=name_no,
                         description=bp_data.get("synopsis", "No description"),
+                        description_no=description_no,
                         style=bp_data.get("visual_style", "comic book style"),
                         panel_font=panel_font,
                     )

@@ -1,0 +1,38 @@
+{
+  "title": "Pandaen P\u00e5l",
+  "synopsis": "P\u00e5ls klumsete fors\u00f8k p\u00e5 \u00e5 vinne hjertet til Sjiraffen Sofie.",
+  "visual_style": "Minimal, graphic comic illustration with a cubist-inspired layout. Characters are highly readable silhouettes with thick, consistent black outlines and flat fills, with no gradients. Environments are abstract geometry: overlapping rectangles, arcs, and large color blocks that suggest location rather than depict it. Backgrounds are mostly empty with generous negative space, and each panel includes at most 1-2 symbolic props such as a sign block, a fence line, or a single tree shape. The overall detail level is intentionally lower than typical comics: no textures, no tiny objects, no complex patterns. The palette uses a warm ochre and off-white base with muted teal/blue and brick red accents plus black, and shadows appear only as single flat shapes. Facial direction is neutral-to-pleasant with calm, normal eyes and subtle smiles when appropriate; comedy comes primarily from body language and timing rather than exaggerated faces. Avoid cute or chibi proportions, big sparkly eyes, blush, angry or irritated default expressions, detailed fur, realistic scenery, clutter, painterly shading, and any modern glossy look.",
+  "locations": [
+    {
+      "name": "Dyreparken",
+      "description": "A small, traditional zoo with red brick walls, stone foundations, iron railings, and simple, old-fashioned animal enclosures typical of early 20th-century zoos."
+    },
+    {
+      "name": "Pandainnhegningen",
+      "description": "A bamboo-filled enclosure with a tire swing, a shallow pond, and a small wooden shelter that is slightly too cramped for P\u00e5l."
+    }
+  ],
+  "characters": [
+    {
+      "name": "P\u00e5l",
+      "description": "P\u00e5l is a stout panda built from simple rounded volumes with a big torso, a small head, and short limbs. His face is minimal, with small calm eyes and a simple mouth, and his default expression is neutral and slightly hopeful rather than angry. His humor is conveyed through big, readable physical-comedy poses, while the rendering stays very minimal with no fur detail, thick outlines, and flat black-and-white patches."
+    },
+    {
+      "name": "Sofie",
+      "description": "Sofie is a tall giraffe reduced to clean geometry, with a long neck drawn as a single elegant curve or column and a head simplified into a wedge-like shape. Her spots are minimal, shown as only a few graphic marks, and her expression is composed and mildly amused with a subtle smile or softened eyes, never sweet or cute. Her humor is dry and understated, carried by posture and timing, and she is rendered with thick outlines and flat fills."
+    }
+  ],
+  "rules": [
+    "The animals behave like animals but with human-like emotions and social dynamics.",
+    "P\u00e5l's attempts to impress Sofie should always backfire in funny, physical-comedy ways.",
+    "The tone is light, witty, and slightly silly \u2014 think Pixar humor: accessible on the surface, with subtle irony, self-awareness, and understated jokes that adults recognize and enjoy.",
+    "Sofie's dialogue should be dry, deadpan, and cleverly understated \u2014 never sweet, encouraging, or overly kind. She's amused, not charmed.",
+    "Narration should be wry and observational, like a nature documentary narrator who's slowly losing professional composure. Avoid anything earnest, sentimental, or children's-book-like.",
+    "Placeholder hints should be playful and specific, with a sense of comedic timing \u2014 nudging the user toward funny responses rather than generic ones."
+  ],
+  "long_term_narrative": [
+    "P\u00e5l keeps finding creative but doomed ways to get Sofie's attention.",
+    "Each attempt escalates in ambition and comedic disaster."
+  ],
+  "narrative_premise": "P\u00e5l is hopelessly in love with Sofie and keeps finding creative but doomed ways to win her heart. His attempts always backfire in spectacular physical-comedy fashion, but he never gives up \u2014 and Sofie is always just entertained enough by the chaos to stick around, though she'd never let him know that."
+}

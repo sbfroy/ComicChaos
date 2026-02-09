@@ -1141,6 +1141,15 @@
             document.querySelectorAll('[data-i18n]').forEach(el => {
                 el.textContent = t(el.dataset.i18n);
             });
+            // Update comic bubble titles/descriptions
+            document.querySelectorAll('.comic-bubble[data-id]').forEach(bubble => {
+                const name = currentLang === 'no' && bubble.dataset.titleNo ? bubble.dataset.titleNo : bubble.dataset.title;
+                const desc = currentLang === 'no' && bubble.dataset.descriptionNo ? bubble.dataset.descriptionNo : bubble.dataset.description;
+                if (name) {
+                    const textEl = bubble.querySelector('.bubble-text');
+                    if (textEl) textEl.innerHTML = `<h3>${name}</h3><p>${desc || ''}</p>`;
+                }
+            });
         }
 
         // Initialize language on load
@@ -1508,11 +1517,16 @@
                     if (!bubble) return;
                     bubble.dataset.id = comic.id;
                     bubble.dataset.title = comic.name || '';
+                    bubble.dataset.titleNo = comic.name_no || '';
+                    bubble.dataset.description = comic.description || '';
+                    bubble.dataset.descriptionNo = comic.description_no || '';
                     bubble.dataset.panelFont = comic.panel_font || '';
                     bubble.classList.remove('coming-soon');
                     const textEl = bubble.querySelector('.bubble-text');
                     textEl.classList.remove('muted');
-                    textEl.innerHTML = `<h3>${comic.name}</h3><p>${comic.description}</p>`;
+                    const name = currentLang === 'no' && comic.name_no ? comic.name_no : comic.name;
+                    const desc = currentLang === 'no' && comic.description_no ? comic.description_no : comic.description;
+                    textEl.innerHTML = `<h3>${name}</h3><p>${desc}</p>`;
                 });
 
                 // Add click handlers to populated bubbles
@@ -1541,7 +1555,8 @@
                 if (selectedBubble.dataset.panelFont) {
                     document.documentElement.style.setProperty('--font-panel', selectedBubble.dataset.panelFont);
                 }
-                elements.comicTitle.textContent = selectedBubble.dataset.title || '';
+                const title = currentLang === 'no' && selectedBubble.dataset.titleNo ? selectedBubble.dataset.titleNo : selectedBubble.dataset.title;
+                elements.comicTitle.textContent = title || '';
             }
 
             state.sessionId = generateSessionId();

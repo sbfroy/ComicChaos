@@ -1,0 +1,40 @@
+{
+  "title": "Superhelt Simen",
+  "synopsis": "En genuint god superhelt pr\u00f8ver \u00e5 hjelpe alle i en verden som ser normal ut, men som er dypt dysfunksjonell \u2014 der egoisme, frykt og feilsl\u00e5tte verdier gj\u00f8r det \u00e5 redde folk langt vanskeligere enn noen skurk noensinne kunne.",
+  "visual_style": "Classic old-school superhero comic style with vibrant, saturated primary colors, clean bold ink lines, and very minimalistic composition. Simple flat color fills with strong contrast, minimal background detail, and generous negative space. Characters are drawn in a traditional heroic comic book style with clear silhouettes and expressive poses. No modern digital effects, no gradients, no photorealistic rendering. Think classic Silver Age superhero comics: bold, clean, iconic, and immediately readable. Single full-bleed image, no frames, no borders, and no panel structure.",
+  "locations": [
+    {
+      "name": "Simen City",
+      "description": "A generic-looking city with office buildings, residential streets, parks, and shops. Everything looks normal and pleasant on the surface, but small details reveal dysfunction \u2014 aggressive billboards, hostile architecture, divided neighborhoods."
+    },
+    {
+      "name": "Simens tak",
+      "description": "A quiet rooftop above the city where Simen surveys the streets below. A simple, solitary spot with a wide view of the skyline."
+    },
+    {
+      "name": "R\u00e5dhuset",
+      "description": "An imposing government building with grand columns and polished floors. Inside, bureaucrats and politicians operate with confident smiles and questionable priorities."
+    }
+  ],
+  "characters": [
+    {
+      "name": "Simen",
+      "description": "A classic superhero with a strong, athletic build in a traditional red-and-blue suit with a cape and a bold 'S' emblem on the chest. Clean-cut, square jaw, kind eyes, and an earnest expression. He looks like he stepped out of a 1960s comic book \u2014 genuinely heroic and wholesome, with no irony or edge. His posture is upright and confident, radiating sincerity and moral clarity. He has blonde hair."
+    }
+  ],
+  "rules": [
+    "Simen is genuinely good \u2014 not naive, not ironic, not a parody. He truly believes in helping people and doing the right thing.",
+    "The world looks normal on the surface but is deeply dysfunctional underneath. People are driven by selfishness, fear, and misguided values \u2014 an exaggerated reflection of contemporary right-wing tendencies and social attitudes.",
+    "The people Simen encounters are not evil \u2014 they are flawed, fearful, selfish, or misguided. They often resist help or create problems through their own attitudes.",
+    "The humor and drama come from the contrast between Simen's genuine goodness and the absurd dysfunction of the world around him.",
+    "Simen has classic Superman-like powers: flight, super strength, invulnerability, heat vision. Nothing extravagant or modernized.",
+    "Situations should highlight everyday problems that need fixing \u2014 homelessness, inequality, fear of outsiders, environmental neglect, misinformation \u2014 through encounters and symbolic villains.",
+    "The tone balances genuine heroism with sharp social commentary. Simen never becomes cynical, but the situations he faces test his optimism.",
+    "Narration should be straightforward and classic \u2014 like a traditional superhero comic narrator, earnest and dramatic."
+  ],
+  "long_term_narrative": [
+    "Simen encounters increasingly complex situations where doing the right thing is made difficult by the dysfunctional world around him.",
+    "The people he saves don't always appreciate it, and the systems he works within often undermine his efforts."
+  ],
+  "narrative_premise": "Superhelt Simen pr\u00f8ver genuint \u00e5 hjelpe alle, men verden rundt ham er s\u00e5 forvrengt av egoisme, frykt og feilsl\u00e5tte verdier at det \u00e5 redde folk blir en kamp \u2014 ikke mot skurker, men mot selve samfunnet han pr\u00f8ver \u00e5 beskytte. Han gir aldri opp, men hver god gjerning avsl\u00f8rer et nytt lag av dysfunksjon."
+}
