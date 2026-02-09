@@ -211,7 +211,7 @@
 
         .splash-text {
             position: absolute;
-            bottom: 10%;
+            bottom: 0;
             left: 0;
             right: 0;
             z-index: 2;
@@ -220,7 +220,8 @@
             font-size: 2.2rem;
             text-align: center;
             letter-spacing: 3px;
-            text-shadow: none;
+            padding: 40px 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.3) 40%, transparent 100%);
             animation: popIn 0.3s ease-out 0.2s backwards;
             cursor: pointer;
         }
@@ -409,7 +410,7 @@
            ======================================== */
         .select-label {
             position: absolute;
-            bottom: 10%;
+            bottom: 0;
             left: 0;
             right: 0;
             z-index: 2;
@@ -418,7 +419,8 @@
             font-size: 2.2rem;
             text-align: center;
             letter-spacing: 3px;
-            text-shadow: none;
+            padding: 40px 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.3) 40%, transparent 100%);
             animation: popIn 0.3s ease-out 0.2s backwards;
         }
 
@@ -827,6 +829,7 @@
             margin-bottom: 20px;
             font-size: 1.6rem;
             letter-spacing: 3px;
+            text-shadow: none;
             flex-shrink: 0;
         }
 
@@ -865,21 +868,21 @@
             transform: translateY(-2px);
         }
 
-        /* Create Another - simple white text link */
         .new-comic-btn {
-            background: none;
-            border: none;
-            color: var(--color-paper);
+            background: var(--color-accent-yellow);
+            color: var(--color-black);
+            border: var(--border-thick);
             font-family: var(--font-display);
-            font-size: 1rem;
+            font-size: 1.1rem;
+            font-weight: 700;
             cursor: pointer;
-            letter-spacing: 1px;
-            padding: 0;
-            transition: opacity 0.15s ease;
+            letter-spacing: 2px;
+            transition: transform 0.15s ease;
+            padding: 12px 24px;
         }
 
         .new-comic-btn:hover {
-            opacity: 0.75;
+            transform: translateY(-2px);
         }
 
         /* ========================================
@@ -939,10 +942,10 @@
         }
 
         .lang-flag svg {
-            width: 28px;
-            height: 20px;
+            width: 42px;
+            height: 30px;
             display: block;
-            border-radius: 2px;
+            border-radius: 3px;
         }
 
         .lang-flag:hover {
