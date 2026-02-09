@@ -30,8 +30,9 @@ sessions = {}
 class ComicSession:
     """A single comic creation session with interactive panels."""
 
-    def __init__(self, comic_id: str, use_real_images: bool = True):
+    def __init__(self, comic_id: str, use_real_images: bool = True, language: str = "no"):
         self.api_key = os.getenv("OPENAI_API_KEY")
+        self.language = language
         registry = ComicRegistry(comics_dir=COMICS_DIR)
         config_dir = registry.get_comic_config_dir(comic_id)
 
@@ -51,7 +52,8 @@ class ComicSession:
             self.narratron = Narratron(
                 config=self.config,
                 api_key=self.api_key,
-                logger=self.logger
+                logger=self.logger,
+                language=self.language,
             )
 
         if use_real_images and self.api_key:
@@ -443,12 +445,13 @@ def start_comic_stream():
     data = request.get_json()
     comic_id = data.get("comic_id")
     session_id = data.get("session_id")
+    language = data.get("language", "no")
 
     if not comic_id or not session_id:
         return jsonify({"error": "Missing comic_id or session_id"}), 400
 
     try:
-        session = ComicSession(comic_id)
+        session = ComicSession(comic_id, language=language)
         sessions[session_id] = session
 
         def generate():
@@ -474,6 +477,7 @@ def submit_panel_stream():
     data = request.get_json()
     session_id = data.get("session_id")
     user_input_text = data.get("user_input", "")
+    language = data.get("language", "no")
 
     if not session_id:
         return jsonify({"error": "Missing session_id"}), 400
@@ -481,6 +485,11 @@ def submit_panel_stream():
     session = sessions.get(session_id)
     if not session:
         return jsonify({"error": "Session not found"}), 404
+
+    # Update language in case user switched mid-session
+    session.language = language
+    if session.narratron:
+        session.narratron.language = language
 
     def generate():
         for event in session.submit_panel_streaming(user_input_text):

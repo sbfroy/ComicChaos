@@ -159,17 +159,27 @@ class OpeningSequenceResponse:
 class Narratron:
     """The AI engine that orchestrates comic creation."""
 
+    _NORWEGIAN_INSTRUCTION = (
+        "\n\nLANGUAGE REQUIREMENT: ALL text output — including scene_description, "
+        "all element text, placeholder text, rolling_summary_update, short_term_narrative, "
+        "and long_term_narrative — MUST be written in Norwegian (Bokm\u00e5l). "
+        "This applies to dialogue, narration, placeholders, and all story content. "
+        "Only the JSON keys remain in English."
+    )
+
     def __init__(
         self,
         config: StaticConfig,
         api_key: Optional[str] = None,
         logger: Optional[InteractionLogger] = None,
+        language: str = "no",
     ) -> None:
         self.config: StaticConfig = config
         self.client: OpenAI = OpenAI(
             api_key=api_key or os.getenv("OPENAI_API_KEY")
         )
         self.logger: Optional[InteractionLogger] = logger
+        self.language: str = language
 
     def _build_system_prompt(self) -> str:
         """Build the system prompt with static comic information only."""
@@ -290,7 +300,7 @@ class Narratron:
         if self.config.blueprint.narrative_premise:
             narrative_premise = f"NARRATIVE PREMISE: {self.config.blueprint.narrative_premise}"
 
-        return load_prompt(
+        message = load_prompt(
             _PROMPTS_DIR / "panel.user.md",
             main_character=main_char,
             all_characters=all_characters,
@@ -300,6 +310,11 @@ class Narratron:
             recent_panels=recent_panels,
             user_input=user_input,
         )
+
+        if self.language == "no":
+            message += self._NORWEGIAN_INSTRUCTION
+
+        return message
 
     def _apply_state_changes(
         self, response: NarratronResponse, comic_state: ComicState
@@ -362,6 +377,9 @@ class Narratron:
             long_term_narrative_section=long_term_narrative_section,
             narrative_premise_section=narrative_premise_section,
         )
+
+        if self.language == "no":
+            user_message += self._NORWEGIAN_INSTRUCTION
 
         messages = [
             {"role": "system", "content": system_prompt},

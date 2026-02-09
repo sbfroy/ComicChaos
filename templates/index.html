@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="no">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -917,6 +917,39 @@
             transform: translateX(0);
         }
 
+        /* ========================================
+           LANGUAGE SWITCHER
+           ======================================== */
+        .lang-switcher {
+            position: fixed;
+            top: 16px;
+            right: 16px;
+            z-index: 10000;
+            display: flex;
+            gap: 6px;
+        }
+
+        .lang-flag {
+            background: none;
+            border: 2px solid transparent;
+            border-radius: 4px;
+            font-size: 1.6rem;
+            cursor: pointer;
+            padding: 2px 4px;
+            line-height: 1;
+            opacity: 0.5;
+            transition: opacity 0.2s, border-color 0.2s;
+        }
+
+        .lang-flag:hover {
+            opacity: 0.8;
+        }
+
+        .lang-flag.active {
+            opacity: 1;
+            border-color: var(--color-accent-yellow);
+        }
+
         .hidden {
             display: none !important;
         }
@@ -984,6 +1017,12 @@
     </style>
 </head>
 <body>
+    <!-- Language Switcher -->
+    <div class="lang-switcher">
+        <button class="lang-flag" data-lang="no" onclick="setLanguage('no')">&#127475;&#127476;</button>
+        <button class="lang-flag" data-lang="en" onclick="setLanguage('en')">&#127468;&#127463;</button>
+    </div>
+
     <!-- Splash Screen -->
     <div id="splash" class="splash-screen">
         <div class="rotating-stripes splash-stripes"></div>
@@ -991,7 +1030,7 @@
         <div class="splash-content">
             <img src="/static/images/logo.webp" class="splash-logo" alt="Comic Chaos" />
         </div>
-        <div class="splash-text">Click to enter the chaos!</div>
+        <div class="splash-text" data-i18n="splashText"></div>
     </div>
 
     <div id="comic-select" class="comic-select">
@@ -1000,21 +1039,21 @@
         <div class="select-content">
             <div class="bubbles-area">
                 <div class="comic-bubble" id="bubble-0" style="background-image: url('/static/images/bubble_1.webp')">
-                    <div class="bubble-text"><h3>Loading...</h3><p></p></div>
+                    <div class="bubble-text"><h3 data-i18n="loading"></h3><p></p></div>
                 </div>
                 <div class="comic-bubble coming-soon" id="bubble-1" style="background-image: url('/static/images/bubble_2.webp')">
-                    <div class="bubble-text muted"><h3>Coming Soon...</h3><p></p></div>
+                    <div class="bubble-text muted"><h3 data-i18n="comingSoon"></h3><p></p></div>
                 </div>
                 <div class="comic-bubble coming-soon" id="bubble-2" style="background-image: url('/static/images/bubble_3.webp')">
-                    <div class="bubble-text muted"><h3>Coming Soon...</h3><p></p></div>
+                    <div class="bubble-text muted"><h3 data-i18n="comingSoon"></h3><p></p></div>
                 </div>
             </div>
         </div>
-        <div class="select-label">Pick your comic!</div>
+        <div class="select-label" data-i18n="selectLabel"></div>
     </div>
 
     <div id="workspace" class="comic-workspace">
-        <button id="finish-btn" class="finish-btn-small" disabled>Finish</button>
+        <button id="finish-btn" class="finish-btn-small" disabled data-i18n="finishBtn"></button>
         <div class="workspace-content">
             <div class="comic-title-bar">
                 <h2 id="comic-title"></h2>
@@ -1030,11 +1069,11 @@
         <div class="rotating-stripes final-stripes"></div>
         <div class="vignette final-vignette"></div>
         <div class="final-content">
-            <h2>Your Comic Chaos strip!</h2>
+            <h2 data-i18n="yourStrip"></h2>
             <img id="strip-image" src="" alt="Comic Strip" />
             <div class="final-buttons">
-                <button class="download-btn" id="download-btn">Download</button>
-                <button class="new-comic-btn" onclick="location.reload()">Create another?</button>
+                <button class="download-btn" id="download-btn" data-i18n="download"></button>
+                <button class="new-comic-btn" onclick="location.reload()" data-i18n="createAnother"></button>
             </div>
         </div>
     </div>
@@ -1042,6 +1081,71 @@
     <div id="notification" class="notification"></div>
 
     <script>
+        // ========================================
+        // INTERNATIONALIZATION
+        // ========================================
+        const translations = {
+            no: {
+                splashText: 'Klikk for \u00e5 entre kaoset!',
+                selectLabel: 'Velg din tegneserie!',
+                comingSoon: 'Kommer snart...',
+                loading: 'Laster...',
+                finishBtn: 'Fullf\u00f8r',
+                fillBubble: 'Fyll inn boblen f\u00f8rst!',
+                failedLoad: 'Klarte ikke \u00e5 laste tegneserier',
+                failedStart: 'Klarte ikke \u00e5 starte tegneserien',
+                failedContinue: 'Noe gikk galt \u2014 pr\u00f8v igjen!',
+                contentPolicy: 'OpenAI likte ikke det \u2014 pr\u00f8v noe annet!',
+                failedFinish: 'Klarte ikke \u00e5 fullf\u00f8re tegneserien',
+                yourStrip: 'Din Comic Chaos stripe!',
+                download: 'Last ned',
+                createAnother: 'Lag en ny?',
+                generating: 'Genererer...',
+            },
+            en: {
+                splashText: 'Click to enter the chaos!',
+                selectLabel: 'Pick your comic!',
+                comingSoon: 'Coming Soon...',
+                loading: 'Loading...',
+                finishBtn: 'Finish',
+                fillBubble: 'Fill in the bubble first!',
+                failedLoad: 'Failed to load comics',
+                failedStart: 'Failed to start comic',
+                failedContinue: 'Something went wrong \u2014 try again!',
+                contentPolicy: "OpenAI didn't like that \u2014 try something else!",
+                failedFinish: 'Failed to finish comic',
+                yourStrip: 'Your Comic Chaos strip!',
+                download: 'Download',
+                createAnother: 'Create another?',
+                generating: 'Generating...',
+            }
+        };
+
+        let currentLang = localStorage.getItem('comicChaosLang') || 'no';
+
+        function t(key) {
+            return (translations[currentLang] && translations[currentLang][key]) || translations.en[key] || key;
+        }
+
+        function setLanguage(lang) {
+            currentLang = lang;
+            localStorage.setItem('comicChaosLang', lang);
+            document.documentElement.lang = lang;
+            applyTranslations();
+            document.querySelectorAll('.lang-flag').forEach(f => {
+                f.classList.toggle('active', f.dataset.lang === lang);
+            });
+        }
+
+        function applyTranslations() {
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                el.textContent = t(el.dataset.i18n);
+            });
+        }
+
+        // Initialize language on load
+        setLanguage(currentLang);
+
         // Splash logo hover: start pulse, ease out on leave
         const splashLogo = document.querySelector('.splash-logo');
         splashLogo.addEventListener('mouseenter', () => {
@@ -1424,7 +1528,7 @@
                     document.querySelectorAll('.comic-bubble').forEach(b => b.classList.add('landed'));
                 }, 800);
             } catch (error) {
-                showNotification('Failed to load comics');
+                showNotification(t('failedLoad'));
             }
         }
 
@@ -1463,7 +1567,8 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         comic_id: state.selectedComic,
-                        session_id: state.sessionId
+                        session_id: state.sessionId,
+                        language: currentLang
                     })
                 });
 
@@ -1569,7 +1674,7 @@
                     }
                 }
             } catch (error) {
-                showNotification('Failed to start comic');
+                showNotification(t('failedStart'));
                 elements.workspace.classList.remove('active');
                 elements.comicSelect.classList.remove('hidden');
             }
@@ -1583,7 +1688,7 @@
             const userInput = getUserInput();
 
             if (!userInput) {
-                showNotification('Fill in the bubble first!');
+                showNotification(t('fillBubble'));
                 return;
             }
 
@@ -1659,9 +1764,9 @@
 
                 // Show a friendlier error message
                 const friendlyMessage = message.includes('safety system') || message.includes('content policy')
-                    ? "OpenAI didn't like that — try something else!"
-                    : "Something went wrong — try again!";
-                showNotification(friendlyMessage, 5000);  // Show for 5 seconds
+                    ? t('contentPolicy')
+                    : t('failedContinue');
+                showNotification(friendlyMessage, 5000);
                 setLoading(false);
             }
 
@@ -1671,7 +1776,8 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         session_id: state.sessionId,
-                        user_input: userInput
+                        user_input: userInput,
+                        language: currentLang
                     })
                 });
 
@@ -1788,7 +1894,7 @@
                     }
                 }
             } catch (error) {
-                recoverFromError('Failed to continue story');
+                recoverFromError(t('failedContinue'));
                 return;
             }
 
@@ -1826,7 +1932,7 @@
                 elements.stripImage.src = `data:image/png;base64,${data.strip_image}`;
 
             } catch (error) {
-                showNotification('Failed to finish comic');
+                showNotification(t('failedFinish'));
             }
 
             setLoading(false);
