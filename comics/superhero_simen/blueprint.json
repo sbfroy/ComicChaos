@@ -1,19 +1,11 @@
 {
   "title": "Superhero Simen",
-  "synopsis": "A genuinely good superhero tries to help everyone in a world that looks normal but is deeply dysfunctional — where selfishness, fear, and misguided values make saving people far harder than any villain ever could.",
-  "visual_style": "Classic old-school superhero comic style with vibrant, saturated primary colors, clean bold ink lines, and very minimalistic composition. Simple flat color fills with strong contrast, minimal background detail, and generous negative space. Characters are drawn in a traditional heroic comic book style with clear silhouettes and expressive poses. No modern digital effects, no gradients, no photorealistic rendering. Think classic Silver Age superhero comics: bold, clean, iconic, and immediately readable. Single full-bleed image, no frames, no borders, and no panel structure.",
+  "synopsis": "Simen protects a city of foolish people while battling real disasters and occasional villains.",
+  "visual_style": "Classic old-school superhero comic style with bold, clean ink lines and vibrant but controlled primary colors. Composition is deliberately minimal: simple flat color fills, strong contrast, and clear, readable silhouettes. Backgrounds are highly simplified, often reduced to large color blocks or basic geometric shapes, with generous negative space. No textures, no small details, no complex patterns. Characters are drawn in a traditional heroic comic book style with clear silhouettes and expressive poses. No modern digital effects, no gradients, no photorealism. The image should feel iconic, uncluttered, and immediately readable. Single full-bleed image, no frames, no borders, no panel structure.",
   "locations": [
     {
-      "name": "Simen City",
-      "description": "A generic-looking city with office buildings, residential streets, parks, and shops. Everything looks normal and pleasant on the surface, but small details reveal dysfunction — aggressive billboards, hostile architecture, divided neighborhoods."
-    },
-    {
-      "name": "Simen's Rooftop",
-      "description": "A quiet rooftop above the city where Simen surveys the streets below. A simple, solitary spot with a wide view of the skyline."
-    },
-    {
-      "name": "City Hall",
-      "description": "An imposing government building with grand columns and polished floors. Inside, bureaucrats and politicians operate with confident smiles and questionable priorities."
+      "name": "The City",
+      "description": "A busy city with office buildings, residential streets, parks, and shops. A perfectly nice place that would be peaceful if not for its remarkably dim-witted population constantly causing problems."
     }
   ],
   "characters": [
@@ -23,18 +15,18 @@
     }
   ],
   "rules": [
-    "Simen is genuinely good — not naive, not ironic, not a parody. He truly believes in helping people and doing the right thing.",
-    "The world looks normal on the surface but is deeply dysfunctional underneath. People are driven by selfishness, fear, and misguided values — an exaggerated reflection of contemporary right-wing tendencies and social attitudes.",
-    "The people Simen encounters are not evil — they are flawed, fearful, selfish, or misguided. They often resist help or create problems through their own attitudes.",
-    "The humor and drama come from the contrast between Simen's genuine goodness and the absurd dysfunction of the world around him.",
-    "Simen has classic superhero powers: flight, super strength, invulnerability, and heat vision. Nothing extravagant or modernized.",
-    "Situations should highlight everyday problems that need fixing — homelessness, inequality, fear of outsiders, environmental neglect, misinformation — through encounters and symbolic villains.",
-    "The tone balances genuine heroism with sharp social commentary. Simen never becomes cynical, but the situations he faces test his optimism.",
+    "Simen is genuinely good — brave, selfless, and dedicated to protecting people. He is a classic hero through and through.",
+    "The citizens of The City are hilariously, breathtakingly stupid. They cause accidents, make terrible decisions, ignore obvious dangers, and create chaos through sheer cluelessness. This is the main source of comedy.",
+    "Real superhero disasters also happen — buildings collapsing, fires, floods, meteor strikes, runaway trains — classic comic book emergencies that Simen must handle.",
+    "Villains may appear with over-the-top evil plans. They should be fun, colorful comic book villains — not deep or symbolic, just entertaining antagonists.",
+    "The humor comes from the contrast between Simen's heroic competence and the absurd stupidity of the people he's saving. He does everything right, but the people make it so much harder than it needs to be.",
+    "Simen has classic superhero powers: flight, super strength, invulnerability. Nothing extravagant or modernized.",
+    "The tone is fun, lighthearted, and action-packed. Think classic superhero adventures with a comedic twist — the hero is great, the people are idiots.",
     "Narration should be straightforward and classic — like a traditional superhero comic narrator, earnest and dramatic."
   ],
   "long_term_narrative": [
-    "Simen encounters increasingly complex situations where doing the right thing is made difficult by the dysfunctional world around him.",
-    "The people he saves don't always appreciate it, and the systems he works within often undermine his efforts."
+    "Simen faces an escalating mix of stupid civilian mishaps, genuine disasters, and villain encounters — each more ridiculous than the last.",
+    "Despite the endless stupidity around him, Simen never loses his heroic spirit. He saves everyone, every time, no matter how dumb the situation."
   ],
-  "narrative_premise": "Superhero Simen genuinely tries to help everyone, but the world around him is so warped by selfishness, fear, and misguided values that saving people becomes a struggle not against villains, but against the very society he's trying to protect. He never gives up, but every good deed reveals another layer of dysfunction."
+  "narrative_premise": "Superhero Simen is a genuinely great hero stuck in a city full of spectacularly stupid people. Between saving citizens from their own terrible decisions, battling actual disasters, and fending off the occasional villain, Simen has his hands full — but he never stops being the hero."
 }
