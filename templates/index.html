@@ -1629,7 +1629,10 @@
                                 const data = JSON.parse(line.slice(6));
 
                                 if (data.type === 'error') {
-                                    showNotification(data.error);
+                                    const msg = (data.error || '').includes('safety system') || (data.error || '').includes('content policy')
+                                        ? t('contentPolicy')
+                                        : t('failedStart');
+                                    showNotification(msg, 5000);
                                     setLoading(false);
                                     elements.workspace.classList.remove('active');
                                     elements.comicSelect.classList.remove('hidden');
@@ -1963,7 +1966,10 @@
                 const data = await response.json();
 
                 if (data.error) {
-                    showNotification(data.error);
+                    const msg = (data.error || '').includes('safety system') || (data.error || '').includes('content policy')
+                        ? t('contentPolicy')
+                        : t('failedFinish');
+                    showNotification(msg, 5000);
                     setLoading(false);
                     return;
                 }
