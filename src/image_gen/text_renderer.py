@@ -34,6 +34,14 @@ class TextRenderer:
         (None, 32), # >= 50 chars
     ]
 
+    # Larger font sizes for narration boxes
+    NARRATION_FONT_SIZES = [
+        (15, 52),   # < 15 chars
+        (30, 46),   # < 30 chars
+        (50, 40),   # < 50 chars
+        (None, 36), # >= 50 chars
+    ]
+
     def __init__(
         self,
         font_path: Optional[str] = None,
@@ -184,42 +192,47 @@ class TextRenderer:
 
         return max_width, total_height
 
-    def _get_target_font_size(self, text: str) -> int:
+    def _get_target_font_size(self, text: str, element_type: str = "") -> int:
         """Get the target font size based on text length, matching frontend sizing.
 
         Args:
             text: The text to size.
+            element_type: Element type ("speech", "thought", "narration").
 
         Returns:
             Font size in pixels (at 1024x1024 scale).
         """
+        size_table = self.NARRATION_FONT_SIZES if element_type == "narration" else self.FONT_SIZES
         text_length = len(text)
-        for threshold, size in self.FONT_SIZES:
+        for threshold, size in size_table:
             if threshold is None or text_length < threshold:
                 return size
-        return self.FONT_SIZES[-1][1]
+        return size_table[-1][1]
 
     def _find_best_font_size(
         self,
         text: str,
         bubble: DetectedBubble,
+        element_type: str = "",
     ) -> Tuple[ImageFont.FreeTypeFont, List[str]]:
         """Find the best font size that fits text in the bubble.
 
         Args:
             text: Text to render.
             bubble: Bubble to fit text into.
+            element_type: Element type ("speech", "thought", "narration").
 
         Returns:
             Tuple of (font, wrapped_lines).
         """
         # Calculate usable area with padding
-        # CSS padding: 15% is relative to width for all sides, so match that
-        padding = int(bubble.width * self.padding_ratio)
+        # Use smaller padding for narration boxes (rectangular, less wasted space)
+        padding_ratio = 0.08 if element_type == "narration" else self.padding_ratio
+        padding = int(bubble.width * padding_ratio)
         usable_width = bubble.width - (2 * padding)
         usable_height = bubble.height - (2 * padding)
 
-        target_size = self._get_target_font_size(text)
+        target_size = self._get_target_font_size(text, element_type)
 
         for font_size in range(target_size, self.min_font_size - 1, -1):
             font = self._get_font(font_size)
@@ -262,10 +275,11 @@ class TextRenderer:
         draw = ImageDraw.Draw(img)
 
         # Find best font size and wrap text
-        font, lines = self._find_best_font_size(element.text, bubble)
+        font, lines = self._find_best_font_size(element.text, bubble, element.element_type)
 
-        # Calculate padding (CSS padding: 15% is relative to width for all sides)
-        padding = int(bubble.width * self.padding_ratio)
+        # Calculate padding — smaller for narration boxes
+        padding_ratio = 0.08 if element.element_type == "narration" else self.padding_ratio
+        padding = int(bubble.width * padding_ratio)
 
         # Calculate text positioning (centered in bubble)
         _, text_height = self._calculate_text_bounds(lines, font)
@@ -330,8 +344,12 @@ class TextRenderer:
         draw = ImageDraw.Draw(img)
 
         # Calculate bubble position and size based on position hint
-        bubble_width = min(180, image_width // 3)
-        bubble_height = min(100, image_height // 5)
+        if element.element_type == "narration":
+            bubble_width = min(500, int(image_width * 0.7))
+            bubble_height = min(250, int(image_height * 0.35))
+        else:
+            bubble_width = min(180, image_width // 3)
+            bubble_height = min(100, image_height // 5)
 
         # Position mapping
         position = element.position or "center"

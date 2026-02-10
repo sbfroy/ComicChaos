@@ -13,6 +13,7 @@ Classes:
 
 import json
 import os
+import re
 from dataclasses import dataclass
 from typing import Optional, Dict, List, Any
 
@@ -232,6 +233,26 @@ class Narratron:
 
         return response_content
 
+    @staticmethod
+    def _is_corrupted_response(text: str) -> bool:
+        """Check if the LLM response text shows signs of corruption.
+
+        Detects object replacement characters, excessive repeated characters,
+        and responses that end with non-JSON garbage after the closing brace.
+        """
+        if "\ufffc" in text:
+            return True
+        # Check for trailing garbage after the last closing brace
+        last_brace = text.rfind("}")
+        if last_brace >= 0:
+            trailing = text[last_brace + 1:].strip()
+            if len(trailing) > 10:
+                return True
+        # Check for abnormally long runs of repeated characters
+        if re.search(r"(.)\1{50,}", text):
+            return True
+        return False
+
     def _parse_response(self, response_text: str) -> NarratronResponse:
         """Parse the LLM response into a structured format."""
         try:
@@ -254,6 +275,10 @@ class Narratron:
 
         try:
             response_text = self._call_llm(messages)
+            # Retry once if the response looks corrupted
+            if self._is_corrupted_response(response_text):
+                print("Corrupted LLM response detected, retrying...")
+                response_text = self._call_llm(messages)
             response = self._parse_response(response_text)
         except Exception:
             response = NarratronResponse(_FALLBACK_RESPONSE)

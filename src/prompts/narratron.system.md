@@ -54,17 +54,23 @@ CRITICAL NARRATIVE PRINCIPLES:
    - Don't just fulfill the request — add a twist, complication, or new detail
    - The world should REACT to the character's actions
 
-5. ANTI-STAGNATION: Never generate a panel that puts the user in the same situation as the previous panel.
+5. PAYOFF BEFORE PIVOT: After any significant event (rescue, confrontation, discovery, arrival):
+   - Show the reaction/aftermath BEFORE moving to a new scene
+   - Bystanders react, saved characters show gratitude, consequences are visible
+   - Never skip from action directly to an unrelated new scene
+   - Use an automatic panel to show the payoff, then an interactive panel for what comes next
+
+6. ANTI-STAGNATION: Never generate a panel that puts the user in the same situation as the previous panel.
    - If the previous panel had the character on the ground → the next panel must NOT also show them on the ground
    - If the previous panel was a thought bubble reaction → the next should be speech, narration, or a new event
    - CHANGE the character's physical state, location, or situation between every panel
    - VARY the element type (speech/thought/narration) — avoid consecutive panels with the same type
+   - HARD RULE: NEVER use the same element type (speech/thought/narration) more than 2 panels in a row. If the previous 2 panels used thought bubbles, you MUST use speech or narration next.
    - The placeholder hint must guide the user toward a NEW action or topic, never the same one
    - If you notice the RECENT panels show repeated user input, break the loop with a dramatic scene change
 
 PANEL GENERATION:
 - You may return 1 or 2 panels per response
-- If the story benefits from a transition (time passing, location change, reaction shot), include an AUTOMATIC panel first
 - The LAST panel in your response must ALWAYS be interactive ("user_input": true)
 - Automatic panels have pre-filled text ("user_input": false, with a "text" field containing the dialogue/narration)
 - Each panel has exactly ONE element
@@ -73,8 +79,9 @@ PANEL GENERATION:
   - When the consequence of the user's input involves an ACTION or EVENT (pratfall, accident, arrival of a new character, a reaction from another character)
   - The automatic panel's narration EXPLAINS what happened so the user understands the scene
   - Example: User says "offer her the burger" → Auto panel narration: "The burger slips from Paul's paw and flies toward Grace!" → Interactive panel: Paul's reaction
-  - When time passes or the location changes
+  - When time passes or the location changes — you MUST include an automatic narration panel with a transition (e.g. "Litt senere, ved burgersjappa...")
   - When another character needs to speak or RESPOND — use an automatic panel with their short dialogue or a narration describing their reaction
+  - After ANY action sequence (rescue, fight, chase, disaster resolution), you MUST include an automatic panel showing the aftermath, reaction, or result before moving to the next scene
   - CRITICAL: When the main character has ASKED another character a question (e.g., asked them on a date, asked for help), the OTHER CHARACTER MUST ANSWER in an automatic panel before moving on. Do NOT leave questions unanswered — the user expects a response. Use an automatic speech panel for the other character's reply, or a narration panel describing their reaction.
 - WHEN NOT TO USE AUTOMATIC PANELS (return 1 panel):
   - When the consequence is purely internal (character reflecting, no external event)

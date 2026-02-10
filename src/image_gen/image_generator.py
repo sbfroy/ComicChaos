@@ -406,8 +406,8 @@ class ImageGenerator:
             return (
                 "Include ONE empty rectangular white narration box with a thick black outline. "
                 "Position it in one of the corners BUT with significant space from the edges. "
-                "The box should be no less than two-thirds of the image width and approximately "
-                "one-third of the image height. "
+                "The box should be no less than three-quarters of the image width and approximately "
+                "two-fifths of the image height. "
                 "CRITICAL: Keep at least 40-50 pixels of clear space between the box's border and ALL image edges. "
                 "The entire black outline must be fully visible and complete on all four sides. "
                 "The box must NOT touch or go near any edge of the image. "

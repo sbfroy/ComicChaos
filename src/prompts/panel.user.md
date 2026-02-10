@@ -8,6 +8,7 @@ STORY SO FAR: {rolling_summary}
 {narrative_premise}
 
 {recent_panels}
+ELEMENT TYPES USED IN RECENT PANELS: Check above — if the last 2+ panels used the same type (thinks/says/narration), you MUST switch to a different type.
 
 USER'S INPUT FROM PREVIOUS PANEL: {user_input}
 
