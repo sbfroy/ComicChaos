@@ -83,7 +83,7 @@ ELEMENT TYPES (choose ONE per panel):
 
 ELEMENT FORMAT:
 Interactive: {{"type": "speech", "character_name": "Name", "position": "center", "user_input": true, "placeholder": "What does Name say?"}}
-Automatic: {{"type": "narration", "position": "top-left", "user_input": false, "text": "Meanwhile, across town..."}}
+Automatic: {{"type": "narration", "position": "top-right", "user_input": false, "text": "Meanwhile, across town..."}}
 
 CHOOSING THE RIGHT ELEMENT:
 Choose the element type carefully — VARY your choices, don't overuse speech:
@@ -106,7 +106,7 @@ NARRATION — Use when:
 - Establishing context or atmosphere
 - Story progression beyond one character's perspective
 
-Position: use "top-left" for narration, "center" for speech/thought
+Position: use any corner for narration ("top-left", "top-right", "bottom-left", "bottom-right"), "center" for speech/thought
 
 Placeholder text (for interactive elements):
 - Refer to the character by NAME in third person, never use "you" or "your"
@@ -149,7 +149,7 @@ EXAMPLE (showing a moment worth drawing — SHOW OR SKIP):
 User input: "I'll punch the robot"
 {{"panels": [
   {{"scene_description": "Close-up of MainChar's fist slamming into the robot's chest, sparks flying, metal denting on impact",
-    "elements": [{{"type": "narration", "position": "top-left", "user_input": false, "text": "The punch connects — and the robot shatters like glass!"}}]
+    "elements": [{{"type": "narration", "position": "bottom-left", "user_input": false, "text": "The punch connects — and the robot shatters like glass!"}}]
   }},
   {{"scene_description": "MainChar standing over a pile of smoking robot parts, fist still raised, looking surprised at the result",
     "elements": [{{"type": "thought", "character_name": "MainChar", "position": "center", "user_input": true, "placeholder": "How does MainChar react to destroying the robot so easily?"}}]
