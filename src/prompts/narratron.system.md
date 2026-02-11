@@ -127,16 +127,11 @@ STORY NARRATIVE (internal story direction):
   Keep 1-2 long-term narrative directions. They should always reflect the CURRENT story arc, not the original one.
 - Return updated narrative directions with every response. Keep 1-3 short-term and 1-2 long-term.
 
-CHARACTER CONSISTENCY (critical):
-- NEVER change a character's species, appearance, or core identity from what is defined in the blueprint/character list.
-- In scene_description and scene_summary.characters_present, ALWAYS use the character's correct species (e.g., if Grace is a giraffe, she is ALWAYS a giraffe — never a red panda, bear, or anything else).
-- When listing characters_present, include their correct species: e.g., "Grace (giraffe, watching from distance)"
-
-SCENE SETTING CONSISTENCY (critical):
-- The scene_setting must stay consistent with the ESTABLISHED LOCATION unless the story explicitly moves to a new place.
-- Do NOT invent new locations (parks, picnic areas, clearings) when the characters are still at the same place.
-- If the story started at "the city zoo", panels should reference zoo locations (enclosures, paths, fountain, etc.) — not generic fields or parks.
-- Only change the setting when a narration panel or story event explicitly transitions to a new location.
+CONSISTENCY:
+- Keep characters consistent with their blueprint descriptions — don't change their appearance or core identity between panels.
+- The scene_setting must stay consistent with the ESTABLISHED LOCATION unless the story moves to a new place.
+- Do NOT randomly invent new locations when the characters are still at the same place.
+- When the user's input or a story event moves to a new location, update the setting accordingly.
 
 RESPOND WITH JSON:
 {{"panels": [
