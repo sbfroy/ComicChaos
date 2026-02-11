@@ -253,13 +253,44 @@ class Narratron:
             return True
         return False
 
+    @staticmethod
+    def _extract_json(text: str) -> Optional[str]:
+        """Try to extract valid JSON from text that may contain trailing garbage."""
+        first_brace = text.find("{")
+        last_brace = text.rfind("}")
+        if first_brace >= 0 and last_brace > first_brace:
+            candidate = text[first_brace:last_brace + 1]
+            try:
+                json.loads(candidate)
+                return candidate
+            except json.JSONDecodeError:
+                pass
+        return None
+
     def _parse_response(self, response_text: str) -> NarratronResponse:
         """Parse the LLM response into a structured format."""
         try:
             data = json.loads(response_text)
             return NarratronResponse(data)
         except json.JSONDecodeError:
+            # Try extracting JSON from between first { and last }
+            extracted = self._extract_json(response_text)
+            if extracted:
+                try:
+                    data = json.loads(extracted)
+                    return NarratronResponse(data)
+                except json.JSONDecodeError:
+                    pass
             return NarratronResponse(_FALLBACK_RESPONSE)
+
+    def _localize_fallback_placeholders(self, response: NarratronResponse) -> None:
+        """Replace English fallback placeholders with localized versions."""
+        if self.language != "no":
+            return
+        for panel in response.panels:
+            for el in panel.elements:
+                if el.get("placeholder") == "What happens next?":
+                    el["placeholder"] = "Hva skjer videre?"
 
     def process_input(
         self, user_input: str, comic_state: ComicState
@@ -275,14 +306,17 @@ class Narratron:
 
         try:
             response_text = self._call_llm(messages)
-            # Retry once if the response looks corrupted
-            if self._is_corrupted_response(response_text):
-                print("Corrupted LLM response detected, retrying...")
+            # Retry up to 2 times if the response looks corrupted
+            for attempt in range(2):
+                if not self._is_corrupted_response(response_text):
+                    break
+                print(f"Corrupted LLM response detected, retry {attempt + 1}/2...")
                 response_text = self._call_llm(messages)
             response = self._parse_response(response_text)
         except Exception:
             response = NarratronResponse(_FALLBACK_RESPONSE)
 
+        self._localize_fallback_placeholders(response)
         self._apply_state_changes(response, comic_state)
 
         return response
@@ -323,7 +357,7 @@ class Narratron:
         # Format narrative premise (if defined in blueprint)
         narrative_premise = ""
         if self.config.blueprint.narrative_premise:
-            narrative_premise = f"NARRATIVE PREMISE: {self.config.blueprint.narrative_premise}"
+            narrative_premise = self.config.blueprint.narrative_premise
 
         message = load_prompt(
             _PROMPTS_DIR / "panel.user.md",
@@ -431,7 +465,15 @@ class Narratron:
                     max_tokens=self.config.comic_config.llm_max_tokens,
                 )
 
-            data = json.loads(response_text)
+            # Try direct parse first, then JSON extraction on failure
+            try:
+                data = json.loads(response_text)
+            except json.JSONDecodeError:
+                extracted = self._extract_json(response_text)
+                if extracted:
+                    data = json.loads(extracted)
+                else:
+                    raise
             response = OpeningSequenceResponse.from_raw(data)
         except Exception:
             response = OpeningSequenceResponse(
@@ -443,6 +485,8 @@ class Narratron:
                 first_panel=NarratronResponse(_FALLBACK_RESPONSE),
                 initial_narrative={"short_term": [], "long_term": []},
             )
+
+        self._localize_fallback_placeholders(response.first_panel)
 
         self._apply_state_changes(response.first_panel, comic_state)
 
