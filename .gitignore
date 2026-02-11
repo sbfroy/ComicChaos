@@ -19,6 +19,9 @@ build/
 *.swo
 *~
 
+# Claude Code
+.claude/
+
 # Generated content
 assets/generated/*.png
 assets/generated/*.txt
