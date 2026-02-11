@@ -175,7 +175,19 @@ The comic will automatically appear in the selection screen.
 
 ## Contributing
 
-Contributions are welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+Contributions are welcome! To get started:
+
+1. Fork the repo and create a feature branch from `main`
+2. Install dev dependencies: `pip install pytest ruff`
+3. Make your changes — keep PRs focused and reasonably small
+4. Run `python -m pytest tests/ -v` and `ruff check .` before pushing
+5. Open a PR against `main`
+
+**Code style:** Python follows [Ruff](https://docs.astral.sh/ruff/) defaults (line length 120), use type hints for function signatures, and prefer Pydantic models for structured data. Frontend is vanilla JS in a single `index.html`.
+
+**Adding a comic?** See [Creating a New Comic](#creating-a-new-comic) above — just add a new directory under `comics/` with a `blueprint.json`.
+
+Found a bug or have an idea? Open an issue — no template needed, just describe it clearly.
 
 ## License
 
