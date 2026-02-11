@@ -422,7 +422,7 @@ class ImageGenerator:
             )
         elif el_type == "narration":
             return (
-                "Include ONE large empty rectangular white narration box with a thick black outline "
+                "Include ONE very large empty rectangular white narration box with a thick black outline "
                 "and sharp 90-degree corners. "
                 "Position it in one of the corners. "
                 "The box should be wide — spanning most of the panel width — and tall enough to fit a couple lines of text. "
