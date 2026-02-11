@@ -166,12 +166,11 @@ The comic will automatically appear in the selection screen.
 
 ## Roadmap
 
+- [ ] Faster, higher-quality image generation
 - [ ] Persistent sessions (database-backed instead of in-memory)
 - [ ] User accounts and comic galleries
 - [ ] More comic series
 - [ ] Mobile-optimized UI
-- [ ] Export to PDF
-- [ ] Rate limiting and usage tracking for public deployment
 
 ## Contributing
 
