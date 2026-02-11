@@ -74,7 +74,7 @@ USER INPUT OWNERSHIP:
 - Interactive elements ("user_input": true) must ONLY be speech or thought for the MAIN CHARACTER, or narration
 - The user controls the main character — NEVER ask the user to fill in dialogue for other characters
 - Other characters may speak ONLY in automatic panels ("user_input": false) with short pre-filled text
-- Keep other characters' pre-filled dialogue brief (under 10 words) so it fits naturally in the panel
+- Keep other characters' pre-filled dialogue short enough to fit in a speech bubble
 
 ELEMENT TYPES (choose ONE per panel):
 - "speech": Speech bubble for dialogue
