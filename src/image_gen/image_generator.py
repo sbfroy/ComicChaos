@@ -388,31 +388,26 @@ class ImageGenerator:
             return (
                 "Include ONE large empty white oval speech bubble with a black outline and a pointed tail, "
                 f"{bubble_target}. "
-                "The bubble must be at least one-fifth of the image width and one-sixth of the image height. "
-                "Keep at least 30 pixels of clear margin between the bubble and all image edges — "
-                "the bubble must not touch or overlap any edge of the image. "
+                "The bubble should be large enough to fit a sentence of text. "
+                "Keep it well inside the panel — not touching or overlapping any edge. "
                 "Completely empty inside with no text. The entire bubble must be visible."
             )
         elif el_type == "thought":
             return (
                 "Include ONE large empty white cloud-shaped thought bubble with small circular tail dots, "
                 f"{bubble_target}'s head. "
-                "The bubble must be at least one-fifth of the image width and one-sixth of the image height. "
-                "Keep at least 30 pixels of clear margin between the bubble and all image edges — "
-                "the bubble must not touch or overlap any edge of the image. "
+                "The bubble should be large enough to fit a sentence of text. "
+                "Keep it well inside the panel — not touching or overlapping any edge. "
                 "Completely empty inside with no text. The entire bubble must be visible."
             )
         elif el_type == "narration":
             return (
-                "Include ONE empty rectangular white narration box with a thick black outline. "
-                "Position it in one of the corners BUT with significant space from the edges. "
-                "The box should be no less than three-quarters of the image width and approximately "
-                "two-fifths of the image height. "
-                "CRITICAL: Keep at least 40-50 pixels of clear space between the box's border and ALL image edges. "
-                "The entire black outline must be fully visible and complete on all four sides. "
-                "The box must NOT touch or go near any edge of the image. "
-                "Completely empty inside with no text. "
-                "Sharp 90-degree corners (not rounded)."
+                "Include ONE large empty rectangular white narration box with a thick black outline "
+                "and sharp 90-degree corners. "
+                "Position it in one of the corners. "
+                "The box should be wide — spanning most of the panel width — and tall enough to fit a couple lines of text. "
+                "Keep it well inside the panel — not touching or overlapping any edge. "
+                "Completely empty inside with no text."
             )
 
         return ""
