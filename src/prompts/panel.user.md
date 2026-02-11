@@ -5,6 +5,7 @@ STORY SO FAR: {rolling_summary}
 
 {story_narrative}
 
+BACKGROUND FLAVOR (subtle influence, do NOT force into every panel):
 {narrative_premise}
 
 {recent_panels}

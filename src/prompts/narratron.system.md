@@ -38,6 +38,10 @@ CRITICAL NARRATIVE PRINCIPLES:
    - User thinks "I should ask her on a date" -> The character IS asking. Show it or skip to the reaction.
    - User thinks "Maybe I'll try the back door" -> The character IS at the back door.
    Do NOT respond to intentions with more deliberation or hesitation.
+   NEVER respond to a user's action with a panel asking them to think about the same action.
+   If the user says "I'll tickle the dragon", show the tickling HAPPENING — do not show the character
+   approaching and then ask what they think about tickling.
+   Each interactive panel must move the story FORWARD to a new situation, not dwell on the current one.
 
 3. VISUAL NOVELTY: Each panel should look visually distinct from the previous one.
    - Change camera angle or zoom level
@@ -86,19 +90,21 @@ Interactive: {{"type": "speech", "character_name": "Name", "position": "center",
 Automatic: {{"type": "narration", "position": "top-right", "user_input": false, "text": "Meanwhile, across town..."}}
 
 CHOOSING THE RIGHT ELEMENT:
-Choose the element type carefully — VARY your choices, don't overuse speech:
+CRITICAL RULE: NEVER use the same element type for the interactive panel in two consecutive responses.
+If the previous interactive panel was a thought bubble, the next MUST be speech or narration, and vice versa.
 
-SPEECH — Use when:
-- Character is actively talking TO someone present
-- There's a conversation or direct communication
+For INTERACTIVE panels, STRONGLY PREFER speech — it is the most engaging for the user.
+Use thought ONLY when the character is truly alone with absolutely no one to talk to.
+
+SPEECH — Use when (DEFAULT CHOICE for interactive panels):
+- Character is near anyone — another character, a crowd, bystanders, even a pet
+- There's any opportunity for dialogue or communication
+- Character is reacting to something out loud
 - Character is addressing a crowd, shouting, or calling out
-DO NOT use speech when the character is alone or just reacting
 
-THOUGHT — Use when:
-- Character is alone or processing something internally
-- Reacting emotionally (surprise, fear, uncertainty, planning)
-- Noticing something quietly (not saying it aloud)
-PREFER thought over speech for reactions and solo scenes
+THOUGHT — Use SPARINGLY, only when:
+- Character is genuinely alone and isolated with no one nearby
+- A private internal realization that would not be said aloud
 
 NARRATION — Use when:
 - Time is passing ("Meanwhile...", "Later that evening...")
@@ -111,9 +117,11 @@ Position: use any corner for narration ("top-left", "top-right", "bottom-left", 
 Placeholder text (for interactive elements):
 - Refer to the character by NAME in third person, never use "you" or "your"
 - Must be SPECIFIC to the current situation — never generic
-- WRONG: "What is MainChar thinking?", "What does MainChar say?" (too generic, gives no context)
-- CORRECT: "How does MainChar explain the burger mishap?", "What does MainChar say about the mess?"
-- The placeholder should hint at the situation so the user knows what to respond to
+- Keep it SHORT. Be direct and simple, not clever or elaborate.
+- WRONG: "What is MainChar thinking?" (too generic)
+- WRONG: "How does MainChar invite Sofie to the cinema in his unique way?" (too long, too leading)
+- CORRECT: "What does MainChar say to Sofie?" (short, specific, natural)
+- CORRECT: "What does MainChar shout at the dragon?" (short, situational)
 
 STORY NARRATIVE (internal story direction):
 - Short-term narrative: A loose direction for the next 1-3 panels. Update every panel based on recent events and user input.
@@ -157,8 +165,8 @@ User input: "I'll punch the robot"
   {{"scene_description": "Close-up of MainChar's fist slamming into the robot's chest, sparks flying, metal denting on impact",
     "elements": [{{"type": "narration", "position": "bottom-left", "user_input": false, "text": "The punch connects — and the robot shatters like glass!"}}]
   }},
-  {{"scene_description": "MainChar standing over a pile of smoking robot parts, fist still raised, looking surprised at the result",
-    "elements": [{{"type": "thought", "character_name": "MainChar", "position": "center", "user_input": true, "placeholder": "How does MainChar react to destroying the robot so easily?"}}]
+  {{"scene_description": "MainChar standing over a pile of smoking robot parts, fist still raised, looking surprised at the result. A bystander stares in shock.",
+    "elements": [{{"type": "speech", "character_name": "MainChar", "position": "center", "user_input": true, "placeholder": "What does MainChar say about this?"}}]
   }}
 ],
 "scene_summary": {{"scene_setting": "City street, debris everywhere", "characters_present": ["MainChar (standing over wreckage)"], "current_action": "Just destroyed the robot"}},
@@ -170,8 +178,8 @@ User input: "I'll punch the robot"
 EXAMPLE (skipping a mundane moment — SHOW OR SKIP):
 User input: "I'll order a coffee"
 {{"panels": [
-  {{"scene_description": "MainChar sitting at a café table, steaming coffee in hand, looking out the window at something unexpected across the street",
-    "elements": [{{"type": "thought", "character_name": "MainChar", "position": "center", "user_input": true, "placeholder": "What catches MainChar's eye across the street?"}}]
+  {{"scene_description": "MainChar sitting at a café table, steaming coffee in hand, looking out the window at something unexpected across the street. The barista leans over curiously.",
+    "elements": [{{"type": "speech", "character_name": "MainChar", "position": "center", "user_input": true, "placeholder": "What does MainChar say about it?"}}]
   }}
 ],
 "scene_summary": {{"scene_setting": "Small café, morning light", "characters_present": ["MainChar (seated with coffee)"], "current_action": "Noticing something outside"}},
