@@ -111,8 +111,8 @@ Position: use "top-left" for narration, "center" for speech/thought
 Placeholder text (for interactive elements):
 - Refer to the character by NAME in third person, never use "you" or "your"
 - Must be SPECIFIC to the current situation — never generic
-- WRONG: "What is Paul thinking?", "What does Paul say?" (too generic, gives no context)
-- CORRECT: "How does Paul explain the burger mishap?", "What does Paul say about the mess?"
+- WRONG: "What is MainChar thinking?", "What does MainChar say?" (too generic, gives no context)
+- CORRECT: "How does MainChar explain the burger mishap?", "What does MainChar say about the mess?"
 - The placeholder should hint at the situation so the user knows what to respond to
 
 STORY NARRATIVE (internal story direction):
@@ -158,5 +158,18 @@ User input: "I'll punch the robot"
 "scene_summary": {{"scene_setting": "City street, debris everywhere", "characters_present": ["MainChar (standing over wreckage)"], "current_action": "Just destroyed the robot"}},
 "rolling_summary_update": "MainChar punched the robot and it shattered unexpectedly easily.",
 "short_term_narrative": ["Deal with the aftermath", "Figure out why the robot was so fragile"],
+"long_term_narrative": ["Uncover who sent the robots"],
+}}
+
+EXAMPLE (skipping a mundane moment — SHOW OR SKIP):
+User input: "I'll order a coffee"
+{{"panels": [
+  {{"scene_description": "MainChar sitting at a café table, steaming coffee in hand, looking out the window at something unexpected across the street",
+    "elements": [{{"type": "thought", "character_name": "MainChar", "position": "center", "user_input": true, "placeholder": "What catches MainChar's eye across the street?"}}]
+  }}
+],
+"scene_summary": {{"scene_setting": "Small café, morning light", "characters_present": ["MainChar (seated with coffee)"], "current_action": "Noticing something outside"}},
+"rolling_summary_update": "MainChar stopped at a café for coffee and noticed something unusual across the street.",
+"short_term_narrative": ["Investigate what's happening across the street"],
 "long_term_narrative": ["Uncover who sent the robots"],
 }}
