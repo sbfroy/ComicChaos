@@ -7,6 +7,8 @@ import base64
 
 from dotenv import load_dotenv
 from flask import Flask, render_template, request, jsonify, Response
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 
 from src.config import COMICS_DIR
 from src.state.static_config import StaticConfig
@@ -22,6 +24,15 @@ from src.logging.interaction_logger import InteractionLogger
 load_dotenv()
 
 app = Flask(__name__)
+
+# Rate limiting — generous defaults to avoid disrupting active comic sessions.
+# The expensive endpoints (start-stream, submit-stream) get tighter per-route limits.
+limiter = Limiter(
+    get_remote_address,
+    app=app,
+    default_limits=["120 per minute"],
+    storage_uri="memory://",
+)
 
 # Store active sessions
 sessions = {}
@@ -438,10 +449,12 @@ def finish_comic():
         del sessions[session_id]
         return jsonify(result)
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        print(f"Error finishing comic: {e}")
+        return jsonify({"error": "Failed to generate comic strip"}), 500
 
 
 @app.route("/api/start-stream", methods=["POST"])
+@limiter.limit("6 per minute")
 def start_comic_stream():
     """Start a new comic session with streaming image generation."""
     data = request.get_json()
@@ -470,10 +483,12 @@ def start_comic_stream():
             }
         )
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        print(f"Error starting comic: {e}")
+        return jsonify({"error": "Failed to start comic session"}), 500
 
 
 @app.route("/api/submit-stream", methods=["POST"])
+@limiter.limit("10 per minute")
 def submit_panel_stream():
     """Submit user's input and stream the next panel generation."""
     data = request.get_json()
@@ -509,4 +524,4 @@ def submit_panel_stream():
 
 
 if __name__ == "__main__":
-    app.run(debug=True, port=5000)
+    app.run(debug=os.getenv("DEBUG", "false").lower() == "true", port=5000)

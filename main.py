@@ -5,9 +5,11 @@ Comic Chaos - Interactive Comic Strip Generator
 Run this file to start the web server.
 """
 
+import os
+from pathlib import Path
+
 from app import app
 from src.config import LOGS_DIR
-from pathlib import Path
 
 
 def main():
@@ -16,7 +18,8 @@ def main():
 
     print("Starting Comic Chaos...")
     print("Open http://localhost:5000 in your browser")
-    app.run(debug=True, port=5000)
+    debug = os.getenv("DEBUG", "false").lower() == "true"
+    app.run(debug=debug, port=5000)
 
 
 if __name__ == "__main__":

@@ -1112,6 +1112,7 @@
                 failedContinue: 'Noe gikk galt \u2014 pr\u00f8v igjen!',
                 contentPolicy: 'OpenAI likte ikke det \u2014 pr\u00f8v noe annet!',
                 failedFinish: 'Klarte ikke \u00e5 fullf\u00f8re tegneserien',
+                rateLimited: 'Pust litt! Vent noen sekunder og pr\u00f8v igjen.',
                 download: 'Last ned stripen',
                 createAnother: 'Lag en ny?',
                 generating: 'Genererer...',
@@ -1128,6 +1129,7 @@
                 failedContinue: 'Something went wrong \u2014 try again!',
                 contentPolicy: "OpenAI didn't like that \u2014 try something else!",
                 failedFinish: 'Failed to finish comic',
+                rateLimited: 'Take a breath! Wait a few seconds and try again.',
                 download: 'Download the strip',
                 createAnother: 'Create another?',
                 generating: 'Generating...',
@@ -1159,6 +1161,12 @@
             }
         }
 
+        function escapeHtml(str) {
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
         function applyTranslations() {
             document.querySelectorAll('[data-i18n]').forEach(el => {
                 el.textContent = t(el.dataset.i18n);
@@ -1169,7 +1177,7 @@
                 const desc = currentLang === 'no' && bubble.dataset.descriptionNo ? bubble.dataset.descriptionNo : bubble.dataset.description;
                 if (name) {
                     const textEl = bubble.querySelector('.bubble-text');
-                    if (textEl) textEl.innerHTML = `<h3>${name}</h3><p>${desc || ''}</p>`;
+                    if (textEl) textEl.innerHTML = `<h3>${escapeHtml(name)}</h3><p>${escapeHtml(desc || '')}</p>`;
                 }
             });
         }
@@ -1548,7 +1556,7 @@
                     textEl.classList.remove('muted');
                     const name = currentLang === 'no' && comic.name_no ? comic.name_no : comic.name;
                     const desc = currentLang === 'no' && comic.description_no ? comic.description_no : comic.description;
-                    textEl.innerHTML = `<h3>${name}</h3><p>${desc}</p>`;
+                    textEl.innerHTML = `<h3>${escapeHtml(name)}</h3><p>${escapeHtml(desc)}</p>`;
                 });
 
                 // Add click handlers to populated bubbles
@@ -1610,6 +1618,15 @@
                         language: currentLang
                     })
                 });
+
+                if (response.status === 429) {
+                    showNotification(t('rateLimited'), 5000);
+                    setLoading(false);
+                    elements.workspace.classList.remove('active');
+                    elements.comicSelect.classList.remove('hidden');
+                    setLangSwitcherVisible(true);
+                    return;
+                }
 
                 const reader = response.body.getReader();
                 const decoder = new TextDecoder();
@@ -1825,6 +1842,11 @@
                     })
                 });
 
+                if (response.status === 429) {
+                    recoverFromError(t('rateLimited'));
+                    return;
+                }
+
                 const reader = response.body.getReader();
                 const decoder = new TextDecoder();
                 let buffer = '';
@@ -1962,6 +1984,12 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ session_id: state.sessionId })
                 });
+
+                if (response.status === 429) {
+                    showNotification(t('rateLimited'), 5000);
+                    setLoading(false);
+                    return;
+                }
 
                 const data = await response.json();
 
