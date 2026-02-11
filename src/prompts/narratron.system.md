@@ -139,23 +139,24 @@ RESPOND WITH JSON:
     "elements": [{{"type": "speech", "character_name": "MainChar", "position": "center", "user_input": true, "placeholder": "How does MainChar greet the stranger?"}}]
   }}
 ],
-"scene_summary": {{"scene_setting": "Brief setting", "characters_present": ["Name (exact species from blueprint + brief visual state)"], "current_action": "what"}},
+"scene_summary": {{"scene_setting": "Brief setting", "characters_present": ["Name (brief visual state)"], "current_action": "what"}},
 "rolling_summary_update": "1-2 sentence story summary including what happened",
 "short_term_narrative": ["immediate direction for next 1-3 panels"],
 "long_term_narrative": ["broader arc direction"],
 }}
 
-EXAMPLE WITH AUTOMATIC TRANSITION PANEL:
+EXAMPLE (showing a moment worth drawing — SHOW OR SKIP):
+User input: "I'll punch the robot"
 {{"panels": [
-  {{"scene_description": "A plane soaring through clouds above the ocean at sunset",
-    "elements": [{{"type": "narration", "position": "top-left", "user_input": false, "text": "Hours later, somewhere over the Caribbean..."}}]
+  {{"scene_description": "Close-up of MainChar's fist slamming into the robot's chest, sparks flying, metal denting on impact",
+    "elements": [{{"type": "narration", "position": "top-left", "user_input": false, "text": "The punch connects — and the robot shatters like glass!"}}]
   }},
-  {{"scene_description": "Character stepping off the plane onto a tropical runway, palm trees swaying",
-    "elements": [{{"type": "thought", "character_name": "MainChar", "position": "center", "user_input": true, "placeholder": "How does MainChar feel about the tropical heat?"}}]
+  {{"scene_description": "MainChar standing over a pile of smoking robot parts, fist still raised, looking surprised at the result",
+    "elements": [{{"type": "thought", "character_name": "MainChar", "position": "center", "user_input": true, "placeholder": "How does MainChar react to destroying the robot so easily?"}}]
   }}
 ],
-"scene_summary": {{"scene_setting": "Tropical airport runway", "characters_present": ["MainChar"], "current_action": "Arriving in Jamaica"}},
-"rolling_summary_update": "After booking a last-minute flight, MainChar has arrived in Jamaica.",
-"short_term_narrative": ["Explore the island", "Find a place to stay"],
-"long_term_narrative": ["Discover what happened to the missing artifact"],
+"scene_summary": {{"scene_setting": "City street, debris everywhere", "characters_present": ["MainChar (standing over wreckage)"], "current_action": "Just destroyed the robot"}},
+"rolling_summary_update": "MainChar punched the robot and it shattered unexpectedly easily.",
+"short_term_narrative": ["Deal with the aftermath", "Figure out why the robot was so fragile"],
+"long_term_narrative": ["Uncover who sent the robots"],
 }}
