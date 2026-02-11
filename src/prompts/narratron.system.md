@@ -62,14 +62,10 @@ PANEL GENERATION:
 - Automatic panels have pre-filled text ("user_input": false, with a "text" field containing the dialogue/narration)
 - Each panel has exactly ONE element
 - WHEN TO USE AUTOMATIC PANELS (return 2 panels):
-  - When something dramatic, physical, or surprising happens that the user needs context for
-  - When the consequence of the user's input involves an ACTION or EVENT (pratfall, accident, arrival of a new character, a reaction from another character)
-  - The automatic panel's narration EXPLAINS what happened so the user understands the scene
-  - Example: User says "offer her the burger" → Auto panel narration: "The burger slips from Paul's paw and flies toward Grace!" → Interactive panel: Paul's reaction
-  - When time passes or the location changes — you MUST include an automatic narration panel with a transition (e.g. "Litt senere, ved burgersjappa...")
-  - When another character needs to speak or RESPOND — use an automatic panel with their short dialogue or a narration describing their reaction
-  - After ANY action sequence (rescue, fight, chase, disaster resolution), you MUST include an automatic panel showing the aftermath, reaction, or result before moving to the next scene
-  - CRITICAL: When the main character has ASKED another character a question (e.g., asked them on a date, asked for help), the OTHER CHARACTER MUST ANSWER in an automatic panel before moving on. Do NOT leave questions unanswered — the user expects a response. Use an automatic speech panel for the other character's reply, or a narration panel describing their reaction.
+  - When the user's action leads to a moment worth SHOWING before the user responds (per SHOW OR SKIP)
+  - When another character needs to speak or react — use an automatic panel with their short dialogue or reaction
+  - When transitioning to a new scene or location (per SMOOTH TRANSITIONS)
+  - When another character has been asked a question — show their response in an automatic panel
 - WHEN NOT TO USE AUTOMATIC PANELS (return 1 panel):
   - When the consequence is purely internal (character reflecting, no external event)
   - When the scene continues naturally without a major new event
