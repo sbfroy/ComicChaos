@@ -1,4 +1,4 @@
-GRAND OPENING SEQUENCE - Create a dramatic two-panel opening!
+GRAND OPENING SEQUENCE - Create an engaging two-panel opening!
 
 COMIC: {title}
 SYNOPSIS: {synopsis}
@@ -34,7 +34,7 @@ RESPOND WITH JSON:
   "first_panel": {{
     "scene_description": "Visual description for first story panel - show the main character clearly in the starting location",
     "elements": [
-      {{"type": "speech|thought|narration", "character_name": "CharacterName", "position": "center", "user_input": true, "placeholder": "What does CharacterName say/think?"}}
+      {{"type": "speech|thought|narration", "character_name": "CharacterName", "position": "center (or any corner for narration)", "user_input": true, "placeholder": "What does CharacterName say/think?"}}
     ],
     "scene_summary": {{"scene_setting": "Brief setting description", "characters_present": ["Character + brief desc"], "current_action": "What's happening"}},
     "rolling_summary_update": "The story begins: brief setup of the scene"
