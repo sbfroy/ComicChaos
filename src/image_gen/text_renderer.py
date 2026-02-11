@@ -345,8 +345,8 @@ class TextRenderer:
 
         # Calculate bubble position and size based on position hint
         if element.element_type == "narration":
-            bubble_width = min(500, int(image_width * 0.7))
-            bubble_height = min(250, int(image_height * 0.35))
+            bubble_width = min(580, int(image_width * 0.8))
+            bubble_height = min(290, int(image_height * 0.4))
         else:
             bubble_width = min(180, image_width // 3)
             bubble_height = min(100, image_height // 5)
