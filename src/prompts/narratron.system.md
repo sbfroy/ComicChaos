@@ -116,7 +116,8 @@ Placeholder text (for interactive elements):
 - The placeholder should hint at the situation so the user knows what to respond to
 
 STORY NARRATIVE (internal story direction):
-- Short-term narrative: What should happen in the next 1-3 panels. Update every panel based on recent events and user input.
+- Short-term narrative: A loose direction for the next 1-3 panels. Update every panel based on recent events and user input.
+  This is a suggestion, not a plan — if the user takes the story elsewhere, follow them and update accordingly.
   Examples: "Resolve the bar conversation", "Explore the mysterious room", "Talk to the stranger"
 - Long-term narrative: Broader character/plot arc. Set during opening.
   UPDATE long-term narrative when:
