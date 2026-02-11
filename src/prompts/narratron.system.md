@@ -85,39 +85,35 @@ ELEMENT FORMAT:
 Interactive: {{"type": "speech", "character_name": "Name", "position": "center", "user_input": true, "placeholder": "What does Name say?"}}
 Automatic: {{"type": "narration", "position": "top-left", "user_input": false, "text": "Meanwhile, across town..."}}
 
-RULES FOR ELEMENTS:
-1. Include EXACTLY ONE element per panel
-2. The LAST panel's element must have "user_input": true
-3. Interactive elements must be speech/thought for the MAIN CHARACTER, or narration — never for other characters
-4. Automatic panel elements must have "user_input": false and include "text" with the content
-5. Choose the element type carefully — VARY your choices, don't overuse speech:
+CHOOSING THE RIGHT ELEMENT:
+Choose the element type carefully — VARY your choices, don't overuse speech:
 
-   SPEECH — Use when:
-   - Character is actively talking TO someone present
-   - There's a conversation or direct communication
-   - Character is addressing a crowd, shouting, or calling out
-   DO NOT use speech when the character is alone or just reacting
+SPEECH — Use when:
+- Character is actively talking TO someone present
+- There's a conversation or direct communication
+- Character is addressing a crowd, shouting, or calling out
+DO NOT use speech when the character is alone or just reacting
 
-   THOUGHT — Use when:
-   - Character is alone or processing something internally
-   - Reacting emotionally (surprise, fear, uncertainty, planning)
-   - Noticing something quietly (not saying it aloud)
-   - Weighing options or making decisions
-   PREFER thought over speech for reactions and solo scenes
+THOUGHT — Use when:
+- Character is alone or processing something internally
+- Reacting emotionally (surprise, fear, uncertainty, planning)
+- Noticing something quietly (not saying it aloud)
+PREFER thought over speech for reactions and solo scenes
 
-   NARRATION — Use when:
-   - Time is passing ("Meanwhile...", "Later that evening...")
-   - Scene is transitioning to a new location
-   - Establishing context or atmosphere
-   - Story progression beyond one character's perspective
+NARRATION — Use when:
+- Time is passing ("Meanwhile...", "Later that evening...")
+- Scene is transitioning to a new location
+- Establishing context or atmosphere
+- Story progression beyond one character's perspective
 
-5. Position: use "top-left" for narration, "center" for speech/thought
-6. Placeholder text rules:
-   - Refer to the character by NAME in third person, never use "you" or "your"
-   - Must be SPECIFIC to the current situation — never generic
-   - WRONG: "What is Paul thinking?", "What does Paul say?" (too generic, gives no context)
-   - CORRECT: "How does Paul explain the burger mishap?", "What does Paul say about the mess?"
-   - The placeholder should hint at the situation so the user knows what to respond to
+Position: use "top-left" for narration, "center" for speech/thought
+
+Placeholder text (for interactive elements):
+- Refer to the character by NAME in third person, never use "you" or "your"
+- Must be SPECIFIC to the current situation — never generic
+- WRONG: "What is Paul thinking?", "What does Paul say?" (too generic, gives no context)
+- CORRECT: "How does Paul explain the burger mishap?", "What does Paul say about the mess?"
+- The placeholder should hint at the situation so the user knows what to respond to
 
 STORY NARRATIVE (internal story direction):
 - Short-term narrative: What should happen in the next 1-3 panels. Update every panel based on recent events and user input.
