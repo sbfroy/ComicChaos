@@ -16,7 +16,7 @@ from typing import Optional, List, Dict, Any, Generator
 from openai import OpenAI
 
 from ..state.comic_state import RenderState
-from ..state.static_config import ComicConfig
+from ..state.static_config import ComicConfig, Character
 from ..logging.interaction_logger import InteractionLogger
 from .panel_detector import PanelDetector
 
@@ -65,6 +65,7 @@ class ImageGenerator:
         visual_style: str,
         elements: Optional[List[Dict[str, Any]]] = None,
         main_character_description: Optional[str] = None,
+        blueprint_characters: Optional[List[Character]] = None,
     ) -> Dict[str, Any]:
         """Generate an image from the render state.
 
@@ -85,7 +86,7 @@ class ImageGenerator:
                 - image_bytes: Raw PNG bytes (or None on failure)
                 - detected_bubbles: List of bubble position dicts with x, y, width, height
         """
-        prompt = self._build_prompt(render_state, visual_style, elements, main_character_description)
+        prompt = self._build_prompt(render_state, visual_style, elements, main_character_description, blueprint_characters)
         needs_detection = self._needs_detection(elements)
         last_image_bytes = None
 
@@ -157,6 +158,7 @@ class ImageGenerator:
         elements: Optional[List[Dict[str, Any]]] = None,
         partial_images: int = 2,
         main_character_description: Optional[str] = None,
+        blueprint_characters: Optional[List[Character]] = None,
     ) -> Generator[Dict[str, Any], None, None]:
         """Generate an image with streaming partial images.
 
@@ -179,7 +181,7 @@ class ImageGenerator:
                 - image_bytes: Raw PNG bytes (for complete type)
                 - detected_bubbles: List of bubble positions (for complete type)
         """
-        prompt = self._build_prompt(render_state, visual_style, elements, main_character_description)
+        prompt = self._build_prompt(render_state, visual_style, elements, main_character_description, blueprint_characters)
         needs_detection = self._needs_detection(elements)
 
         try:
@@ -304,6 +306,7 @@ class ImageGenerator:
         visual_style: str,
         elements: Optional[List[Dict[str, Any]]] = None,
         main_character_description: Optional[str] = None,
+        blueprint_characters: Optional[List[Character]] = None,
     ) -> str:
         """Build an image generation prompt from the render state.
 
@@ -315,6 +318,8 @@ class ImageGenerator:
             render_state: The current render state with scene information.
             visual_style: The visual style description for the comic.
             elements: Optional list of elements that need speech bubbles.
+            main_character_description: Full description of the main character.
+            blueprint_characters: All characters from the blueprint for description lookup.
 
         Returns:
             A formatted prompt string for image generation.
@@ -332,10 +337,25 @@ class ImageGenerator:
         if main_character_description:
             prompt_parts.append(f"Main character: {main_character_description}")
 
-        # Add other characters present in the scene
+        # Add other characters present in the scene, using full blueprint descriptions when available
         if render_state.characters_present:
+            # Build a lookup from blueprint character names to their full descriptions
+            char_lookup: Dict[str, str] = {}
+            if blueprint_characters:
+                for char in blueprint_characters:
+                    char_lookup[char.name.lower()] = f"{char.name}: {char.description}"
+
             for character in render_state.characters_present:
-                prompt_parts.append(f"Character: {character}")
+                # Try to match this character entry to a blueprint character by name
+                matched = False
+                for bp_name_lower, bp_full_desc in char_lookup.items():
+                    if bp_name_lower in character.lower():
+                        prompt_parts.append(f"Character: {bp_full_desc}")
+                        matched = True
+                        break
+                if not matched:
+                    # No blueprint match — use the LLM's description as-is
+                    prompt_parts.append(f"Character: {character}")
 
         # Add the current action happening in the panel
         if render_state.current_action:

@@ -132,6 +132,7 @@ class ComicSession:
                 visual_style=self.config.blueprint.visual_style,
                 elements=elements,
                 main_character_description=f"{self.state.main_character_name}: {self.state.main_character_description}",
+                blueprint_characters=self.config.blueprint.characters[1:] if self.config.blueprint.characters else None,
             ):
                 yield event
         except Exception as e:

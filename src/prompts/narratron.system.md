@@ -133,6 +133,12 @@ CONSISTENCY:
 - Do NOT randomly invent new locations when the characters are still at the same place.
 - When the user's input or a story event moves to a new location, update the setting accordingly.
 
+VISUAL DESCRIPTORS FOR OBJECTS:
+- When introducing ANY new object, prop, or creature in the story, always include a few visual descriptors in scene_description.
+- Examples: "a large red dragon", "a small black leather purse", "a bright yellow umbrella".
+- This ensures visual consistency if the same object reappears in later panels.
+- Also include brief visual descriptors in characters_present for any notable objects or creatures that are part of the scene.
+
 RESPOND WITH JSON:
 {{"panels": [
   {{"scene_description": "Brief visual description for image generation",
