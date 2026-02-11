@@ -6,7 +6,7 @@ Thanks for your interest in contributing! This document explains how to get star
 
 ```bash
 # Fork and clone the repository
-git clone https://github.com/YOUR_USERNAME/ComicChaos.git
+git clone https://github.com/sbfroy/ComicChaos.git
 cd ComicChaos
 
 # Create a virtual environment
