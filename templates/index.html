@@ -1813,7 +1813,7 @@
                             if (textDiv) {
                                 const textarea = document.createElement('textarea');
                                 textarea.className = 'element-input';
-                                textarea.placeholder = 'What happens next?';
+                                textarea.placeholder = currentLang === 'no' ? 'Hva skjer videre?' : 'What happens next?';
                                 textarea.style.background = 'transparent';
                                 textarea.style.resize = 'none';
                                 textarea.value = userInput;
