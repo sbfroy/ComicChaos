@@ -118,10 +118,13 @@ Placeholder text (for interactive elements):
 - Refer to the character by NAME in third person, never use "you" or "your"
 - Must be SPECIFIC to the current situation — never generic
 - Keep it SHORT. Be direct and simple, not clever or elaborate.
+- For NARRATION placeholders: prompt the user to write narrative CONTENT about what's happening — never ask meta questions about the act of narrating itself.
 - WRONG: "What is MainChar thinking?" (too generic)
 - WRONG: "How does MainChar invite Sofie to the cinema in his unique way?" (too long, too leading)
+- WRONG: "How does the narrator describe the scene?" (meta — asks ABOUT narrating, not for narrative content)
 - CORRECT: "What does MainChar say to Sofie?" (short, specific, natural)
 - CORRECT: "What does MainChar shout at the dragon?" (short, situational)
+- CORRECT: "What's happening at the zoo today?" (narration — prompts for story content, not meta-narration)
 
 STORY NARRATIVE (internal story direction):
 - Short-term narrative: A loose direction for the next 1-3 panels. Update every panel based on recent events and user input.
