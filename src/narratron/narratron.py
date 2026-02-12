@@ -11,6 +11,9 @@ Classes:
     Narratron: The AI engine that orchestrates comic creation.
 """
 
+# TODO: Corrupted JSON still happens occasionally. Implement more robust detection and recovery strategies, and log occurrences for analysis.
+# TODO: In the system prompt, we need to add short descriptions of things that are introduced during the story, so the LLM keeps them consistent.
+
 import json
 import os
 import re
@@ -18,6 +21,7 @@ from dataclasses import dataclass
 from typing import Optional, Dict, List, Any
 
 from openai import OpenAI
+from pydantic import BaseModel
 
 from pathlib import Path
 
@@ -30,6 +34,54 @@ from ..logging.interaction_logger import InteractionLogger
 from ..prompt_loader import load_prompt
 
 _PROMPTS_DIR = Path(__file__).resolve().parent.parent / "prompts"
+
+
+# --- Pydantic schemas for Structured Outputs ---
+
+class ElementSchema(BaseModel):
+    type: str
+    character_name: Optional[str] = None
+    position: str
+    user_input: bool
+    placeholder: Optional[str] = None
+    text: Optional[str] = None
+
+
+class PanelSchema(BaseModel):
+    scene_description: str
+    elements: list[ElementSchema]
+
+
+class SceneSummarySchema(BaseModel):
+    scene_setting: str
+    characters_present: list[str]
+    current_action: str
+
+
+class NarratronResponseSchema(BaseModel):
+    panels: list[PanelSchema]
+    scene_summary: SceneSummarySchema
+    rolling_summary_update: str
+    short_term_narrative: list[str]
+    long_term_narrative: list[str]
+
+
+class TitleCardSchema(BaseModel):
+    scene_description: str
+    title_treatment: str
+    atmosphere: str
+
+
+class InitialNarrativeSchema(BaseModel):
+    short_term: list[str]
+    long_term: list[str]
+
+
+class OpeningSequenceSchema(BaseModel):
+    title_card: TitleCardSchema
+    first_panel: NarratronResponseSchema
+    initial_narrative: InitialNarrativeSchema
+
 
 _FALLBACK_RESPONSE = {
     "panels": [
@@ -194,23 +246,62 @@ class Narratron:
             rules=rules,
         )
 
-    def _call_llm(self, messages: List[Dict[str, str]]) -> str:
+    def _call_llm(
+        self,
+        messages: List[Dict[str, str]],
+        response_model: Optional[type] = None,
+    ) -> str:
         """Make an API call to the LLM.
 
-        Raises on API errors so callers can fall back gracefully.
+        When *response_model* is a Pydantic class the call uses Structured
+        Outputs (``client.beta.chat.completions.parse``) so the response is
+        guaranteed to match the schema.  If the structured call fails for any
+        reason (unsupported model, API change, etc.) it falls back to the
+        legacy ``json_object`` mode automatically.
+
+        Returns the raw response text in both paths so downstream parsing
+        logic works unchanged.
         """
         cc = self.config.comic_config
-        response = self.client.chat.completions.create(
-            model=cc.llm_model,
-            messages=messages,
-            temperature=cc.llm_temperature,
-            top_p=cc.llm_top_p,
-            max_tokens=cc.llm_max_tokens,
-            response_format={"type": "json_object"},
-        )
 
-        response_content = response.choices[0].message.content
+        response_content: str
+        parsed_via_schema = False
 
+        # --- Structured Outputs path ---
+        if response_model is not None:
+            try:
+                response = self.client.beta.chat.completions.parse(
+                    model=cc.llm_model,
+                    messages=messages,
+                    temperature=cc.llm_temperature,
+                    top_p=cc.llm_top_p,
+                    max_tokens=cc.llm_max_tokens,
+                    response_format=response_model,
+                )
+                parsed = response.choices[0].message.parsed
+                if parsed is not None:
+                    response_content = json.dumps(parsed.model_dump())
+                    parsed_via_schema = True
+                else:
+                    # Model refused or returned None — fall through to legacy
+                    response_content = response.choices[0].message.content or ""
+            except Exception:
+                # Structured outputs not supported or failed — fall through
+                response_model = None  # signal to use legacy path below
+
+        # --- Legacy json_object path ---
+        if not parsed_via_schema:
+            response = self.client.chat.completions.create(
+                model=cc.llm_model,
+                messages=messages,
+                temperature=cc.llm_temperature,
+                top_p=cc.llm_top_p,
+                max_tokens=cc.llm_max_tokens,
+                response_format={"type": "json_object"},
+            )
+            response_content = response.choices[0].message.content
+
+        # --- Logging (same for both paths) ---
         if self.logger:
             system_prompt = next((m["content"] for m in messages if m["role"] == "system"), "")
             user_message = next((m["content"] for m in messages if m["role"] == "user"), "")
@@ -412,13 +503,17 @@ class Narratron:
         ]
 
         try:
-            response_text = self._call_llm(messages)
+            response_text = self._call_llm(
+                messages, response_model=NarratronResponseSchema
+            )
             # Retry up to 2 times if the response looks corrupted
             for attempt in range(2):
                 if not self._is_corrupted_response(response_text):
                     break
                 print(f"Corrupted LLM response detected, retry {attempt + 1}/2...")
-                response_text = self._call_llm(messages)
+                response_text = self._call_llm(
+                    messages, response_model=NarratronResponseSchema
+                )
             response = self._parse_response(response_text)
         except Exception:
             response = NarratronResponse(_FALLBACK_RESPONSE)
@@ -553,7 +648,9 @@ class Narratron:
         ]
 
         try:
-            response_text = self._call_llm(messages)
+            response_text = self._call_llm(
+                messages, response_model=OpeningSequenceSchema
+            )
 
             if self.logger:
                 parsed_response = None
