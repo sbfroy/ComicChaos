@@ -406,27 +406,28 @@ class ImageGenerator:
 
         if el_type == "speech":
             return (
-                "Include ONE large empty white oval speech bubble with a black outline and a pointed tail, "
-                f"{bubble_target}. "
-                "The bubble should be large enough to fit a sentence of text. "
-                "Keep it well inside the panel — not touching or overlapping any edge. "
+                "Include ONE very large, prominent empty white oval speech bubble with a black outline "
+                f"and a pointed tail, {bubble_target}. "
+                "The bubble is the most important element in the image — prioritize its size over scene composition. "
+                "It should cover roughly 20-25% of the panel and can overlap or cover parts of the scene. "
                 "Completely empty inside with no text. The entire bubble must be visible."
             )
         elif el_type == "thought":
             return (
-                "Include ONE large empty white cloud-shaped thought bubble with small circular tail dots, "
-                f"{bubble_target}'s head. "
-                "The bubble should be large enough to fit a sentence of text. "
-                "Keep it well inside the panel — not touching or overlapping any edge. "
+                "Include ONE very large, prominent empty white cloud-shaped thought bubble with small circular "
+                f"tail dots, {bubble_target}'s head. "
+                "The bubble is the most important element in the image — prioritize its size over scene composition. "
+                "It should cover roughly 20-25% of the panel and can overlap or cover parts of the scene. "
                 "Completely empty inside with no text. The entire bubble must be visible."
             )
         elif el_type == "narration":
             return (
-                "Include ONE very large empty rectangular white narration box with a thick black outline "
-                "and sharp 90-degree corners. "
+                "Include ONE very large, prominent empty rectangular white narration box with a thick black "
+                "outline and sharp 90-degree corners. "
                 "Position it in one of the corners. "
-                "The box should be wide — spanning most of the panel width — and tall enough to fit a couple lines of text. "
-                "Keep it well inside the panel — not touching or overlapping any edge. "
+                "The box is the most important element in the image — prioritize its size over scene composition. "
+                "It should be wide, spanning most of the panel width, and cover roughly 20-25% of the panel. "
+                "It can overlap or cover parts of the scene. "
                 "Completely empty inside with no text."
             )
 
