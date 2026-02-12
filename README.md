@@ -58,13 +58,6 @@ python main.py
 
 Open [http://localhost:5000](http://localhost:5000) in your browser.
 
-### Running Tests
-
-```bash
-pip install pytest
-python -m pytest tests/ -v
-```
-
 ## Project Structure
 
 ```
@@ -113,9 +106,6 @@ ComicChaos/
 ├── static/
 │   ├── fonts/                      # Comic Neue font (OFL licensed)
 │   └── images/                     # Logo and UI assets
-│
-└── tests/
-    └── test_smoke.py               # Smoke tests (no API key required)
 ```
 
 ## Creating a New Comic
@@ -177,9 +167,9 @@ The comic will automatically appear in the selection screen.
 Contributions are welcome! To get started:
 
 1. Fork the repo and create a feature branch from `main`
-2. Install dev dependencies: `pip install pytest ruff`
+2. Install dev dependencies: `pip install ruff`
 3. Make your changes — keep PRs focused and reasonably small
-4. Run `python -m pytest tests/ -v` and `ruff check .` before pushing
+4. Run `ruff check .` before pushing
 5. Open a PR against `main`
 
 **Code style:** Python follows [Ruff](https://docs.astral.sh/ruff/) defaults (line length 120), use type hints for function signatures, and prefer Pydantic models for structured data. Frontend is vanilla JS in a single `index.html`.
