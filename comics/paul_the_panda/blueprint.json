@@ -1,7 +1,7 @@
 {
   "title": "Paul the Panda",
   "synopsis": "Paul's clumsy attempts to win the heart of Grace the Giraffe.",
-  "visual_style": "Minimal, graphic comic illustration with a cubist-inspired layout. Characters are highly readable silhouettes with thick, consistent black outlines and flat fills, with no gradients. Environments are abstract geometry: overlapping rectangles, arcs, and large color blocks that suggest location rather than depict it. Backgrounds are mostly empty with generous negative space. The overall detail level is intentionally lower than typical comics: no textures, no tiny objects, no complex patterns. The color palette is based on warm ochre and off-white. It also includes muted teal or blue and brick red as accent colors, along with black. Shadows are shown as single, flat shapes. Facial direction is neutral-to-pleasant with calm, normal eyes and subtle smiles when appropriate; comedy comes primarily from body language and timing rather than exaggerated faces. Avoid cute or chibi proportions, big sparkly eyes, blush, angry or irritated default expressions, detailed fur, realistic scenery, clutter, painterly shading, and any modern glossy look.",
+  "visual_style": "Minimal, graphic comic illustration with a cubist-inspired layout. Characters are highly readable silhouettes with thick, consistent black outlines and flat fills. Environments are abstract geometry: overlapping rectangles, arcs, and large color blocks that suggest location rather than depict it. Backgrounds are mostly empty with generous negative space. The color palette is warm ochre and off-white, with muted teal and brick red as accents. Shadows are single, flat shapes. Avoid gradients, textures, complex patterns, tiny details, cute or chibi proportions, big sparkly eyes, blush, detailed fur, realistic scenery, clutter, painterly shading, and any modern glossy look.",
   "locations": [
     {
       "name": "City Zoo",
@@ -15,24 +15,22 @@
   "characters": [
     {
       "name": "Paul",
-      "description": "Paul is a stout panda made from simple, rounded shapes, with a large body, small head, and short limbs. His face is minimal, with small calm eyes and a simple mouth. His usual expression is neutral with a hint of hope."
+      "description": "A stout panda made from simple, rounded shapes, with a large body, small head, and short limbs. Minimal face with small calm eyes and a simple mouth. His expression is neutral, often with a soft, blank, slightly puzzled look that adds quiet humor."
     },
     {
       "name": "Grace",
-      "description": "Grace is a tall giraffe built from clean, simple shapes, with a long neck drawn as one smooth curve and a head shaped like a soft wedge. Her spots are minimal, shown as just a few clear marks. Her expression is calm and mildly amused, with a subtle smile or slightly softened eyes, never sweet or cute. Her humor is dry and quiet, shown through posture and timing."
+      "description": "A tall giraffe built from clean, simple shapes, with a long neck drawn as one smooth curve and a head shaped like a soft wedge. Minimal spots shown as just a few clear marks. Calm expression with a subtle smile or slightly softened eyes, never sweet or cute."
     }
   ],
   "rules": [
     "The animals behave like animals but with human-like emotions and social dynamics.",
-    "Paul's attempts to impress Grace should backfire in funny, physical-comedy ways.",
+    "Comedy comes from physical comedy, body language, and timing — not exaggerated facial expressions.",
     "The tone is light, witty, and slightly silly — think Pixar humor: accessible on the surface, with subtle irony, self-awareness, and understated jokes that adults recognize and enjoy.",
     "Grace's dialogue should be dry, deadpan, and cleverly understated — never too sweet, encouraging, or overly kind. She's amused, not charmed.",
-    "Narration should be wry and observational, like a nature documentary narrator who's slowly losing professional composure. Avoid anything earnest, sentimental, or children's-book-like.",
-    "Placeholder hints should be playful and specific, with a sense of comedic timing — nudging the user toward funny responses rather than generic ones."
+    "Narration should be wry and observational, like a nature documentary narrator who's slowly losing professional composure. Avoid anything earnest, sentimental, or children's-book-like."
   ],
   "long_term_narrative": [
-    "Paul keeps finding creative but doomed ways to get Grace's attention.",
-    "Each attempt escalates in ambition and comedic disaster."
+    "Each attempt to impress Grace escalates in ambition and comedic disaster."
   ],
   "narrative_premise": "Paul is hopelessly in love with Grace and keeps finding creative but doomed ways to win her heart. His attempts always backfire in physical-comedy fashion, but he never gives up — and Grace is always just entertained enough by the chaos to stick around, though she'd never let him know that."
 }
