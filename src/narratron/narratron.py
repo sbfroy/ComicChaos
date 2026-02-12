@@ -219,7 +219,20 @@ class Narratron:
             try:
                 parsed_response = json.loads(response_content)
             except json.JSONDecodeError:
-                pass
+                # Try extraction and repair so the log captures the data
+                extracted = self._extract_json(response_content)
+                if extracted:
+                    try:
+                        parsed_response = json.loads(extracted)
+                    except json.JSONDecodeError:
+                        pass
+                if parsed_response is None:
+                    repaired = self._repair_json(response_content)
+                    if repaired:
+                        try:
+                            parsed_response = json.loads(repaired)
+                        except json.JSONDecodeError:
+                            pass
 
             self.logger.log_narrative_interaction(
                 system_prompt=system_prompt,
@@ -267,21 +280,115 @@ class Narratron:
                 pass
         return None
 
+    @staticmethod
+    def _repair_json(text: str) -> Optional[str]:
+        """Attempt to repair corrupted JSON from LLM responses.
+
+        Handles a known gpt-4.1 failure mode where the model outputs valid JSON
+        for all fields, then appends a trailing comma and an unterminated string
+        before the closing brace, followed by repetitive garbage. The corruption
+        always occurs after the last complete JSON value (typically the
+        long_term_narrative array).
+
+        Strategy:
+        1. Find the outermost opening brace.
+        2. Walk the string with a brace/bracket depth counter, respecting
+           JSON string escaping, to locate the position just after the last
+           successfully closed array or object at depth 1 (i.e. a top-level
+           value boundary).
+        3. Truncate there, strip any trailing comma, and close the object.
+        """
+        start = text.find("{")
+        if start < 0:
+            return None
+
+        # Walk through the JSON tracking depth and string state
+        in_string = False
+        escape_next = False
+        depth = 0
+        last_value_end = -1  # position after the last ]/} that returns to depth 1
+
+        for i in range(start, len(text)):
+            ch = text[i]
+
+            if escape_next:
+                escape_next = False
+                continue
+
+            if in_string:
+                if ch == "\\":
+                    escape_next = True
+                elif ch == '"':
+                    in_string = False
+                continue
+
+            if ch == '"':
+                in_string = True
+            elif ch in "{[":
+                depth += 1
+            elif ch in "}]":
+                depth -= 1
+                if depth == 1:
+                    # Just closed a top-level value — record this position
+                    last_value_end = i + 1
+                elif depth == 0:
+                    # Properly closed outer object — try parsing as-is
+                    candidate = text[start:i + 1]
+                    try:
+                        json.loads(candidate)
+                        return candidate
+                    except json.JSONDecodeError:
+                        break
+
+        # If we tracked a valid value boundary, truncate and close
+        if last_value_end > start:
+            truncated = text[start:last_value_end].rstrip()
+            # Strip any trailing commas left after truncation
+            truncated = truncated.rstrip(",").rstrip()
+            truncated += "\n}"
+            try:
+                json.loads(truncated)
+                return truncated
+            except json.JSONDecodeError:
+                pass
+
+        return None
+
     def _parse_response(self, response_text: str) -> NarratronResponse:
-        """Parse the LLM response into a structured format."""
+        """Parse the LLM response into a structured format.
+
+        Tries three strategies in order:
+        1. Direct JSON parse
+        2. Extract JSON between first { and last }
+        3. Repair corrupted JSON by truncating at the last valid value boundary
+        """
+        # Strategy 1: Direct parse
         try:
             data = json.loads(response_text)
             return NarratronResponse(data)
         except json.JSONDecodeError:
-            # Try extracting JSON from between first { and last }
-            extracted = self._extract_json(response_text)
-            if extracted:
-                try:
-                    data = json.loads(extracted)
-                    return NarratronResponse(data)
-                except json.JSONDecodeError:
-                    pass
-            return NarratronResponse(_FALLBACK_RESPONSE)
+            pass
+
+        # Strategy 2: Extract between first { and last }
+        extracted = self._extract_json(response_text)
+        if extracted:
+            try:
+                data = json.loads(extracted)
+                return NarratronResponse(data)
+            except json.JSONDecodeError:
+                pass
+
+        # Strategy 3: Repair corrupted JSON
+        repaired = self._repair_json(response_text)
+        if repaired:
+            try:
+                data = json.loads(repaired)
+                print("Successfully repaired corrupted LLM response.")
+                return NarratronResponse(data)
+            except json.JSONDecodeError:
+                pass
+
+        return NarratronResponse(_FALLBACK_RESPONSE)
 
     def _localize_fallback_placeholders(self, response: NarratronResponse) -> None:
         """Replace English fallback placeholders with localized versions."""
@@ -453,7 +560,14 @@ class Narratron:
                 try:
                     parsed_response = json.loads(response_text)
                 except json.JSONDecodeError:
-                    pass
+                    for repair_fn in (self._extract_json, self._repair_json):
+                        repaired = repair_fn(response_text)
+                        if repaired:
+                            try:
+                                parsed_response = json.loads(repaired)
+                                break
+                            except json.JSONDecodeError:
+                                pass
 
                 self.logger.log_opening_panel(
                     system_prompt=system_prompt,
