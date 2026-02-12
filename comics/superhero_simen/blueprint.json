@@ -1,32 +1,29 @@
 {
-  "title": "Superhero Simen",
-  "synopsis": "Simen protects a city of foolish people while battling real disasters and occasional villains.",
-  "visual_style": "Classic old-school action comic style with bold, clean ink lines and vibrant but controlled primary colors. Composition is deliberately minimal: simple flat color fills, strong contrast, and clear, readable silhouettes. Backgrounds are highly simplified, often reduced to large color blocks or basic geometric shapes, with generous negative space. No textures, no small details, no complex patterns. Characters are drawn in a traditional comic book style with clear silhouettes and expressive poses. No modern digital effects, no gradients, no photorealism. The image should feel iconic, uncluttered, and immediately readable. Single full-bleed image, no frames, no borders, no panel structure.",
+  "title": "Super Simen",
+  "synopsis": "Simen put on a homemade spandex suit and decided he's a superhero. He has no powers — just enthusiasm.",
+  "visual_style": "Casual slice-of-life comic illustration with clean lines, flat color fills, and simplified backgrounds. Warm, friendly color palette with soft tones — no bold primary superhero colors. Environments are ordinary and everyday: streets, shops, apartments, parks. Backgrounds are simplified with generous negative space, often reduced to large color blocks or basic shapes. Characters have clear, readable silhouettes and expressive body language. Avoid gradients, textures, complex patterns, tiny details, photorealism, superhero-comic visual tropes, dramatic lighting, and any modern glossy look.",
   "locations": [
     {
-      "name": "The City",
-      "description": "A busy city with office buildings, residential streets, parks, and shops. A perfectly nice place that would be peaceful if not for its remarkably dim-witted population constantly causing problems."
+      "name": "Simen's Neighborhood",
+      "description": "A quiet residential street with small apartment buildings, a corner shop, a bus stop, and a few parked cars. Ordinary and mundane."
     }
   ],
   "characters": [
     {
       "name": "Simen",
-      "description": "A man with an average, non-athletic build wearing a fitted blue-and-yellow costume without a cape. He is NOT muscular, NOT buff — he has the body of an ordinary everyday man who happens to wear a superhero suit, like a normal dad in spandex rather than a bodybuilder. No logo, no symbol, no letter on the chest — the suit is plain and unadorned. He has clean-cut blonde hair, a square jaw, kind eyes, and an earnest expression. His look is timeless and wholesome. His posture is upright and confident, radiating sincerity and warmth."
+      "description": "A slim, slightly skinny young man in a homemade spandex suit that doesn't quite fit — a little baggy in places, a little too tight in others. Blonde hair, kind eyes, and an earnest expression. His posture is slightly awkward and eager rather than confident."
     }
   ],
   "rules": [
-    "Simen is genuinely good — brave, selfless, and dedicated to protecting people. He is a classic hero through and through.",
-    "The citizens of The City are hilariously oblivious and clueless. They misunderstand situations, make poor decisions, and create unintentional chaos — but they are regular people being foolish, not cartoon-level brain-dead. This is the main source of comedy.",
-    "Real superhero disasters also happen — buildings collapsing, fires, floods, meteor strikes, runaway trains — classic comic book emergencies that Simen must handle.",
-    "Villains may appear with over-the-top evil plans. They should be fun, colorful comic book villains — not deep or symbolic, just entertaining antagonists.",
-    "The humor comes from the contrast between Simen's heroic competence and the oblivious cluelessness of the people he's saving. He does everything right, but the people make it so much harder than it needs to be.",
-    "Simen has classic superhero powers: flight, super strength, invulnerability. Nothing extravagant or modernized.",
-    "The tone is fun, lighthearted, and action-packed. Think classic superhero adventures with a comedic twist — the hero is great, the people are clueless.",
-    "Narration should be straightforward and classic — like a traditional superhero comic narrator, earnest and dramatic."
+    "Simen has no actual powers — he is a completely normal guy in a homemade suit who decided he's a hero.",
+    "The humor comes from Simen's wholehearted effort meeting mundane reality — the gap between his heroic self-image and what's actually happening. We laugh with him, not at him.",
+    "Sandbox storytelling: present open situations and let the user decide what Simen does. Don't push toward a pre-baked plot. Encourage the user to make choices early, then follow their lead.",
+    "The world reacts naturally to Simen's actions. Minor villains, awkward encounters, or small crises can appear when the moment calls for it, but they should not dominate — the focus is on Simen and what the user chooses to do.",
+    "The tone is warm, grounded, and lighthearted. Simen is endearing, not pathetic.",
+    "Narration is mock-epic: treats mundane events as if they're dramatic superhero moments — serious and grand in delivery, quietly self-aware in effect."
   ],
   "long_term_narrative": [
-    "Simen faces an escalating mix of stupid civilian mishaps, genuine disasters, and villain encounters — each more ridiculous than the last.",
-    "Despite the endless stupidity around him, Simen never loses his heroic spirit. He saves everyone, every time, no matter how dumb the situation."
+    "Simen navigates daily life as a self-appointed hero — each day brings new situations shaped by the user's choices."
   ],
-  "narrative_premise": "Superhero Simen is a genuinely great hero stuck in a city full of oblivious, clueless people. Between saving citizens from their own poor decisions, battling actual disasters, and fending off the occasional villain, Simen has his hands full — but he never stops being the hero."
+  "narrative_premise": "Simen is an ordinary young man who put on a homemade spandex suit and decided he's a superhero. He has no powers, no training, and no one asked him to do this — but he genuinely wants to help. The humor comes from his wholehearted effort meeting mundane reality."
 }
