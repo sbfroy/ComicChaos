@@ -534,15 +534,20 @@ class Narratron:
             response_text = self._call_llm(
                 messages, response_model=NarratronResponseSchema
             )
-            # Retry up to 2 times if the response looks corrupted
-            for attempt in range(2):
-                if not self._is_corrupted_response(response_text):
-                    break
-                print(f"Corrupted LLM response detected, retry {attempt + 1}/2...")
-                response_text = self._call_llm(
-                    messages, response_model=NarratronResponseSchema
-                )
+            # Try to parse first — if valid JSON can be extracted, use it
+            # even if there's trailing garbage. Only retry if parsing fails
+            # entirely, to avoid discarding good narrative progress.
             response = self._parse_response(response_text)
+            if response.raw is _FALLBACK_RESPONSE:
+                # Parsing failed completely — retry up to 2 times
+                for attempt in range(2):
+                    print(f"Unparseable LLM response, retry {attempt + 1}/2...")
+                    response_text = self._call_llm(
+                        messages, response_model=NarratronResponseSchema
+                    )
+                    response = self._parse_response(response_text)
+                    if response.raw is not _FALLBACK_RESPONSE:
+                        break
         except Exception:
             response = NarratronResponse(_FALLBACK_RESPONSE)
 
