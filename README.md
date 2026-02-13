@@ -156,11 +156,13 @@ The comic will automatically appear in the selection screen.
 
 ## Roadmap
 
-- [ ] Faster, higher-quality image generation
-- [ ] Persistent sessions (database-backed instead of in-memory)
-- [ ] User accounts and comic galleries
-- [ ] More comic series
-- [ ] Mobile-optimized UI
+- [ ] Faster image generation
+- [ ] Clean up the code and separate concerns
+- [ ] Better comics
+- [ ] Implement Railway. Add basic logging to the Flask app to track requests.
+- [ ] I need to find out what to do when the API wallet becomes empty. Should I just manually update the project somehow so that the user cant reach further than the selection page, and write "API wallet is unfortunately empty."
+- [ ] Maybe include an i button in the generation page, which instructs the user to press enter and such...
+
 
 ## Contributing
 
