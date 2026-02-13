@@ -19,6 +19,7 @@ from src.state.comic_state import RenderState
 from src.image_gen.image_generator import ImageGenerator, MockImageGenerator
 from src.comic_strip import ComicStrip
 from src.logging.interaction_logger import InteractionLogger
+from src.json_sanitizer import safe_json_dumps, sanitize_text
 
 
 load_dotenv()
@@ -168,14 +169,14 @@ class ComicSession:
         self.comic_strip = ComicStrip(title=self.config.blueprint.title)
 
         if not self.narratron:
-            yield json.dumps({"type": "error", "error": "API key not configured"})
+            yield safe_json_dumps({"type": "error", "error": "API key not configured"})
             return
 
         # Generate opening sequence (title card + first panel)
         response = self.narratron.generate_opening_sequence(self.state)
 
         # === TITLE CARD ===
-        yield json.dumps({
+        yield safe_json_dumps({
             "type": "init_title_card",
             "panel_number": 0,
             "title": self.config.blueprint.title,
@@ -191,7 +192,7 @@ class ComicSession:
             self.config.blueprint.visual_style
         ):
             if event["type"] == "partial":
-                yield json.dumps({
+                yield safe_json_dumps({
                     "type": "partial",
                     "panel_number": 0,
                     "image_base64": event["image_base64"],
@@ -199,14 +200,14 @@ class ComicSession:
                 })
             elif event["type"] == "complete":
                 title_card_bytes = event["image_bytes"]
-                yield json.dumps({
+                yield safe_json_dumps({
                     "type": "complete_title_card",
                     "panel_number": 0,
                     "image_base64": event["image_base64"],
                     "is_title_card": True,
                 })
             elif event["type"] == "error":
-                yield json.dumps({"type": "error", "error": event["error"]})
+                yield safe_json_dumps({"type": "error", "error": event["error"]})
                 return
 
         # Store title card panel data
@@ -232,7 +233,7 @@ class ComicSession:
             )
 
         # === FIRST INTERACTIVE PANEL ===
-        yield json.dumps({
+        yield safe_json_dumps({
             "type": "init",
             "panel_number": 1,
             "elements": response.first_panel.elements,
@@ -247,7 +248,7 @@ class ComicSession:
 
         for event in self._generate_image_streaming(elements=response.first_panel.elements):
             if event["type"] == "partial":
-                yield json.dumps({
+                yield safe_json_dumps({
                     "type": "partial",
                     "panel_number": 1,
                     "image_base64": event["image_base64"],
@@ -256,7 +257,7 @@ class ComicSession:
             elif event["type"] == "complete":
                 first_panel_bytes = event["image_bytes"]
                 first_panel_bubbles = event["detected_bubbles"]
-                yield json.dumps({
+                yield safe_json_dumps({
                     "type": "complete",
                     "panel_number": 1,
                     "image_base64": event["image_base64"],
@@ -264,7 +265,7 @@ class ComicSession:
                     "is_title_card": False,
                 })
             elif event["type"] == "error":
-                yield json.dumps({"type": "error", "error": event["error"]})
+                yield safe_json_dumps({"type": "error", "error": event["error"]})
                 return
 
         # Store first panel data
@@ -296,8 +297,11 @@ class ComicSession:
         user can retry with different input.
         """
         if not self.state or not self.narratron:
-            yield json.dumps({"type": "error", "error": "Session not started"})
+            yield safe_json_dumps({"type": "error", "error": "Session not started"})
             return
+
+        # Sanitize user input before it enters the pipeline
+        user_input_text = sanitize_text(user_input_text)
 
         # Snapshot state for rollback on error
         state_snapshot = self.state.model_copy(deep=True)
@@ -344,7 +348,7 @@ class ComicSession:
             complete_type = "complete_auto" if is_auto else "complete"
 
             # Send init event
-            yield json.dumps({
+            yield safe_json_dumps({
                 "type": init_type,
                 "panel_number": next_panel_num,
                 "elements": panel_data.elements,
@@ -357,7 +361,7 @@ class ComicSession:
 
             for event in self._generate_image_streaming(elements=panel_data.elements):
                 if event["type"] == "partial":
-                    yield json.dumps({
+                    yield safe_json_dumps({
                         "type": "partial",
                         "panel_number": next_panel_num,
                         "image_base64": event["image_base64"],
@@ -366,7 +370,7 @@ class ComicSession:
                 elif event["type"] == "complete":
                     image_bytes = event["image_bytes"]
                     detected_bubbles = event["detected_bubbles"]
-                    yield json.dumps({
+                    yield safe_json_dumps({
                         "type": complete_type,
                         "panel_number": next_panel_num,
                         "image_base64": event["image_base64"],
@@ -376,7 +380,7 @@ class ComicSession:
                     })
                 elif event["type"] == "error":
                     self._rollback_state(state_snapshot, comic_strip_count, panels_data_count)
-                    yield json.dumps({"type": "error", "error": event["error"]})
+                    yield safe_json_dumps({"type": "error", "error": event["error"]})
                     return
 
             # Restore render state after auto panel

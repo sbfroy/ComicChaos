@@ -150,6 +150,11 @@ VISUAL DESCRIPTORS FOR OBJECTS:
 - CRITICAL: Repeat the SAME visual descriptors EVERY TIME the object or creature reappears in a later scene_description or characters_present. Never omit the descriptors — writing just "the dragon" will cause its appearance to change between panels. Always write "the large red dragon" in every panel it appears in.
 - Also include brief visual descriptors in characters_present for any notable objects or creatures that are part of the scene.
 
+ENCODING RULES:
+- Write all text as literal UTF-8 characters directly in JSON values. Never use Unicode escape sequences (e.g., write æ not \u00e6, write ø not \u00f8, write å not \u00e5).
+- Never output null bytes (\u0000) or zero-width characters.
+- Never output raw hexadecimal byte sequences.
+
 RESPOND WITH JSON:
 {{"panels": [
   {{"scene_description": "Brief visual description for image generation",

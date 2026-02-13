@@ -109,13 +109,13 @@ class StaticConfig(BaseModel):
         if language == "en" or not blueprint_file.exists():
             blueprint_file = config_dir / "blueprint.json"
         if blueprint_file.exists():
-            with open(blueprint_file) as f:
+            with open(blueprint_file, encoding="utf-8") as f:
                 data = json.load(f)
                 blueprint = Blueprint(**data)
 
         config_file = config_dir / "config.json"
         if config_file.exists():
-            with open(config_file) as f:
+            with open(config_file, encoding="utf-8") as f:
                 data = json.load(f)
                 comic_config = ComicConfig(**data)
 

@@ -11,8 +11,6 @@ Classes:
     Narratron: The AI engine that orchestrates comic creation.
 """
 
-# TODO: Corrupted JSON still happens occasionally. Implement more robust detection and recovery strategies, and log occurrences for analysis.
-
 import json
 import os
 import re
@@ -31,6 +29,13 @@ from ..state.comic_state import (
 from ..state.static_config import StaticConfig
 from ..logging.interaction_logger import InteractionLogger
 from ..prompt_loader import load_prompt
+from ..json_sanitizer import (
+    sanitize_text,
+    sanitize_json_string,
+    sanitize_parsed_response,
+    validate_json_response,
+    safe_json_dumps,
+)
 
 _PROMPTS_DIR = Path(__file__).resolve().parent.parent / "prompts"
 
@@ -214,9 +219,14 @@ class Narratron:
     _NORWEGIAN_INSTRUCTION = (
         "\n\nLANGUAGE REQUIREMENT: ALL text output — including scene_description, "
         "all element text, placeholder text, rolling_summary_update, short_term_narrative, "
-        "and long_term_narrative — MUST be written in Norwegian (Bokm\u00e5l). "
+        "and long_term_narrative — MUST be written in Norwegian (Bokmål). "
         "This applies to dialogue, narration, placeholders, and all story content. "
         "Only the JSON keys remain in English."
+        "\n\nENCODING REQUIREMENT: Write Norwegian characters (æ, ø, å, Æ, Ø, Å) and "
+        "all other special characters (€, é, ü, etc.) as literal UTF-8 characters "
+        "directly in the JSON string values. Do NOT use Unicode escape sequences like "
+        "\\u00e6 — write the actual character æ instead. Never output null bytes (\\u0000), "
+        "raw hexadecimal byte sequences, or incomplete escape sequences."
     )
 
     def __init__(
@@ -279,7 +289,7 @@ class Narratron:
                 )
                 parsed = response.choices[0].message.parsed
                 if parsed is not None:
-                    response_content = json.dumps(parsed.model_dump())
+                    response_content = safe_json_dumps(parsed.model_dump())
                     parsed_via_schema = True
                 else:
                     # Model refused or returned None — fall through to legacy
@@ -447,38 +457,57 @@ class Narratron:
     def _parse_response(self, response_text: str) -> NarratronResponse:
         """Parse the LLM response into a structured format.
 
-        Tries three strategies in order:
+        Applies encoding sanitization before parsing, then validates
+        the parsed result for encoding integrity. Tries three parse
+        strategies in order:
         1. Direct JSON parse
         2. Extract JSON between first { and last }
         3. Repair corrupted JSON by truncating at the last valid value boundary
+
+        After successful parsing, all string values are sanitized to
+        remove null bytes, invisible characters, and malformed Unicode.
         """
+        # Pre-sanitize the raw JSON string to fix encoding issues
+        sanitized_text = sanitize_json_string(response_text)
+
         # Strategy 1: Direct parse
+        data = None
         try:
-            data = json.loads(response_text)
-            return NarratronResponse(data)
+            data = json.loads(sanitized_text)
         except json.JSONDecodeError:
             pass
 
         # Strategy 2: Extract between first { and last }
-        extracted = self._extract_json(response_text)
-        if extracted:
-            try:
-                data = json.loads(extracted)
-                return NarratronResponse(data)
-            except json.JSONDecodeError:
-                pass
+        if data is None:
+            extracted = self._extract_json(sanitized_text)
+            if extracted:
+                try:
+                    data = json.loads(extracted)
+                except json.JSONDecodeError:
+                    pass
 
         # Strategy 3: Repair corrupted JSON
-        repaired = self._repair_json(response_text)
-        if repaired:
-            try:
-                data = json.loads(repaired)
-                print("Successfully repaired corrupted LLM response.")
-                return NarratronResponse(data)
-            except json.JSONDecodeError:
-                pass
+        if data is None:
+            repaired = self._repair_json(sanitized_text)
+            if repaired:
+                try:
+                    data = json.loads(repaired)
+                    print("Successfully repaired corrupted LLM response.")
+                except json.JSONDecodeError:
+                    pass
 
-        return NarratronResponse(_FALLBACK_RESPONSE)
+        if data is None:
+            return NarratronResponse(_FALLBACK_RESPONSE)
+
+        # Deep-sanitize all string values in the parsed response
+        data = sanitize_parsed_response(data)
+
+        # Validate encoding integrity and log warnings
+        warnings = validate_json_response(data, "NarratronResponse")
+        if warnings:
+            print(f"JSON encoding warnings after sanitization: {warnings}")
+
+        return NarratronResponse(data)
 
     def _localize_fallback_placeholders(self, response: NarratronResponse) -> None:
         """Replace English fallback placeholders with localized versions."""
@@ -579,10 +608,14 @@ class Narratron:
     def _apply_state_changes(
         self, response: NarratronResponse, comic_state: ComicState
     ) -> None:
-        """Apply state changes from the response."""
+        """Apply state changes from the response.
+
+        All text values are sanitized before storing in state to prevent
+        encoding corruption from propagating into subsequent LLM prompts.
+        """
         # Update the rolling narrative summary
         if response.rolling_summary_update:
-            comic_state.narrative.rolling_summary = (
+            comic_state.narrative.rolling_summary = sanitize_text(
                 response.rolling_summary_update
             )
 
@@ -590,22 +623,28 @@ class Narratron:
         scene_summary = response.scene_summary
         if scene_summary:
             comic_state.render = RenderState(
-                scene_setting=scene_summary.get(
+                scene_setting=sanitize_text(scene_summary.get(
                     "scene_setting", comic_state.render.scene_setting
-                ),
-                characters_present=scene_summary.get(
-                    "characters_present", comic_state.render.characters_present
-                ),
-                current_action=scene_summary.get(
+                )),
+                characters_present=[
+                    sanitize_text(c) for c in scene_summary.get(
+                        "characters_present", comic_state.render.characters_present
+                    )
+                ],
+                current_action=sanitize_text(scene_summary.get(
                     "current_action", comic_state.render.current_action
-                ),
+                )),
             )
 
         # Update story narrative direction
         if isinstance(response.short_term_narrative, list) and response.short_term_narrative:
-            comic_state.narrative.direction.short_term = response.short_term_narrative
+            comic_state.narrative.direction.short_term = [
+                sanitize_text(s) for s in response.short_term_narrative
+            ]
         if isinstance(response.long_term_narrative, list) and response.long_term_narrative:
-            comic_state.narrative.direction.long_term = response.long_term_narrative
+            comic_state.narrative.direction.long_term = [
+                sanitize_text(s) for s in response.long_term_narrative
+            ]
 
     def generate_opening_sequence(
         self, comic_state: ComicState
@@ -675,15 +714,18 @@ class Narratron:
                     max_tokens=self.config.comic_config.llm_max_tokens,
                 )
 
-            # Try direct parse first, then JSON extraction on failure
+            # Pre-sanitize the raw JSON, then parse
+            sanitized_text = sanitize_json_string(response_text)
             try:
-                data = json.loads(response_text)
+                data = json.loads(sanitized_text)
             except json.JSONDecodeError:
-                extracted = self._extract_json(response_text)
+                extracted = self._extract_json(sanitized_text)
                 if extracted:
                     data = json.loads(extracted)
                 else:
                     raise
+            # Deep-sanitize all string values
+            data = sanitize_parsed_response(data)
             response = OpeningSequenceResponse.from_raw(data)
         except Exception:
             response = OpeningSequenceResponse(
