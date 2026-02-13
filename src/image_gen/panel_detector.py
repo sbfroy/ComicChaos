@@ -10,7 +10,6 @@ from typing import List, Optional
 import cv2
 import numpy as np
 
-# TODO: We need to specify in the prompts that the bubbles dont need to be that big, but the narration boxes are nice now. Also we need to specifically say that the outline of the bubbles should not be distracted by anything else (a face or a hand going over the bubble can happen).
 
 @dataclass
 class DetectedRegion:
