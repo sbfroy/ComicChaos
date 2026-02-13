@@ -12,7 +12,6 @@ Classes:
 """
 
 # TODO: Corrupted JSON still happens occasionally. Implement more robust detection and recovery strategies, and log occurrences for analysis.
-# TODO: In the system prompt, we need to add short descriptions of things that are introduced during the story, so the LLM keeps them consistent.
 
 import json
 import os

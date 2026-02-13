@@ -147,7 +147,7 @@ CONSISTENCY:
 VISUAL DESCRIPTORS FOR OBJECTS:
 - When introducing ANY new object, prop, or creature in the story, always include a few visual descriptors in scene_description.
 - Examples: "a large red dragon", "a small black leather purse", "a bright yellow umbrella".
-- This ensures visual consistency if the same object reappears in later panels.
+- CRITICAL: Repeat the SAME visual descriptors EVERY TIME the object or creature reappears in a later scene_description or characters_present. Never omit the descriptors — writing just "the dragon" will cause its appearance to change between panels. Always write "the large red dragon" in every panel it appears in.
 - Also include brief visual descriptors in characters_present for any notable objects or creatures that are part of the scene.
 
 RESPOND WITH JSON:
