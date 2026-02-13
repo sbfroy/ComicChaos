@@ -1,7 +1,7 @@
 {
   "title": "Superhero Simen",
-  "synopsis": "Superhero Simen is no ordinary superhero. He's just ordinary.",
-  "visual_style": "Casual slice-of-life comic illustration with clean lines, flat color fills, and simplified backgrounds. Warm, friendly color palette with soft tones — no bold primary superhero colors. Environments are ordinary and everyday: streets, shops, apartments, parks. Backgrounds are simplified with generous negative space, often reduced to large color blocks or basic shapes. Characters have clear, readable silhouettes and expressive body language. Avoid gradients, textures, complex patterns, tiny details, photorealism, superhero-comic visual tropes, dramatic lighting, and any modern glossy look.",
+  "synopsis": "Simen is no ordinary superhero. He's just an ordinary young adult who appointed himself the neighborhood's protector. The humor comes from his heroic self-image colliding with mundane reality.",
+  "visual_style": "Hand-drawn 2D animation cel style with clean, confident ink outlines and flat color fills. Warm but slightly desaturated palette — not bright or candy-colored. Characters are drawn small and compact within large, open environments with generous negative space and breathing room. Small figures, big world. Backgrounds are simple and readable: clear architectural shapes, minimal detail, large flat color fields. Characters have simple, iconic designs with minimal facial detail — easy to render consistently across panels. Allow occasional speed lines or small SFX text when the moment calls for it. The feel is a clean, handmade comic strip — artistic and understated, not cute or childish. Strictly avoid: 3D or cinematic rendering, glossy gradients, hyper-detailed textures, photorealism, overly muscular or dramatic superhero aesthetics, storybook illustration style, and any modern digital-art look.",
   "locations": [
     {
       "name": "Simen's Neighborhood",
@@ -11,19 +11,20 @@
   "characters": [
     {
       "name": "Simen",
-      "description": "A slim, slightly skinny young man in a homemade spandex suit that doesn't quite fit — a little baggy in places, a little too tight in others. Blonde hair, kind eyes, and an earnest expression. His posture is slightly awkward and eager rather than confident."
+      "description": "A small, compact young adult man in his mid-20s with blonde hair and an earnest expression. Simple, iconic design with minimal facial detail — easy to recognize and render consistently at any size. He wears a slightly loose blue spandex suit — clearly spandex material but not skin-tight, with subtle wrinkles and folds. Single solid blue color, no emblem or markings. Kind eyes, slightly awkward posture, more eager than confident."
     }
   ],
   "rules": [
-    "Simen has no actual powers — he is a completely normal guy in a homemade suit who decided he's a hero.",
-    "The humor comes from Simen's wholehearted effort meeting mundane reality — the gap between his heroic self-image and what's actually happening. We laugh with him, not at him.",
+    "Simen has no actual powers — he is a completely normal young adult in a homemade suit who decided he's a hero.",
+    "The humor is dry, character-driven, and grounded — think Pixar-level writing that works for all ages but doesn't talk down to anyone. Comedy comes from social awkwardness, gentle satire, and the gap between Simen's heroic self-image and mundane reality. We laugh with him, never at him.",
+    "Dialogue should feel natural and understated. Simen is earnest, not naive. Other characters react with mild bemusement, not mockery. Avoid mean-spirited teasing, pranks, or slapstick aimed at humiliating him.",
     "Sandbox storytelling: present open situations and let the user decide what Simen does. Don't push toward a pre-baked plot. Encourage the user to make choices early, then follow their lead.",
     "The world reacts naturally to Simen's actions. Minor villains, awkward encounters, or small crises can appear when the moment calls for it, but they should not dominate — the focus is on Simen and what the user chooses to do.",
-    "The tone is warm, grounded, and lighthearted. Simen is endearing, not pathetic.",
-    "Narration is mock-epic: treats mundane events as if they're dramatic superhero moments — serious and grand in delivery, quietly self-aware in effect."
+    "The tone is warm, grounded, and wry. Simen is endearing and relatable, not pathetic or childish.",
+    "Narration is mock-epic: grand captions for mundane events — serious and dramatic in delivery, quietly self-aware in effect. Think a nature documentary narrator commentating on a guy buying groceries."
   ],
   "long_term_narrative": [
     "Simen navigates daily life as a self-appointed hero — each day brings new situations shaped by the user's choices."
   ],
-  "narrative_premise": "Simen is an ordinary young man who put on a homemade spandex suit and decided he's a superhero. He has no powers, no training, and no one asked him to do this — but he genuinely wants to help. The humor comes from his wholehearted effort meeting mundane reality."
+  "narrative_premise": "Simen is an ordinary young adult who put on a homemade spandex suit and appointed himself the neighborhood's superhero. He has no powers, no training, and no one asked him to do this — but he genuinely wants to help. The humor comes from his heroic self-image colliding with the mundane reality of everyday life."
 }
