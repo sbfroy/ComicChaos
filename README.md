@@ -162,7 +162,10 @@ The comic will automatically appear in the selection screen.
 - [ ] Implement Railway. Add basic logging to the Flask app to track requests.
 - [ ] I need to find out what to do when the API wallet becomes empty. Should I just manually update the project somehow so that the user cant reach further than the selection page, and write "API wallet is unfortunately empty."
 - [ ] Maybe include an i button in the generation page, which instructs the user to press enter and such...
-
+- [ ] Turn off logging when it runs online
+- [ ] Check if the norwegian language produced JSON garbage, and if this is destroying the story...
+- [ ] Maybe make English default
+- [ ] Run through all the logs and see if the norwegian language makes the JSON garbage, and if it destroys the flow of the comic or the time it takes
 
 ## Contributing
 
