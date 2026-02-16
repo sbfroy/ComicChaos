@@ -1,0 +1,35 @@
+{
+  "title": "Ola vs. Sven",
+  "synopsis": "Et evig langrenn der norske Ola Nordmann og svenske Sven Svensson ligger side om side — og vil gjore absolutt alt for a komme foran. Ingen av dem vinner noensinne.",
+  "visual_style": "European comic album style inspired by Tintin and Franco-Belgian bande dessinee. Clean, confident ink outlines with flat color fills and minimal hatching. Characters are drawn as recognizable, well-proportioned human figures — not cartoonishly exaggerated but stylized and expressive, with clear facial features and readable body language at any zoom level. The setting is a bright winter landscape: white snow, blue sky, sunshine, and crisp shadows on the ground. Backgrounds are simple and understated — snow-covered terrain, sparse pine trees, gentle hills — never competing with the two skiers for attention. The two characters dominate every panel. Camera angles vary for visual energy: close-ups of determined faces, full-body action shots of skiing and sabotage, and occasional bird's-eye views showing tiny figures on a vast white course. Color palette is dominated by white snow, bright blue sky, and the bold costume colors of the two skiers. Strictly avoid: photorealism, 3D rendering, glossy gradients, manga or anime style, overly detailed backgrounds, dark or moody lighting, and any style that pulls focus away from the characters.",
+  "locations": [
+    {
+      "name": "Langrennsloypa",
+      "description": "A snowy cross-country skiing course on a bright, sunny winter day. The terrain varies between open snow fields, gentle hills, forest sections with tall pine trees, and narrow trail passages — but the focus is always on the two skiers, not the scenery."
+    }
+  ],
+  "characters": [
+    {
+      "name": "Ola Nordmann",
+      "description": "A sturdy, determined Norwegian cross-country skier in his late 20s with a square jaw, short brown hair, and intensely focused eyes. He wears a classic red Norwegian ski racing suit with the Norwegian flag prominently displayed on his chest. He carries ski poles and wears racing skis. His expression shifts between fierce competitive focus and smug national pride. Athletic build, strong posture, always leaning forward like he's about to charge."
+    },
+    {
+      "name": "Sven Svensson",
+      "description": "A tall, lean Swedish cross-country skier in his late 20s with blonde hair poking out from under his ski headband, and a sharp, confident grin. He wears a blue and yellow Swedish ski racing suit with the Swedish flag prominently displayed on his chest. He carries ski poles and wears racing skis. His expression is cool and slightly smug — always acting like he's one step ahead, even when he's not. Long limbs, smooth skiing form, annoyingly graceful."
+    }
+  ],
+  "rules": [
+    "Rennet tar aldri slutt. Ola og Sven er alltid midt i konkurransen, alltid side om side. Ingen krysser noen maalstrek. Rennet fortsetter i det uendelige.",
+    "Sabotasje fungerer aldri helt. Naar Ola eller Sven forsoker a sabotere den andre — uansett hvor ekstremt (bazooka, katapult, snoskred, elgstampede) — overlever offeret alltid og kommer seg tilbake paa tegneserievis. Sabotasjen kan bremse dem, slaa dem sidelengs eller skape kaos, men de kommer alltid tilbake paa skiene og rennet fortsetter.",
+    "Sabotasje er omtrent 50/50. Noen ganger angriper Ola og Sven maa haandtere det. Andre ganger slaar Sven til forst med et lureri, og brukeren maa finne ut hvordan Ola reagerer.",
+    "Humoren er forankret i Norge vs. Sverige-rivaliseringen — vennlig, aldri ondsinnet. Kjeftingen trekker paa ekte kulturelle stereotypier: norsk brunost og oljepenger mot svenske kjottboller og IKEA-mobler.",
+    "Tonen er absurd, eskalerende og tegneserieaktig — tenk Wile E. Coyote paa ski. Sabotasjemetoder kan vaere vilt urealistiske, men karakterene reagerer alltid med besluttsom sportsaand og kommer tilbake til rennet.",
+    "Dialogen mellom Ola og Sven skal vaere rask kjefting, konkurransepreget erting og nasjonalistiske onelinere. De herjer med hverandre konstant, men det ligger en gjensidig respekt begravd dypt under rivaliseringen.",
+    "Fortellerstemmen er en stadig mer forvirret sportskommentator — profesjonell kringkastingstone som sliter med a holde fatningen mens han beskriver noen som avfyrer en bazooka paa en skiloype."
+  ],
+  "long_term_narrative": [
+    "Sabotasjemetodene eskalerer i absurditet over tid — fra snubling med stavene til stadig mer latterlige og kreative planer.",
+    "Til tross for kaoset forblir begge looperne side om side. Alle fordeler er midlertidige. Det evige rennet fortsetter."
+  ],
+  "narrative_premise": "Ola Nordmann og Sven Svensson er laast i det mest intense langrennet i historien — og det vil aldri ta slutt. De ligger side om side, og begge tyr til stadig mer absurd sabotasje for aa faa overtaket. Men ingenting fungerer lenge. Bazookaer klikker, snoskred blir unngaatt, rakettski eksploderer i feil oyeblikk. Rennet fortsetter alltid, rivaliseringen dor aldri, og kjeftingen mellom Norge og Sverige flyter like fritt som snoen."
+}
