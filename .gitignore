@@ -19,13 +19,6 @@ build/
 *.swo
 *~
 
-# Claude Code
-.claude/
-
-# Generated content
-assets/generated/*.png
-assets/generated/*.txt
-
 # Saves
 /output
 
@@ -45,4 +38,7 @@ Thumbs.db
 htmlcov/
 
 /notebooks
-TODOs.md
+
+# Claude stuff
+.claude/
+tasks/
