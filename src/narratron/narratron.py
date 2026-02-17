@@ -347,26 +347,6 @@ class Narratron:
         return response_content
 
     @staticmethod
-    def _is_corrupted_response(text: str) -> bool:
-        """Check if the LLM response text shows signs of corruption.
-
-        Detects object replacement characters, excessive repeated characters,
-        and responses that end with non-JSON garbage after the closing brace.
-        """
-        if "\ufffc" in text:
-            return True
-        # Check for trailing garbage after the last closing brace
-        last_brace = text.rfind("}")
-        if last_brace >= 0:
-            trailing = text[last_brace + 1:].strip()
-            if len(trailing) > 10:
-                return True
-        # Check for abnormally long runs of repeated characters
-        if re.search(r"(.)\1{50,}", text):
-            return True
-        return False
-
-    @staticmethod
     def _extract_json(text: str) -> Optional[str]:
         """Try to extract valid JSON from text that may contain trailing garbage."""
         first_brace = text.find("{")

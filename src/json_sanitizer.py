@@ -1,7 +1,7 @@
 """JSON sanitization and encoding integrity layer.
 
 Ensures all JSON responses are valid UTF-8 with no malformed escape
-sequences, null bytes, raw byte sequences, or encoding corruption.
+sequences, null bytes, or encoding corruption.
 Designed to be safe across multiple LLM reprocessing cycles where
 model output is fed back into subsequent prompts.
 
@@ -19,7 +19,7 @@ Usage:
 import json
 import re
 import unicodedata
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List
 
 
 # Regex patterns compiled once at module level
@@ -34,10 +34,6 @@ _MALFORMED_UNICODE_ESCAPE = re.compile(
     r"\\u(?:[0-9a-fA-F]{0,3}(?=[^0-9a-fA-F]|$))"
 )
 
-# Raw hex byte sequences that aren't part of normal text (e.g., "e282ac" for €)
-# Only match sequences of 6+ hex chars that look like raw UTF-8 byte dumps
-_RAW_HEX_BYTES = re.compile(r"(?<![0-9a-fA-F])([0-9a-fA-F]{6,})(?![0-9a-fA-F])")
-
 # Zero-width and invisible Unicode characters that should not appear in comic text
 _INVISIBLE_CHARS = re.compile(
     r"[\u200b\u200c\u200d\u200e\u200f"  # zero-width spaces/joiners/marks
@@ -47,24 +43,6 @@ _INVISIBLE_CHARS = re.compile(
     r"\ufffe\uffff"  # noncharacters
     r"]"
 )
-
-# Common known raw-hex representations of characters we can restore
-_KNOWN_HEX_SEQUENCES: Dict[str, str] = {
-    "c3a6": "æ",
-    "c3b8": "ø",
-    "c3a5": "å",
-    "c386": "Æ",
-    "c398": "Ø",
-    "c385": "Å",
-    "e282ac": "€",
-    "c3a9": "é",
-    "c3a8": "è",
-    "c3bc": "ü",
-    "c3b6": "ö",
-    "c3a4": "ä",
-    "c3ab": "ë",
-    "c3af": "ï",
-}
 
 
 def sanitize_text(text: str) -> str:
@@ -105,41 +83,12 @@ def sanitize_text(text: str) -> str:
     return text
 
 
-def _try_decode_raw_hex(match: re.Match) -> str:
-    """Try to decode a raw hex sequence as UTF-8 bytes.
-
-    Only replaces the match if it decodes to valid, printable UTF-8 text.
-    Otherwise returns the original match unchanged.
-    """
-    hex_str = match.group(1)
-
-    # Check known sequences first (fast path)
-    lower_hex = hex_str.lower()
-    if lower_hex in _KNOWN_HEX_SEQUENCES:
-        return _KNOWN_HEX_SEQUENCES[lower_hex]
-
-    # Only attempt decode for even-length sequences
-    if len(hex_str) % 2 != 0:
-        return match.group(0)
-
-    try:
-        decoded = bytes.fromhex(hex_str).decode("utf-8")
-        # Only accept if it produced printable, non-control characters
-        if all(ch.isprintable() or ch in (" ", "\n") for ch in decoded):
-            return decoded
-    except (ValueError, UnicodeDecodeError):
-        pass
-
-    return match.group(0)
-
-
 def sanitize_json_string(raw: str) -> str:
     """Sanitize a raw JSON response string before parsing.
 
     Fixes encoding issues in the raw JSON text:
     - Removes \\u0000 null escapes
     - Fixes malformed Unicode escapes
-    - Attempts to decode raw hex byte sequences
     - Removes object replacement characters
 
     This operates on the raw JSON string (before json.loads), so it
