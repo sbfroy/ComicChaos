@@ -1,25 +1,31 @@
-"""JSON sanitization and encoding integrity layer.
+"""JSON sanitization, repair, and encoding integrity layer.
 
 Ensures all JSON responses are valid UTF-8 with no malformed escape
-sequences, null bytes, or encoding corruption.
+sequences, null bytes, or encoding corruption. Also provides repair
+functions for recovering valid JSON from corrupted LLM output.
+
 Designed to be safe across multiple LLM reprocessing cycles where
 model output is fed back into subsequent prompts.
 
 Usage:
-    from src.json_sanitizer import sanitize_json_response, sanitize_text
+    from src.json_sanitizer import sanitize_text, sanitize_json_string
 
     # Sanitize a raw LLM JSON response string before parsing
-    clean_json = sanitize_json_response(raw_response)
+    clean_json = sanitize_json_string(raw_response)
     data = json.loads(clean_json)
 
     # Sanitize a parsed dict (deep-cleans all string values)
     clean_data = sanitize_parsed_response(data)
+
+    # Extract or repair corrupted JSON
+    extracted = extract_json(raw_text)
+    repaired = repair_json(raw_text)
 """
 
 import json
 import re
 import unicodedata
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 
 # Regex patterns compiled once at module level
@@ -193,6 +199,110 @@ def _validate_recursive(data: Any, path: str, warnings: List[str]) -> None:
     elif isinstance(data, list):
         for i, item in enumerate(data):
             _validate_recursive(item, f"{path}[{i}]", warnings)
+
+
+def extract_json(text: str) -> Optional[str]:
+    """Try to extract valid JSON from text that may contain trailing garbage.
+
+    Finds the first '{' and last '}' in the text and attempts to parse
+    the substring between them as JSON.
+
+    Args:
+        text: Raw text that may contain JSON with surrounding garbage.
+
+    Returns:
+        The extracted JSON string, or None if extraction fails.
+    """
+    first_brace = text.find("{")
+    last_brace = text.rfind("}")
+    if first_brace >= 0 and last_brace > first_brace:
+        candidate = text[first_brace:last_brace + 1]
+        try:
+            json.loads(candidate)
+            return candidate
+        except json.JSONDecodeError:
+            pass
+    return None
+
+
+def repair_json(text: str) -> Optional[str]:
+    """Attempt to repair corrupted JSON from LLM responses.
+
+    Handles a known gpt-4.1 failure mode where the model outputs valid JSON
+    for all fields, then appends a trailing comma and an unterminated string
+    before the closing brace, followed by repetitive garbage. The corruption
+    always occurs after the last complete JSON value (typically the
+    long_term_narrative array).
+
+    Strategy:
+    1. Find the outermost opening brace.
+    2. Walk the string with a brace/bracket depth counter, respecting
+       JSON string escaping, to locate the position just after the last
+       successfully closed array or object at depth 1 (i.e. a top-level
+       value boundary).
+    3. Truncate there, strip any trailing comma, and close the object.
+
+    Args:
+        text: Raw text containing corrupted JSON.
+
+    Returns:
+        The repaired JSON string, or None if repair fails.
+    """
+    start = text.find("{")
+    if start < 0:
+        return None
+
+    # Walk through the JSON tracking depth and string state
+    in_string = False
+    escape_next = False
+    depth = 0
+    last_value_end = -1  # position after the last ]/} that returns to depth 1
+
+    for i in range(start, len(text)):
+        ch = text[i]
+
+        if escape_next:
+            escape_next = False
+            continue
+
+        if in_string:
+            if ch == "\\":
+                escape_next = True
+            elif ch == '"':
+                in_string = False
+            continue
+
+        if ch == '"':
+            in_string = True
+        elif ch in "{[":
+            depth += 1
+        elif ch in "}]":
+            depth -= 1
+            if depth == 1:
+                # Just closed a top-level value — record this position
+                last_value_end = i + 1
+            elif depth == 0:
+                # Properly closed outer object — try parsing as-is
+                candidate = text[start:i + 1]
+                try:
+                    json.loads(candidate)
+                    return candidate
+                except json.JSONDecodeError:
+                    break
+
+    # If we tracked a valid value boundary, truncate and close
+    if last_value_end > start:
+        truncated = text[start:last_value_end].rstrip()
+        # Strip any trailing commas left after truncation
+        truncated = truncated.rstrip(",").rstrip()
+        truncated += "\n}"
+        try:
+            json.loads(truncated)
+            return truncated
+        except json.JSONDecodeError:
+            pass
+
+    return None
 
 
 def safe_json_dumps(data: Any, **kwargs: Any) -> str:

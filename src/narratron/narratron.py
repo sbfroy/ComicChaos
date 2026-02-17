@@ -3,22 +3,13 @@
 This module contains the Narratron AI engine that orchestrates comic creation.
 The LLM has creative control over the story, dynamically introducing locations
 and characters while maintaining consistency with the comic's blueprint and rules.
-
-Classes:
-    NarratronResponse: Structured response container from NARRATRON.
-    TitleCardPanel: Title card panel data for the grand opening.
-    OpeningSequenceResponse: Combined response for title card + first panel.
-    Narratron: The AI engine that orchestrates comic creation.
 """
 
 import json
 import os
-import re
-from dataclasses import dataclass
 from typing import Optional, Dict, List, Any
 
 from openai import OpenAI
-from pydantic import BaseModel
 
 from pathlib import Path
 
@@ -35,182 +26,20 @@ from ..json_sanitizer import (
     sanitize_parsed_response,
     validate_json_response,
     safe_json_dumps,
+    extract_json,
+    repair_json,
+)
+
+from .models import (
+    NarratronResponseSchema,
+    OpeningSequenceSchema,
+    FALLBACK_RESPONSE,
+    NarratronResponse,
+    TitleCardPanel,
+    OpeningSequenceResponse,
 )
 
 _PROMPTS_DIR = Path(__file__).resolve().parent.parent / "prompts"
-
-
-# --- Pydantic schemas for Structured Outputs ---
-
-class ElementSchema(BaseModel):
-    type: str
-    character_name: Optional[str] = None
-    position: str
-    user_input: bool
-    placeholder: Optional[str] = None
-    text: Optional[str] = None
-
-
-class PanelSchema(BaseModel):
-    scene_description: str
-    elements: list[ElementSchema]
-
-
-class SceneSummarySchema(BaseModel):
-    scene_setting: str
-    characters_present: list[str]
-    current_action: str
-
-
-class NarratronResponseSchema(BaseModel):
-    panels: list[PanelSchema]
-    scene_summary: SceneSummarySchema
-    rolling_summary_update: str
-    short_term_narrative: list[str]
-    long_term_narrative: list[str]
-
-
-class TitleCardSchema(BaseModel):
-    scene_description: str
-    title_treatment: str
-    atmosphere: str
-
-
-class InitialNarrativeSchema(BaseModel):
-    short_term: list[str]
-    long_term: list[str]
-
-
-class OpeningSequenceSchema(BaseModel):
-    title_card: TitleCardSchema
-    first_panel: NarratronResponseSchema
-    initial_narrative: InitialNarrativeSchema
-
-
-_FALLBACK_RESPONSE = {
-    "panels": [
-        {
-            "scene_description": "Something unexpected happened...",
-            "elements": [
-                {
-                    "type": "narration",
-                    "position": "bottom-center",
-                    "user_input": True,
-                    "placeholder": "What happens next?",
-                }
-            ],
-        }
-    ],
-    "scene_summary": {},
-    "short_term_narrative": [],
-    "long_term_narrative": [],
-}
-
-
-@dataclass
-class PanelData:
-    """Data for a single panel in a Narratron response."""
-
-    scene_description: str
-    elements: List[Dict[str, Any]]
-    is_auto: bool
-
-    @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "PanelData":
-        elements = data.get("elements", [])
-        is_auto = all(not el.get("user_input", False) for el in elements)
-        return cls(
-            scene_description=data.get("scene_description", ""),
-            elements=elements,
-            is_auto=is_auto,
-        )
-
-
-class NarratronResponse:
-    """Structured response from NARRATRON."""
-
-    def __init__(self, raw_response: Dict[str, Any]) -> None:
-        self.raw: Dict[str, Any] = raw_response
-
-        # Support both panels array and legacy single-panel format
-        panels_data = raw_response.get("panels", None)
-        if panels_data and isinstance(panels_data, list):
-            self.panels: List[PanelData] = [PanelData.from_dict(p) for p in panels_data]
-        else:
-            # Legacy single-panel format: wrap in a list
-            self.panels = [PanelData(
-                scene_description=raw_response.get("scene_description", ""),
-                elements=raw_response.get("elements", []),
-                is_auto=False,
-            )]
-
-        # Enforce: last panel must be interactive
-        if self.panels and self.panels[-1].is_auto:
-            last = self.panels[-1]
-            if last.elements:
-                last.elements[-1]["user_input"] = True
-                last.elements[-1].pop("text", None)
-                last.elements[-1].setdefault("placeholder", "What happens next?")
-            last.is_auto = False
-
-        # Enforce max 2 panels
-        if len(self.panels) > 2:
-            # Keep only the last auto panel (if any) + the last interactive panel
-            auto_panels = [p for p in self.panels if p.is_auto]
-            interactive_panels = [p for p in self.panels if not p.is_auto]
-            if auto_panels and interactive_panels:
-                self.panels = [auto_panels[-1], interactive_panels[-1]]
-            elif interactive_panels:
-                self.panels = [interactive_panels[-1]]
-            else:
-                self.panels = [self.panels[-1]]
-
-        # Backward compat: expose last panel's data
-        self.scene_description: str = self.panels[-1].scene_description if self.panels else ""
-        self.elements: List[Dict[str, Any]] = self.panels[-1].elements if self.panels else []
-
-        # Top-level fields
-        self.scene_summary: Dict[str, Any] = raw_response.get("scene_summary", {})
-        self.rolling_summary_update: str = raw_response.get("rolling_summary_update", "")
-        self.short_term_narrative: List[str] = raw_response.get("short_term_narrative", [])
-        self.long_term_narrative: List[str] = raw_response.get("long_term_narrative", [])
-
-
-@dataclass
-class TitleCardPanel:
-    """Title card panel data - visual intro with no user interaction."""
-
-    scene_description: str
-    title_treatment: str
-    atmosphere: str
-
-    @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "TitleCardPanel":
-        return cls(
-            scene_description=data.get("scene_description", ""),
-            title_treatment=data.get("title_treatment", ""),
-            atmosphere=data.get("atmosphere", ""),
-        )
-
-
-@dataclass
-class OpeningSequenceResponse:
-    """Combined response for grand opening sequence."""
-
-    title_card: TitleCardPanel
-    first_panel: NarratronResponse
-    initial_narrative: Dict[str, List[str]]
-
-    @classmethod
-    def from_raw(cls, raw_response: Dict[str, Any]) -> "OpeningSequenceResponse":
-        title_card_data = raw_response.get("title_card", {})
-        first_panel_data = raw_response.get("first_panel", {})
-        initial_narrative = raw_response.get("initial_narrative", {"short_term": [], "long_term": []})
-        return cls(
-            title_card=TitleCardPanel.from_dict(title_card_data),
-            first_panel=NarratronResponse(first_panel_data),
-            initial_narrative=initial_narrative,
-        )
 
 
 class Narratron:
@@ -323,14 +152,14 @@ class Narratron:
                 parsed_response = json.loads(response_content)
             except json.JSONDecodeError:
                 # Try extraction and repair so the log captures the data
-                extracted = self._extract_json(response_content)
+                extracted = extract_json(response_content)
                 if extracted:
                     try:
                         parsed_response = json.loads(extracted)
                     except json.JSONDecodeError:
                         pass
                 if parsed_response is None:
-                    repaired = self._repair_json(response_content)
+                    repaired = repair_json(response_content)
                     if repaired:
                         try:
                             parsed_response = json.loads(repaired)
@@ -348,94 +177,6 @@ class Narratron:
             )
 
         return response_content
-
-    @staticmethod
-    def _extract_json(text: str) -> Optional[str]:
-        """Try to extract valid JSON from text that may contain trailing garbage."""
-        first_brace = text.find("{")
-        last_brace = text.rfind("}")
-        if first_brace >= 0 and last_brace > first_brace:
-            candidate = text[first_brace:last_brace + 1]
-            try:
-                json.loads(candidate)
-                return candidate
-            except json.JSONDecodeError:
-                pass
-        return None
-
-    @staticmethod
-    def _repair_json(text: str) -> Optional[str]:
-        """Attempt to repair corrupted JSON from LLM responses.
-
-        Handles a known gpt-4.1 failure mode where the model outputs valid JSON
-        for all fields, then appends a trailing comma and an unterminated string
-        before the closing brace, followed by repetitive garbage. The corruption
-        always occurs after the last complete JSON value (typically the
-        long_term_narrative array).
-
-        Strategy:
-        1. Find the outermost opening brace.
-        2. Walk the string with a brace/bracket depth counter, respecting
-           JSON string escaping, to locate the position just after the last
-           successfully closed array or object at depth 1 (i.e. a top-level
-           value boundary).
-        3. Truncate there, strip any trailing comma, and close the object.
-        """
-        start = text.find("{")
-        if start < 0:
-            return None
-
-        # Walk through the JSON tracking depth and string state
-        in_string = False
-        escape_next = False
-        depth = 0
-        last_value_end = -1  # position after the last ]/} that returns to depth 1
-
-        for i in range(start, len(text)):
-            ch = text[i]
-
-            if escape_next:
-                escape_next = False
-                continue
-
-            if in_string:
-                if ch == "\\":
-                    escape_next = True
-                elif ch == '"':
-                    in_string = False
-                continue
-
-            if ch == '"':
-                in_string = True
-            elif ch in "{[":
-                depth += 1
-            elif ch in "}]":
-                depth -= 1
-                if depth == 1:
-                    # Just closed a top-level value — record this position
-                    last_value_end = i + 1
-                elif depth == 0:
-                    # Properly closed outer object — try parsing as-is
-                    candidate = text[start:i + 1]
-                    try:
-                        json.loads(candidate)
-                        return candidate
-                    except json.JSONDecodeError:
-                        break
-
-        # If we tracked a valid value boundary, truncate and close
-        if last_value_end > start:
-            truncated = text[start:last_value_end].rstrip()
-            # Strip any trailing commas left after truncation
-            truncated = truncated.rstrip(",").rstrip()
-            truncated += "\n}"
-            try:
-                json.loads(truncated)
-                return truncated
-            except json.JSONDecodeError:
-                pass
-
-        return None
 
     def _parse_response(self, response_text: str) -> NarratronResponse:
         """Parse the LLM response into a structured format.
@@ -462,7 +203,7 @@ class Narratron:
 
         # Strategy 2: Extract between first { and last }
         if data is None:
-            extracted = self._extract_json(sanitized_text)
+            extracted = extract_json(sanitized_text)
             if extracted:
                 try:
                     data = json.loads(extracted)
@@ -471,7 +212,7 @@ class Narratron:
 
         # Strategy 3: Repair corrupted JSON
         if data is None:
-            repaired = self._repair_json(sanitized_text)
+            repaired = repair_json(sanitized_text)
             if repaired:
                 try:
                     data = json.loads(repaired)
@@ -480,7 +221,7 @@ class Narratron:
                     pass
 
         if data is None:
-            return NarratronResponse(_FALLBACK_RESPONSE)
+            return NarratronResponse(FALLBACK_RESPONSE)
 
         # Deep-sanitize all string values in the parsed response
         data = sanitize_parsed_response(data)
@@ -521,7 +262,7 @@ class Narratron:
             # even if there's trailing garbage. Only retry if parsing fails
             # entirely, to avoid discarding good narrative progress.
             response = self._parse_response(response_text)
-            if response.raw is _FALLBACK_RESPONSE:
+            if response.raw is FALLBACK_RESPONSE:
                 # Parsing failed completely — retry up to 2 times
                 for attempt in range(2):
                     print(f"Unparseable LLM response, retry {attempt + 1}/2...")
@@ -529,10 +270,10 @@ class Narratron:
                         messages, response_model=NarratronResponseSchema
                     )
                     response = self._parse_response(response_text)
-                    if response.raw is not _FALLBACK_RESPONSE:
+                    if response.raw is not FALLBACK_RESPONSE:
                         break
         except Exception:
-            response = NarratronResponse(_FALLBACK_RESPONSE)
+            response = NarratronResponse(FALLBACK_RESPONSE)
 
         self._localize_fallback_placeholders(response)
         self._apply_state_changes(response, comic_state)
@@ -683,7 +424,7 @@ class Narratron:
                 try:
                     parsed_response = json.loads(response_text)
                 except json.JSONDecodeError:
-                    for repair_fn in (self._extract_json, self._repair_json):
+                    for repair_fn in (extract_json, repair_json):
                         repaired = repair_fn(response_text)
                         if repaired:
                             try:
@@ -707,7 +448,7 @@ class Narratron:
             try:
                 data = json.loads(sanitized_text)
             except json.JSONDecodeError:
-                extracted = self._extract_json(sanitized_text)
+                extracted = extract_json(sanitized_text)
                 if extracted:
                     data = json.loads(extracted)
                 else:
@@ -722,7 +463,7 @@ class Narratron:
                     title_treatment=blueprint.title,
                     atmosphere=blueprint.synopsis,
                 ),
-                first_panel=NarratronResponse(_FALLBACK_RESPONSE),
+                first_panel=NarratronResponse(FALLBACK_RESPONSE),
                 initial_narrative={"short_term": [], "long_term": []},
             )
 

@@ -30,10 +30,6 @@ class DetectedRegion:
         self.area = self.width * self.height
 
 
-# Keep old name as alias for backwards compatibility
-DetectedBubble = DetectedRegion
-
-
 class PanelDetector:
     """Detects empty speech bubbles and narration boxes in comic images using OpenCV."""
     def __init__(
@@ -244,7 +240,3 @@ class PanelDetector:
             result.extend(row_sorted)
 
         return result
-
-
-# Keep old name as alias for backwards compatibility
-BubbleDetector = PanelDetector
