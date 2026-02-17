@@ -1,6 +1,8 @@
 {
   "title": "Superhero Simen",
+  "title_no": "Superhelt Simen",
   "synopsis": "Simen is no ordinary superhero. He's just an ordinary young adult who appointed himself the neighborhood's protector. The humor comes from his heroic self-image colliding with mundane reality.",
+  "synopsis_no": "Superhelt Simen er ingen vanlig superhelt. Han er helt vanlig.",
   "visual_style": "Hand-drawn 2D animation cel style with clean, confident ink outlines and flat color fills. Warm but slightly desaturated palette — not bright or candy-colored. Characters are drawn small and compact within large, open environments with generous negative space and breathing room. Small figures, big world. Backgrounds are simple and readable: clear architectural shapes, minimal detail, large flat color fields. Characters have simple, iconic designs with minimal facial detail — easy to render consistently across panels. Allow occasional speed lines or small SFX text when the moment calls for it. The feel is a clean, handmade comic strip — artistic and understated, not cute or childish. Strictly avoid: 3D or cinematic rendering, glossy gradients, hyper-detailed textures, photorealism, overly muscular or dramatic superhero aesthetics, storybook illustration style, and any modern digital-art look.",
   "locations": [
     {

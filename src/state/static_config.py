@@ -31,7 +31,9 @@ class Blueprint(BaseModel):
     """
 
     title: str = Field(description="Comic title")
+    title_no: str = Field(default="", description="Comic title in Norwegian")
     synopsis: str = Field(description="Brief story synopsis/hook")
+    synopsis_no: str = Field(default="", description="Brief story synopsis/hook in Norwegian")
     locations: list[Location] = Field(
         default_factory=list,
         description="Pre-defined locations (first one is the starting location)"
@@ -92,22 +94,14 @@ class StaticConfig(BaseModel):
     comic_config: ComicConfig = Field(default_factory=ComicConfig)
 
     @classmethod
-    def load_from_directory(cls, config_dir: str | Path, language: str = "en") -> "StaticConfig":
-        """Load configuration from a directory.
-
-        If *language* is not ``"en"`` and a ``blueprint.{language}.json``
-        file exists in the directory it will be loaded instead of the
-        default ``blueprint.json``.
-        """
+    def load_from_directory(cls, config_dir: str | Path) -> "StaticConfig":
+        """Load configuration from a directory."""
         config_dir = Path(config_dir)
 
         blueprint = None
         comic_config = ComicConfig()
 
-        # Try language-specific blueprint first, fall back to default
-        blueprint_file = config_dir / f"blueprint.{language}.json"
-        if language == "en" or not blueprint_file.exists():
-            blueprint_file = config_dir / "blueprint.json"
+        blueprint_file = config_dir / "blueprint.json"
         if blueprint_file.exists():
             with open(blueprint_file, encoding="utf-8") as f:
                 data = json.load(f)

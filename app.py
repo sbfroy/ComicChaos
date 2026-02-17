@@ -51,7 +51,7 @@ class ComicSession:
         if not config_dir:
             raise ValueError(f"Comic '{comic_id}' not found")
 
-        self.config = StaticConfig.load_from_directory(str(config_dir), language=self.language)
+        self.config = StaticConfig.load_from_directory(str(config_dir))
 
         if not self.config.blueprint:
             raise ValueError("No blueprint found")
@@ -237,8 +237,8 @@ class ComicSession:
             "type": "init",
             "panel_number": 1,
             "elements": response.first_panel.elements,
-            "title": self.config.blueprint.title,
-            "synopsis": self.config.blueprint.synopsis,
+            "title": (self.config.blueprint.title_no or self.config.blueprint.title) if self.language == "no" else self.config.blueprint.title,
+            "synopsis": (self.config.blueprint.synopsis_no or self.config.blueprint.synopsis) if self.language == "no" else self.config.blueprint.synopsis,
             "is_title_card": False,
         })
 

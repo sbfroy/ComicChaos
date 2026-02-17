@@ -43,15 +43,8 @@ class ComicRegistry:
                     with open(blueprint_file) as f:
                         bp_data = json.load(f)
 
-                    # Load Norwegian blueprint for translated name/description
-                    name_no = ""
-                    description_no = ""
-                    bp_no_file = comic_path / "blueprint.no.json"
-                    if bp_no_file.exists():
-                        with open(bp_no_file) as f:
-                            bp_no_data = json.load(f)
-                        name_no = bp_no_data.get("title", "")
-                        description_no = bp_no_data.get("synopsis", "")
+                    name_no = bp_data.get("title_no", "")
+                    description_no = bp_data.get("synopsis_no", "")
 
                     # Load panel font from config.json if present
                     panel_font = "'Comic Sans MS', 'Chalkboard', cursive, sans-serif"
