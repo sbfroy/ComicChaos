@@ -329,6 +329,14 @@ class ImageGenerator:
         # Start with visual style (applies to the entire comic)
         prompt_parts.append(f"Visual style: {visual_style}")
 
+        # Add bubble instructions early — the bubble/box is the primary visual
+        # element and must dominate the composition. Placing these before the
+        # scene description ensures the image model prioritises them.
+        if elements:
+            bubble_instructions = self._build_bubble_instructions(elements)
+            if bubble_instructions:
+                prompt_parts.append(bubble_instructions)
+
         # Add scene/location setting
         if render_state.scene_setting:
             prompt_parts.append(f"Setting: {render_state.scene_setting}")
@@ -360,12 +368,6 @@ class ImageGenerator:
         # Add the current action happening in the panel
         if render_state.current_action:
             prompt_parts.append(f"Action: {render_state.current_action}")
-
-        # Add bubble instructions if elements are provided
-        if elements:
-            bubble_instructions = self._build_bubble_instructions(elements)
-            if bubble_instructions:
-                prompt_parts.append(bubble_instructions)
 
         # Add instruction to not include frames or panel edges
         prompt_parts.append(
@@ -410,8 +412,11 @@ class ImageGenerator:
             "clear space around the entire outline."
         )
 
+        priority = "IMPORTANT ELEMENT IN THIS IMAGE: "
+
         if el_type == "speech":
             return (
+                f"{priority}"
                 "Include ONE large, prominent empty white oval speech bubble with a black outline "
                 f"and a pointed tail, {bubble_target}. "
                 "The bubble is an important element in the image — prioritize its size over scene composition. It should cover roughly 20% of the panel. "
@@ -419,6 +424,7 @@ class ImageGenerator:
             )
         elif el_type == "thought":
             return (
+                f"{priority}"
                 "Include ONE large, prominent empty white cloud-shaped thought bubble with small circular "
                 f"tail dots, {bubble_target}'s head. "
                 "The bubble is an important element in the image — prioritize its size over scene composition. It should cover roughly 20% of the panel. "
@@ -426,6 +432,7 @@ class ImageGenerator:
             )
         elif el_type == "narration":
             return (
+                f"{priority}"
                 "Include ONE very large, prominent empty rectangular white narration box with a thick black "
                 "outline and sharp 90-degree corners. "
                 "Position it in one of the corners. "

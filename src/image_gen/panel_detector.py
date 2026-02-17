@@ -10,8 +10,6 @@ from typing import List, Optional
 import cv2
 import numpy as np
 
-# TODO: Why is the boxes and bubbles harder to detect when the comic is in english? Also the chars are not so similar and consistent, maybe the descriptions of them should only be in one place in the blueprint?
-
 @dataclass
 class DetectedRegion:
     """Represents a detected panel region (speech bubble, thought bubble, or narration box)."""
