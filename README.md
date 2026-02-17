@@ -157,7 +157,6 @@ The comic will automatically appear in the selection screen.
 ## Roadmap
 
 - [ ] Faster image generation
-- [ ] Clean up the code and separate concerns
 - [ ] Better comics
 - [ ] Implement Railway. Add basic logging to the Flask app to track requests.
 - [ ] I need to find out what to do when the API wallet becomes empty. Should I just manually update the project somehow so that the user cant reach further than the selection page, and write "API wallet is unfortunately empty."
