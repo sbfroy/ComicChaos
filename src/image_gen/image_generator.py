@@ -405,25 +405,23 @@ class ImageGenerator:
             bubble_target = "positioned near the main character"
 
         outline_rule = (
-            "CRITICAL: The bubble/box outline must be completely clean and unbroken. "
-            "No characters, hands, fingers, faces, hair, tails, or any objects may touch, overlap, or cross "
-            "the outline. Keep a small gap of clear space around the entire outline."
+            "CRITICAL: The outline must be completely clean and unbroken. "
+            "Nothing may touch, overlap, or cross the outline. Keep a small gap of "
+            "clear space around the entire outline."
         )
 
         if el_type == "speech":
             return (
                 "Include ONE large, prominent empty white oval speech bubble with a black outline "
                 f"and a pointed tail, {bubble_target}. "
-                "The bubble is the most important element in the image — prioritize its size over scene composition. "
-                "It should cover roughly 15-20% of the panel and can overlap or cover parts of the scene. "
+                "The bubble is an important element in the image — prioritize its size over scene composition. It should cover roughly 20% of the panel. "
                 f"Completely empty inside with no text. The entire bubble must be visible. {outline_rule}"
             )
         elif el_type == "thought":
             return (
                 "Include ONE large, prominent empty white cloud-shaped thought bubble with small circular "
                 f"tail dots, {bubble_target}'s head. "
-                "The bubble is the most important element in the image — prioritize its size over scene composition. "
-                "It should cover roughly 15-20% of the panel and can overlap or cover parts of the scene. "
+                "The bubble is an important element in the image — prioritize its size over scene composition. It should cover roughly 20% of the panel. "
                 f"Completely empty inside with no text. The entire bubble must be visible. {outline_rule}"
             )
         elif el_type == "narration":
@@ -431,8 +429,8 @@ class ImageGenerator:
                 "Include ONE very large, prominent empty rectangular white narration box with a thick black "
                 "outline and sharp 90-degree corners. "
                 "Position it in one of the corners. "
-                "The box is the most important element in the image — prioritize its size over scene composition. "
-                "It should be wide, spanning most of the panel width, and cover roughly 20-25% of the panel. "
+                "The box is an important element in the image — prioritize its size over scene composition. "
+                "It should be wide, spanning most of the panel width, and cover roughly 25% of the panel. "
                 "It can overlap or cover parts of the scene. "
                 f"Completely empty inside with no text. {outline_rule}"
             )
