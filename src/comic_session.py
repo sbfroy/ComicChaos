@@ -160,7 +160,7 @@ class ComicSession:
         yield safe_json_dumps({
             "type": "init_title_card",
             "panel_number": 0,
-            "title": self.config.blueprint.title,
+            "title": (self.config.blueprint.title_no or self.config.blueprint.title) if self.language == "no" else self.config.blueprint.title,
             "atmosphere": response.title_card.atmosphere,
             "is_title_card": True,
         })
