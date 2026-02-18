@@ -159,9 +159,7 @@ The comic will automatically appear in the selection screen.
 - [ ] Faster image generation
 - [ ] Better comics
 - [ ] Implement Railway. Add basic logging to the Flask app to track requests.
-- [ ] I need to find out what to do when the API wallet becomes empty. Should I just manually update the project somehow so that the user cant reach further than the selection page, and write "API wallet is unfortunately empty."
-- [ ] Turn off logging when it runs online
-- [ ] The norway story is good, should be refined and shortened without destroying it (it is good now)
+- [ ] I need to find out what to do when the API wallet becomes empty. Should I just manually update the project somehow so that the user cant reach further than the selection page, and write "API wallet is unfortunately empty." I should also turn off logging when it runs online
 
 ## Contributing
 
