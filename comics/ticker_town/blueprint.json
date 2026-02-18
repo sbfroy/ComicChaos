@@ -3,7 +3,7 @@
   "title_no": "Aksjebyen",
   "synopsis": "Life as a stock where market forces feel like acts of god.",
   "synopsis_no": "Livet som en aksje der markedskrefter føles som naturkatastrofer.",
-  "visual_style": "Abstract, geometric illustration with a clean digital aesthetic. Characters are simple geometric shapes — rectangles, circles, triangles — with minimal facial features: two dot eyes and a small line mouth. Character size and color reflect market identity: blue-chips are tall imposing shapes, penny stocks are tiny, meme stocks are jagged and neon. The world is a flat digital grid: straight lines, right angles, data-stream patterns, chart-line skylines. Backgrounds are minimal — solid color blocks and simple grid patterns suggesting a digital metropolis without clutter. Color palette: dark navy and slate backgrounds with bright, flat accent colors for characters. No organic textures, no curves in architecture, no gradients. Everything is crisp, flat, and geometric. Camera angles vary between wide shots of Ticker Town's grid streets and close-ups of character faces. Strictly avoid: photorealism, 3D rendering, organic or natural textures, detailed facial features, complex shading, busy compositions, rounded architecture, and any style that isn't clean and geometric.",
+  "visual_style": "Abstract, geometric illustration with a clean digital aesthetic. Characters are simple geometric shapes — rectangles, circles, triangles — with minimal facial features: two dot eyes and a small line mouth. Character size and color reflect market identity: blue-chips are tall imposing shapes, penny stocks are tiny, meme stocks are jagged and neon. The world is a flat digital grid: straight lines, right angles, data-stream patterns, chart-line skylines. Backgrounds are super minimal — solid color blocks and simple grid patterns suggesting a digital metropolis without clutter. Color palette: dark navy and slate backgrounds with bright, flat accent colors for characters. No organic textures, no curves in architecture, no gradients. Everything is crisp, flat, and geometric. Camera angles vary between wide shots of Ticker Town's grid streets and close-ups of character faces. Strictly avoid: photorealism, 3D rendering, organic or natural textures, detailed facial features, complex shading, busy compositions, rounded architecture, and any style that isn't clean and geometric.",
   "locations": [
     {
       "name": "Ticker Town Main Street",
@@ -12,24 +12,24 @@
   ],
   "characters": [
     {
-      "name": "Gro",
+      "name": "$NORM",
       "description": "A mid-sized bright green rectangle with two dot eyes and a small line mouth. Average proportions — not as tall as the blue-chips, not as small as the penny stocks. Earnest and practical, just trying to build a stable life."
     },
     {
-      "name": "Yolo",
+      "name": "$FOMO",
       "description": "A small, jagged neon-pink shape with wide dot eyes and a manic grin. Constantly slightly vibrating. A volatile meme stock with zero impulse control, boundless energy, and a talent for dragging others into chaos."
     }
   ],
   "rules": [
     "Market events are experienced as environmental phenomena in Ticker Town. Fed rate hikes are earthquakes. Viral tweets are lightning bolts. Earnings season is a divine judgment where mysterious reports descend from the sky. Bull markets bring sunshine and euphoria. Corrections are violent tremors that knock everyone around. The citizens don't understand WHY these things happen — they just endure them.",
     "Characters don't understand humans. References to the 'Human Realm' are spoken of with superstition and confusion — like ancient gods whose motives are unknowable. No character has ever seen a human or understands what a stock market is.",
-    "Gro is trying to live a normal life — hold a job, maintain relationships, maybe climb the social ladder — but market chaos constantly derails everything. The comedy comes from mundane ambitions colliding with absurd market forces.",
-    "Social hierarchy is based on market cap. Blue-chip stocks are old-money aristocrats. Large-caps are the establishment. Mid-caps like Gro are middle class. Small-caps are working class. Penny stocks are outcasts. Meme stocks are chaotic wildcards. Everyone is acutely aware of their place.",
+    "$NORM is trying to live a normal life — hold a job, maintain relationships, maybe climb the social ladder — but market chaos constantly derails everything. The comedy comes from mundane ambitions colliding with absurd market forces.",
+    "Social hierarchy is based on market cap. Blue-chip stocks are old-money aristocrats. Large-caps are the establishment. Mid-caps like $NORM are middle class. Small-caps are working class. Penny stocks are outcasts. Meme stocks are chaotic wildcards. Everyone is acutely aware of their place.",
     "Narration is delivered in the voice of a deadpan financial news anchor — calm, professional, and measured even when describing total chaos. Think CNBC coverage of the apocalypse: 'Sources confirm that Main Street has experienced a 40% structural correction. Residents are advised to diversify their positions.'",
     "The tone is satirical and fast-paced. Real stock market concepts (bull runs, bear markets, short squeezes, IPOs, dividends, mergers) are translated into lived social experiences. A merger is a marriage. An IPO is a birth. Getting shorted is being publicly humiliated. Dividends are paychecks."
   ],
   "long_term_narrative": [
-    "Gro navigates daily life in Ticker Town while pursuing stability and growth — but market forces and meme stock chaos keep raising the stakes."
+    "$NORM navigates daily life in Ticker Town while pursuing stability and growth — but market forces and meme stock chaos keep raising the stakes."
   ],
-  "narrative_premise": "Gro is a mid-sized growth stock trying to build a stable life in Ticker Town, a digital metropolis where every stock is a living being. Market forces from the mysterious Human Realm strike without warning — corrections, earnings seasons, viral tweets — and Gro must navigate the chaos while chasing modest ambitions in a world that rewards volatility."
+  "narrative_premise": "$NORM is a mid-sized growth stock trying to build a stable life in Ticker Town, a digital metropolis where every stock is a living being. Market forces from the mysterious Human Realm strike without warning — corrections, earnings seasons, viral tweets — and $NORM must navigate the chaos while chasing modest ambitions in a world that rewards volatility."
 }
