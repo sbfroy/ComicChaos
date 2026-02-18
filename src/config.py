@@ -20,8 +20,9 @@ IMAGE_MODERATION = "low"
 
 
 # =============================================================================
-# Output Directories (now under 'output/')
+# Logging
 # =============================================================================
+ENABLE_LOGGING = False  # Set to True to log all LLM interactions to JSON files
 LOGS_DIR = "output/logs"
 
 # =============================================================================

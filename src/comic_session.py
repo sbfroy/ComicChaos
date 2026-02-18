@@ -8,7 +8,7 @@ state, and comic strip assembly.
 import os
 import base64
 
-from .config import COMICS_DIR
+from .config import COMICS_DIR, ENABLE_LOGGING
 from .state.static_config import StaticConfig
 from .state.comic_state import ComicState, RenderState
 from .narratron.narratron import Narratron, TitleCardPanel
@@ -38,7 +38,7 @@ class ComicSession:
             raise ValueError("No blueprint found")
 
         self.state = None
-        self.logger = InteractionLogger(comic_title=self.config.blueprint.title)
+        self.logger = InteractionLogger(comic_title=self.config.blueprint.title) if ENABLE_LOGGING else None
 
         self.narratron = None
         if self.api_key:
