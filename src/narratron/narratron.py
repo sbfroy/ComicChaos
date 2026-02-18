@@ -395,10 +395,15 @@ class Narratron:
         if blueprint.narrative_premise:
             narrative_premise_section = f"NARRATIVE PREMISE: {blueprint.narrative_premise}"
 
+        # Use localized title/synopsis so the image model renders the
+        # correct language on the title card.
+        display_title = (blueprint.title_no or blueprint.title) if self.language == "no" else blueprint.title
+        display_synopsis = (blueprint.synopsis_no or blueprint.synopsis) if self.language == "no" else blueprint.synopsis
+
         user_message = load_prompt(
             _PROMPTS_DIR / "opening_sequence.user.md",
-            title=blueprint.title,
-            synopsis=blueprint.synopsis,
+            title=display_title,
+            synopsis=display_synopsis,
             visual_style=blueprint.visual_style,
             starting_location=f"{blueprint.starting_location.name}: {blueprint.starting_location.description}",
             main_character=f"{blueprint.main_character.name}: {blueprint.main_character.description}",
@@ -459,9 +464,9 @@ class Narratron:
         except Exception:
             response = OpeningSequenceResponse(
                 title_card=TitleCardPanel(
-                    scene_description=f"A dramatic establishing shot for {blueprint.title}",
-                    title_treatment=blueprint.title,
-                    atmosphere=blueprint.synopsis,
+                    scene_description=f"A dramatic establishing shot for {display_title}",
+                    title_treatment=display_title,
+                    atmosphere=display_synopsis,
                 ),
                 first_panel=NarratronResponse(FALLBACK_RESPONSE),
                 initial_narrative={"short_term": [], "long_term": []},
