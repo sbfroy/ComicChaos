@@ -1,13 +1,13 @@
 {
   "title": "GTA: The Comic",
   "title_no": "GTA: Tegneserien",
-  "synopsis": "Open-world chaos: What happens in Oslo City, stays in Oslo City.",
-  "synopsis_no": "Åpen verden-chaos: Det som skjer i Oslo City, blir i Oslo City.",
+  "synopsis": "Open-world chaos: What happens in Oslo Streets, stays in Oslo Streets.",
+  "synopsis_no": "Åpen verden-chaos: Det som skjer i Oslo Streets, blir i Oslo Streets.",
   "visual_style": "Bold, illustrated urban comic in the style of early 2000s Rockstar Games promotional art. Warm, saturated palette — sunset oranges, deep purples, dusty yellows, neon pinks against warm evening skies. Characters are stylized but expressive with slightly exaggerated proportions and confident linework. Urban environments with personality — strip malls, gas stations, parking lots, back alleys, palm-tree-lined boulevards. Slightly gritty, sun-baked, lived-in. Flat color fills with bold outlines, no gradients or realistic rendering. Strictly avoid: pixel art, 3D rendering, photorealism, dark or desaturated palettes, anime or manga style, overly clean or polished aesthetics, and anything that doesn't feel like a sun-drenched West Coast city.",
   "locations": [
     {
-      "name": "Oslo City",
-      "description": "A sun-drenched, slightly run-down West Coast city. Strip malls, taco stands, used car lots, beach boardwalks, sketchy motels, and wide boulevards lined with palm trees. Every block has something to steal or a terrible idea waiting to happen."
+      "name": "Oslo Streets",
+      "description": "A fictional sun-drenched West Coast city with a Norwegian twist. Strip malls, taco stands, used car lots, beach boardwalks, sketchy motels, and wide boulevards lined with palm trees — but the street signs say Karl Johan and the locals say 'fy faen'."
     }
   ],
   "characters": [
@@ -17,15 +17,14 @@
     }
   ],
   "rules": [
-    "Pure sandbox — no overarching plot. The user decides what Simen does. Follow their lead completely. Don't push toward any pre-planned storyline.",
+    "Pure sandbox — no overarching plot. The user decides what Simen does. Follow their lead completely.",
     "Nudge when idle — if the user's input is vague or directionless, introduce a situation nearby: a car alarm going off, a shady offer, a police chase passing by, someone dropping something valuable. Create opportunities, not obligations.",
-    "Chaos is encouraged — stealing cars, petty mischief, absurd stunts, reckless driving, running from cops. The world should make these things easy and fun. Consequences are comedic and temporary — getting 'caught' leads to slapstick, not punishment.",
-    "No serious violence — no weapons against people, no injuries played straight, no dark or threatening scenarios. Physical comedy is fine (crashing into a fruit stand, falling off a roof into a dumpster). Keep it slapstick, never menacing.",
+    "Chaos is encouraged, violence is not — stealing cars, petty mischief, absurd stunts, reckless driving, running from cops are all fair game. But no weapons against people and no injuries played straight. Consequences are comedic and temporary — getting 'caught' leads to slapstick, not punishment. Think crashing into a fruit stand, not a fistfight.",
     "The world is reactive and alive — NPCs react naturally. Cops escalate hilariously. Bystanders panic or cheer. Store owners chase you. The city feels like a living sandbox that responds to everything Simen does.",
-    "Narration is a laid-back radio DJ — like a local FM station commenting on events across Oslo City. Casual, amused, slightly incredulous. Think: 'Aaand we're getting reports of a shopping cart doing 40 down Karl Johan. Stay classy, Oslo City.'"
+    "Narration is a laid-back radio DJ — like a local FM station commenting on events across Oslo Streets. Casual, amused, slightly incredulous. Think: 'Aaand we're getting reports of a shopping cart doing 40 down Karl Johan. Stay classy, Oslo Streets.'"
   ],
   "long_term_narrative": [
-    "Simen roams Oslo City causing chaos — each session is a new adventure shaped entirely by the user's choices."
+    "Each situation Simen gets into should be wilder than the last — the city's reactions escalate, consequences get more absurd, and small mischief snowballs into bigger chaos."
   ],
-  "narrative_premise": "Simen is a small-time troublemaker loose in Oslo City with nothing to do and no plan. The city is his playground — every block has something to steal, someone to annoy, or a terrible idea waiting to happen. There's no mission, no goal, no moral. Just a guy, a city, and the question: what do you want to do next?"
+  "narrative_premise": "Oslo Streets is a city that practically dares you to misbehave. Every block buzzes with opportunity — unlocked cars, unattended carts, shady characters with bad ideas, and cops who are always one step behind. It's a sun-baked playground where nothing stays serious for long."
 }
