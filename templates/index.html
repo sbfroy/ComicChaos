@@ -1127,6 +1127,7 @@
                 download: 'Last ned stripen',
                 createAnother: 'Lag en ny?',
                 generating: 'Genererer...',
+                apiUnavailable: 'API-lommeboken er dessverre tom :(',
             },
             en: {
                 splashText: 'Click to enter the chaos!',
@@ -1144,6 +1145,7 @@
                 download: 'Download the strip',
                 createAnother: 'Create another?',
                 generating: 'Generating...',
+                apiUnavailable: 'API wallet is empty :(',
             }
         };
 
@@ -1573,13 +1575,30 @@
                     textEl.innerHTML = `<h3>${escapeHtml(name)}</h3><p>${escapeHtml(desc)}</p>`;
                 });
 
-                // Add click handlers to populated bubbles
-                document.querySelectorAll('.comic-bubble:not(.coming-soon)').forEach(bubble => {
-                    bubble.addEventListener('click', () => {
-                        state.selectedComic = bubble.dataset.id;
-                        startComic();
+                // Check API availability before enabling interaction
+                let apiAvailable = true;
+                try {
+                    const statusRes = await fetch('/api/status');
+                    const status = await statusRes.json();
+                    apiAvailable = status.api_available;
+                } catch (e) { /* status check is best-effort */ }
+
+                if (apiAvailable) {
+                    // Add click handlers to populated bubbles
+                    document.querySelectorAll('.comic-bubble:not(.coming-soon)').forEach(bubble => {
+                        bubble.addEventListener('click', () => {
+                            state.selectedComic = bubble.dataset.id;
+                            startComic();
+                        });
                     });
-                });
+                } else {
+                    // Disable bubbles visually but keep titles visible
+                    document.querySelectorAll('.comic-bubble:not(.coming-soon)').forEach(b => {
+                        b.style.pointerEvents = 'none';
+                        b.style.opacity = '0.6';
+                    });
+                    showNotification(t('apiUnavailable'), 999999999);
+                }
 
                 // Start floating animation after all pop-ins complete
                 // (last bubble: 0.5s delay + 0.5s duration = 1.0s)

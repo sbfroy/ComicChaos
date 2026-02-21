@@ -26,6 +26,9 @@ limiter = Limiter(
     storage_uri="memory://",
 )
 
+# API availability toggle — set API_ENABLED=false in Railway to disable comic generation.
+api_enabled = os.getenv("API_ENABLED", "true").lower() == "true"
+
 # Store active sessions
 sessions = {}
 
@@ -34,6 +37,12 @@ sessions = {}
 def index():
     """Serve the main page."""
     return render_template("index.html")
+
+
+@app.route("/api/status")
+def api_status():
+    """Check if the API is available for comic generation."""
+    return jsonify({"api_available": api_enabled})
 
 
 @app.route("/api/comics")
@@ -81,6 +90,9 @@ def finish_comic():
 @limiter.limit("6 per minute")
 def start_comic_stream():
     """Start a new comic session with streaming image generation."""
+    if not api_enabled:
+        return jsonify({"error": "API temporarily unavailable"}), 503
+
     data = request.get_json()
     comic_id = data.get("comic_id")
     session_id = data.get("session_id")
@@ -115,6 +127,9 @@ def start_comic_stream():
 @limiter.limit("10 per minute")
 def submit_panel_stream():
     """Submit user's input and stream the next panel generation."""
+    if not api_enabled:
+        return jsonify({"error": "API temporarily unavailable"}), 503
+
     data = request.get_json()
     session_id = data.get("session_id")
     user_input_text = data.get("user_input", "")
