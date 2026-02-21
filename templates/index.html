@@ -1597,7 +1597,9 @@
                         b.style.pointerEvents = 'none';
                         b.style.opacity = '0.6';
                     });
-                    document.querySelector('.select-label').textContent = t('apiUnavailable');
+                    const label = document.querySelector('.select-label');
+                    label.dataset.i18n = 'apiUnavailable';
+                    label.textContent = t('apiUnavailable');
                 }
 
                 // Start floating animation after all pop-ins complete
