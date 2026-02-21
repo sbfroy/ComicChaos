@@ -1597,7 +1597,7 @@
                         b.style.pointerEvents = 'none';
                         b.style.opacity = '0.6';
                     });
-                    showNotification(t('apiUnavailable'), 999999999);
+                    document.querySelector('.select-label').textContent = t('apiUnavailable');
                 }
 
                 // Start floating animation after all pop-ins complete
