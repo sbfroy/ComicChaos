@@ -46,6 +46,7 @@ def save_session(session_id, session):
             "language": session.language,
             "state": session.state,
             "panels_data": session.panels_data,
+            "strip_panel_count": len(session.comic_strip.panels) if session.comic_strip else 0,
         }
         path = os.path.join(SESSIONS_DIR, f"{session_id}.pkl")
         with open(path, "wb") as f:
@@ -68,20 +69,13 @@ def recover_session(session_id):
         session.state = data["state"]
         session.panels_data = data["panels_data"]
 
-        # Rebuild comic strip from panels_data.
-        # A panel is "committed" (belongs in the strip) if it's a title card,
-        # an auto panel, or an interactive panel the user already submitted
-        # (user_input_text is set).  The current interactive panel awaiting
-        # user input has user_input_text=None and must NOT be added —
-        # submit_panel_streaming() will commit it when the user submits.
+        # Rebuild comic strip from panels_data using the saved panel count.
+        # strip_panel_count tells us exactly how many panels were in the
+        # comic strip at save time — no heuristics needed.
+        strip_count = data.get("strip_panel_count", 0)
         session.comic_strip = ComicStrip(title=session.config.blueprint.title)
-        for panel in data["panels_data"]:
-            is_committed = (
-                panel.get("is_title_card")
-                or panel.get("is_auto")
-                or panel.get("user_input_text") is not None
-            )
-            if is_committed and panel.get("image_bytes"):
+        for panel in data["panels_data"][:strip_count]:
+            if panel.get("image_bytes"):
                 session.comic_strip.add_panel(
                     panel["image_bytes"],
                     panel.get("user_input_text") or "",
