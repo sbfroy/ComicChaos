@@ -24,6 +24,7 @@ class ComicSession:
     """A single comic creation session with interactive panels."""
 
     def __init__(self, comic_id: str, use_real_images: bool = True, language: str = "no"):
+        self.comic_id = comic_id
         self.api_key = os.getenv("OPENAI_API_KEY")
         self.language = language
         registry = ComicRegistry(comics_dir=COMICS_DIR)
