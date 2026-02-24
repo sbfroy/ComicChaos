@@ -69,13 +69,19 @@ def recover_session(session_id):
         session.panels_data = data["panels_data"]
 
         # Rebuild comic strip from panels_data.
-        # Skip the last entry — it's the current interactive panel awaiting
-        # user input and hasn't been committed to the strip yet.
+        # A panel is "committed" (belongs in the strip) if it's a title card,
+        # an auto panel, or an interactive panel the user already submitted
+        # (user_input_text is set).  The current interactive panel awaiting
+        # user input has user_input_text=None and must NOT be added —
         # submit_panel_streaming() will commit it when the user submits.
-        committed_panels = data["panels_data"][:-1] if data["panels_data"] else []
         session.comic_strip = ComicStrip(title=session.config.blueprint.title)
-        for panel in committed_panels:
-            if panel.get("image_bytes"):
+        for panel in data["panels_data"]:
+            is_committed = (
+                panel.get("is_title_card")
+                or panel.get("is_auto")
+                or panel.get("user_input_text") is not None
+            )
+            if is_committed and panel.get("image_bytes"):
                 session.comic_strip.add_panel(
                     panel["image_bytes"],
                     panel.get("user_input_text") or "",
