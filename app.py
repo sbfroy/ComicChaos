@@ -2,7 +2,6 @@
 """Comic Chaos - Web Interface with Interactive Panels"""
 
 import os
-import time
 
 from dotenv import load_dotenv
 from flask import Flask, render_template, request, jsonify, Response
@@ -12,8 +11,6 @@ from flask_limiter.util import get_remote_address
 from src.config import COMICS_DIR
 from comics.comic_registry import ComicRegistry
 from src.comic_session import ComicSession
-
-SESSION_TTL = 30 * 60  # 30 minutes
 
 
 load_dotenv()
@@ -32,18 +29,8 @@ limiter = Limiter(
 # API availability toggle — set API_ENABLED=false in Railway to disable comic generation.
 api_enabled = os.getenv("API_ENABLED", "true").lower() == "true"
 
-# Store active sessions: {session_id: {"session": ComicSession, "created_at": float}}
+# Store active sessions
 sessions = {}
-
-
-def cleanup_stale_sessions():
-    """Remove sessions older than SESSION_TTL."""
-    now = time.time()
-    stale = [sid for sid, s in sessions.items() if now - s["created_at"] > SESSION_TTL]
-    for sid in stale:
-        del sessions[sid]
-    if stale:
-        print(f"Cleaned up {len(stale)} stale session(s)")
 
 
 @app.route("/")
@@ -86,12 +73,12 @@ def finish_comic():
     if not session_id:
         return jsonify({"error": "Missing session_id"}), 400
 
-    entry = sessions.get(session_id)
-    if not entry:
-        return jsonify({"error": "Session expired"}), 404
+    session = sessions.get(session_id)
+    if not session:
+        return jsonify({"error": "Session not found"}), 404
 
     try:
-        result = entry["session"].finish()
+        result = session.finish()
         del sessions[session_id]
         return jsonify(result)
     except Exception as e:
@@ -114,11 +101,9 @@ def start_comic_stream():
     if not comic_id or not session_id:
         return jsonify({"error": "Missing comic_id or session_id"}), 400
 
-    cleanup_stale_sessions()
-
     try:
         session = ComicSession(comic_id, language=language)
-        sessions[session_id] = {"session": session, "created_at": time.time()}
+        sessions[session_id] = session
 
         def generate():
             for event in session.start_streaming():
@@ -153,12 +138,9 @@ def submit_panel_stream():
     if not session_id:
         return jsonify({"error": "Missing session_id"}), 400
 
-    entry = sessions.get(session_id)
-    if not entry:
-        return jsonify({"error": "Session expired"}), 404
-
-    session = entry["session"]
-    entry["created_at"] = time.time()  # Refresh TTL on activity
+    session = sessions.get(session_id)
+    if not session:
+        return jsonify({"error": "Session not found"}), 404
 
     # Update language in case user switched mid-session
     session.language = language
