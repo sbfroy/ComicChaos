@@ -2,6 +2,8 @@
 """Comic Chaos - Web Interface with Interactive Panels"""
 
 import os
+import time
+import threading
 
 from dotenv import load_dotenv
 from flask import Flask, render_template, request, jsonify, Response
@@ -11,6 +13,9 @@ from flask_limiter.util import get_remote_address
 from src.config import COMICS_DIR
 from comics.comic_registry import ComicRegistry
 from src.comic_session import ComicSession
+
+SESSION_TTL = 30 * 60  # 30 minutes
+KEEPALIVE_INTERVAL = 15  # seconds
 
 
 load_dotenv()
@@ -29,8 +34,50 @@ limiter = Limiter(
 # API availability toggle — set API_ENABLED=false in Railway to disable comic generation.
 api_enabled = os.getenv("API_ENABLED", "true").lower() == "true"
 
-# Store active sessions
+# Store active sessions: {session_id: {"session": ComicSession, "created_at": float}}
 sessions = {}
+
+
+def cleanup_stale_sessions():
+    """Remove sessions older than SESSION_TTL."""
+    now = time.time()
+    stale = [sid for sid, s in sessions.items() if now - s["created_at"] > SESSION_TTL]
+    for sid in stale:
+        del sessions[sid]
+    if stale:
+        print(f"Cleaned up {len(stale)} stale session(s)")
+
+
+def sse_with_keepalive(generator):
+    """Wrap an SSE generator to send keep-alive comments between events.
+
+    Sends `: keepalive\\n\\n` every KEEPALIVE_INTERVAL seconds while waiting
+    for the next event from the inner generator. SSE comments (lines starting
+    with `:`) are silently ignored by clients.
+    """
+    import queue
+
+    q = queue.Queue()
+    sentinel = object()
+
+    def _produce():
+        try:
+            for item in generator:
+                q.put(item)
+        finally:
+            q.put(sentinel)
+
+    thread = threading.Thread(target=_produce, daemon=True)
+    thread.start()
+
+    while True:
+        try:
+            item = q.get(timeout=KEEPALIVE_INTERVAL)
+            if item is sentinel:
+                return
+            yield item
+        except queue.Empty:
+            yield ": keepalive\n\n"
 
 
 @app.route("/")
@@ -73,12 +120,12 @@ def finish_comic():
     if not session_id:
         return jsonify({"error": "Missing session_id"}), 400
 
-    session = sessions.get(session_id)
-    if not session:
-        return jsonify({"error": "Session not found"}), 404
+    entry = sessions.get(session_id)
+    if not entry:
+        return jsonify({"error": "Session expired"}), 404
 
     try:
-        result = session.finish()
+        result = entry["session"].finish()
         del sessions[session_id]
         return jsonify(result)
     except Exception as e:
@@ -101,16 +148,18 @@ def start_comic_stream():
     if not comic_id or not session_id:
         return jsonify({"error": "Missing comic_id or session_id"}), 400
 
+    cleanup_stale_sessions()
+
     try:
         session = ComicSession(comic_id, language=language)
-        sessions[session_id] = session
+        sessions[session_id] = {"session": session, "created_at": time.time()}
 
         def generate():
             for event in session.start_streaming():
                 yield f"data: {event}\n\n"
 
         return Response(
-            generate(),
+            sse_with_keepalive(generate()),
             mimetype="text/event-stream",
             headers={
                 "Cache-Control": "no-cache",
@@ -138,9 +187,12 @@ def submit_panel_stream():
     if not session_id:
         return jsonify({"error": "Missing session_id"}), 400
 
-    session = sessions.get(session_id)
-    if not session:
-        return jsonify({"error": "Session not found"}), 404
+    entry = sessions.get(session_id)
+    if not entry:
+        return jsonify({"error": "Session expired"}), 404
+
+    session = entry["session"]
+    entry["created_at"] = time.time()  # Refresh TTL on activity
 
     # Update language in case user switched mid-session
     session.language = language
@@ -152,7 +204,7 @@ def submit_panel_stream():
             yield f"data: {event}\n\n"
 
     return Response(
-        generate(),
+        sse_with_keepalive(generate()),
         mimetype="text/event-stream",
         headers={
             "Cache-Control": "no-cache",

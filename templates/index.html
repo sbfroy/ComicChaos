@@ -1128,6 +1128,7 @@
                 createAnother: 'Lag en ny?',
                 generating: 'Genererer...',
                 apiUnavailable: 'API-lommeboken er dessverre tom :(',
+                sessionExpired: '\u00d8kten har utl\u00f8pt \u2014 start en ny tegneserie!',
             },
             en: {
                 splashText: 'Click to enter the chaos!',
@@ -1146,6 +1147,7 @@
                 createAnother: 'Create another?',
                 generating: 'Generating...',
                 apiUnavailable: 'The API wallet is empty :(',
+                sessionExpired: 'Session expired \u2014 start a new comic!',
             }
         };
 
@@ -1267,6 +1269,14 @@
             elements.notification.textContent = message;
             elements.notification.classList.add('show');
             setTimeout(() => elements.notification.classList.remove('show'), duration);
+        }
+
+        function handleSessionExpired() {
+            showNotification(t('sessionExpired'), 5000);
+            setLoading(false);
+            elements.workspace.classList.remove('active');
+            elements.comicSelect.classList.remove('hidden');
+            setLangSwitcherVisible(true);
         }
 
         function setLoading(isLoading) {
@@ -1882,6 +1892,11 @@
                     return;
                 }
 
+                if (response.status === 404) {
+                    handleSessionExpired();
+                    return;
+                }
+
                 const reader = response.body.getReader();
                 const decoder = new TextDecoder();
                 let buffer = '';
@@ -2023,6 +2038,11 @@
                 if (response.status === 429) {
                     showNotification(t('rateLimited'), 5000);
                     setLoading(false);
+                    return;
+                }
+
+                if (response.status === 404) {
+                    handleSessionExpired();
                     return;
                 }
 
