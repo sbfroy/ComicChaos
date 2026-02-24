@@ -55,37 +55,36 @@ def save_session(session_id, session):
         print(f"[SESSION] Failed to save checkpoint: {e}")
 
 
-def recover_session(session_id):
-    """Try to recover a session from a disk checkpoint."""
+def load_session_data(session_id):
+    """Load raw session data from a disk checkpoint."""
     path = os.path.join(SESSIONS_DIR, f"{session_id}.pkl")
     if not os.path.exists(path):
         return None
     try:
         with open(path, "rb") as f:
-            data = pickle.load(f)
+            return pickle.load(f)
+    except Exception as e:
+        print(f"[SESSION] Failed to load checkpoint: {e}")
+        return None
 
+
+def recover_session(session_id):
+    """Try to recover a session from a disk checkpoint."""
+    data = load_session_data(session_id)
+    if not data:
+        return None
+    try:
         # Recreate session (this rebuilds narratron, image_gen, etc.)
         session = ComicSession(data["comic_id"], language=data["language"])
         session.state = data["state"]
         session.panels_data = data["panels_data"]
 
-        # Rebuild comic strip from panels_data using the saved panel count.
-        # strip_panel_count tells us exactly how many panels were in the
-        # comic strip at save time — no heuristics needed.
-        strip_count = data.get("strip_panel_count", 0)
+        # Create an empty comic strip — it will be rebuilt fresh from
+        # panels_data at finish time.  During gameplay submit_panel_streaming
+        # adds to it, but those additions don't need to be perfect.
         session.comic_strip = ComicStrip(title=session.config.blueprint.title)
-        for panel in data["panels_data"][:strip_count]:
-            if panel.get("image_bytes"):
-                session.comic_strip.add_panel(
-                    panel["image_bytes"],
-                    panel.get("user_input_text") or "",
-                    panel["panel_number"],
-                    elements=panel.get("elements"),
-                    user_input_text=panel.get("user_input_text"),
-                    detected_bubbles=panel.get("detected_bubbles"),
-                )
 
-        print(f"[SESSION] Recovered session {session_id}")
+        print(f"[SESSION] Recovered session {session_id} ({len(data['panels_data'])} panels)")
         return session
     except Exception as e:
         print(f"[SESSION] Failed to recover: {e}")
@@ -158,6 +157,37 @@ def finish_comic():
     session = get_session(session_id)
     if not session:
         return jsonify({"error": "Session not found"}), 404
+
+    # Always refresh panels_data from disk — another worker may have
+    # processed panels that this worker's in-memory copy doesn't have.
+    disk_data = load_session_data(session_id)
+    if disk_data:
+        session.panels_data = disk_data["panels_data"]
+
+    # Rebuild the comic strip fresh from the authoritative panels_data.
+    # This bypasses any accumulated state issues from cross-worker routing.
+    session.comic_strip = ComicStrip(title=session.config.blueprint.title)
+    for panel in session.panels_data:
+        # A panel belongs in the strip if it's a title card, an auto panel,
+        # or an interactive panel the user submitted (user_input_text set).
+        # The trailing interactive panel (awaiting input) is excluded.
+        is_committed = (
+            panel.get("is_title_card")
+            or panel.get("is_auto")
+            or panel.get("user_input_text") is not None
+        )
+        if is_committed and panel.get("image_bytes"):
+            session.comic_strip.add_panel(
+                panel["image_bytes"],
+                panel.get("user_input_text") or "",
+                panel["panel_number"],
+                elements=panel.get("elements"),
+                user_input_text=panel.get("user_input_text"),
+                detected_bubbles=panel.get("detected_bubbles"),
+            )
+
+    print(f"[FINISH] {session_id}: {len(session.panels_data)} total panels, "
+          f"{session.comic_strip.get_panel_count()} in strip")
 
     try:
         result = session.finish()
