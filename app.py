@@ -3,7 +3,6 @@
 
 import os
 import time
-import threading
 
 from dotenv import load_dotenv
 from flask import Flask, render_template, request, jsonify, Response
@@ -51,33 +50,46 @@ def cleanup_stale_sessions():
 def sse_with_keepalive(generator):
     """Wrap an SSE generator to send keep-alive comments between events.
 
-    Sends `: keepalive\\n\\n` every KEEPALIVE_INTERVAL seconds while waiting
-    for the next event from the inner generator. SSE comments (lines starting
-    with `:`) are silently ignored by clients.
+    Uses gevent primitives (when available under Gunicorn) or a simple
+    fallback. SSE comments (lines starting with `:`) are silently
+    ignored by clients.
     """
-    import queue
+    try:
+        import gevent
+        from gevent.queue import Queue
+        from gevent.event import Event
 
-    q = queue.Queue()
-    sentinel = object()
+        q = Queue()
+        done = Event()
 
-    def _produce():
-        try:
-            for item in generator:
-                q.put(item)
-        finally:
-            q.put(sentinel)
+        def _produce():
+            try:
+                for item in generator:
+                    q.put(item)
+            finally:
+                done.set()
+                q.put(StopIteration)
 
-    thread = threading.Thread(target=_produce, daemon=True)
-    thread.start()
+        gevent.spawn(_produce)
 
-    while True:
-        try:
-            item = q.get(timeout=KEEPALIVE_INTERVAL)
-            if item is sentinel:
-                return
-            yield item
-        except queue.Empty:
-            yield ": keepalive\n\n"
+        while not done.is_set():
+            try:
+                item = q.get(timeout=KEEPALIVE_INTERVAL)
+                if item is StopIteration:
+                    return
+                yield item
+            except gevent.queue.Empty:
+                yield ": keepalive\n\n"
+
+        # Drain any remaining items
+        while not q.empty():
+            item = q.get_nowait()
+            if item is not StopIteration:
+                yield item
+
+    except ImportError:
+        # No gevent (local dev with `python main.py`) — pass through without keepalive
+        yield from generator
 
 
 @app.route("/")
