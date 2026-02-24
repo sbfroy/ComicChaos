@@ -14,7 +14,6 @@ from comics.comic_registry import ComicRegistry
 from src.comic_session import ComicSession
 
 SESSION_TTL = 30 * 60  # 30 minutes
-KEEPALIVE_INTERVAL = 15  # seconds
 
 
 load_dotenv()
@@ -45,51 +44,6 @@ def cleanup_stale_sessions():
         del sessions[sid]
     if stale:
         print(f"Cleaned up {len(stale)} stale session(s)")
-
-
-def sse_with_keepalive(generator):
-    """Wrap an SSE generator to send keep-alive comments between events.
-
-    Uses gevent primitives (when available under Gunicorn) or a simple
-    fallback. SSE comments (lines starting with `:`) are silently
-    ignored by clients.
-    """
-    try:
-        import gevent
-        from gevent.queue import Queue
-        from gevent.event import Event
-
-        q = Queue()
-        done = Event()
-
-        def _produce():
-            try:
-                for item in generator:
-                    q.put(item)
-            finally:
-                done.set()
-                q.put(StopIteration)
-
-        gevent.spawn(_produce)
-
-        while not done.is_set():
-            try:
-                item = q.get(timeout=KEEPALIVE_INTERVAL)
-                if item is StopIteration:
-                    return
-                yield item
-            except gevent.queue.Empty:
-                yield ": keepalive\n\n"
-
-        # Drain any remaining items
-        while not q.empty():
-            item = q.get_nowait()
-            if item is not StopIteration:
-                yield item
-
-    except ImportError:
-        # No gevent (local dev with `python main.py`) — pass through without keepalive
-        yield from generator
 
 
 @app.route("/")
@@ -171,7 +125,7 @@ def start_comic_stream():
                 yield f"data: {event}\n\n"
 
         return Response(
-            sse_with_keepalive(generate()),
+            generate(),
             mimetype="text/event-stream",
             headers={
                 "Cache-Control": "no-cache",
@@ -216,7 +170,7 @@ def submit_panel_stream():
             yield f"data: {event}\n\n"
 
     return Response(
-        sse_with_keepalive(generate()),
+        generate(),
         mimetype="text/event-stream",
         headers={
             "Cache-Control": "no-cache",
