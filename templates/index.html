@@ -98,59 +98,13 @@
             pointer-events: none;
         }
 
-        /* Shared rotating stripes pattern */
+        /* Shared rotating stripes pattern (background-image set via JS canvas) */
         .rotating-stripes {
             position: absolute;
             top: 50%;
             left: 50%;
-            transform: translate(-50%, -50%);
-            background: conic-gradient(
-                transparent 0deg 1deg,
-                #111 1deg 1.5deg, var(--color-stripes) 1.5deg 9deg, #111 9deg 9.5deg,
-                transparent 9.5deg 16deg,
-                #111 16deg 16.5deg, var(--color-stripes) 16.5deg 22deg, #111 22deg 22.5deg,
-                transparent 22.5deg 31deg,
-                #111 31deg 31.5deg, var(--color-stripes) 31.5deg 42deg, #111 42deg 42.5deg,
-                transparent 42.5deg 47deg,
-                #111 47deg 47.5deg, var(--color-stripes) 47.5deg 54deg, #111 54deg 54.5deg,
-                transparent 54.5deg 64deg,
-                #111 64deg 64.5deg, var(--color-stripes) 64.5deg 76deg, #111 76deg 76.5deg,
-                transparent 76.5deg 82deg,
-                #111 82deg 82.5deg, var(--color-stripes) 82.5deg 88deg, #111 88deg 88.5deg,
-                transparent 88.5deg 97deg,
-                #111 97deg 97.5deg, var(--color-stripes) 97.5deg 108deg, #111 108deg 108.5deg,
-                transparent 108.5deg 113deg,
-                #111 113deg 113.5deg, var(--color-stripes) 113.5deg 119deg, #111 119deg 119.5deg,
-                transparent 119.5deg 129deg,
-                #111 129deg 129.5deg, var(--color-stripes) 129.5deg 140deg, #111 140deg 140.5deg,
-                transparent 140.5deg 146deg,
-                #111 146deg 146.5deg, var(--color-stripes) 146.5deg 153deg, #111 153deg 153.5deg,
-                transparent 153.5deg 161deg,
-                #111 161deg 161.5deg, var(--color-stripes) 161.5deg 173deg, #111 173deg 173.5deg,
-                transparent 173.5deg 180deg,
-                #111 180deg 180.5deg, var(--color-stripes) 180.5deg 186deg, #111 186deg 186.5deg,
-                transparent 186.5deg 194deg,
-                #111 194deg 194.5deg, var(--color-stripes) 194.5deg 205deg, #111 205deg 205.5deg,
-                transparent 205.5deg 211deg,
-                #111 211deg 211.5deg, var(--color-stripes) 211.5deg 218deg, #111 218deg 218.5deg,
-                transparent 218.5deg 227deg,
-                #111 227deg 227.5deg, var(--color-stripes) 227.5deg 239deg, #111 239deg 239.5deg,
-                transparent 239.5deg 244deg,
-                #111 244deg 244.5deg, var(--color-stripes) 244.5deg 250deg, #111 250deg 250.5deg,
-                transparent 250.5deg 260deg,
-                #111 260deg 260.5deg, var(--color-stripes) 260.5deg 271deg, #111 271deg 271.5deg,
-                transparent 271.5deg 277deg,
-                #111 277deg 277.5deg, var(--color-stripes) 277.5deg 284deg, #111 284deg 284.5deg,
-                transparent 284.5deg 293deg,
-                #111 293deg 293.5deg, var(--color-stripes) 293.5deg 304deg, #111 304deg 304.5deg,
-                transparent 304.5deg 309deg,
-                #111 309deg 309.5deg, var(--color-stripes) 309.5deg 316deg, #111 316deg 316.5deg,
-                transparent 316.5deg 325deg,
-                #111 325deg 325.5deg, var(--color-stripes) 325.5deg 337deg, #111 337deg 337.5deg,
-                transparent 337.5deg 343deg,
-                #111 343deg 343.5deg, var(--color-stripes) 343.5deg 350deg, #111 350deg 350.5deg,
-                transparent 350.5deg 360deg
-            );
+            background-size: cover;
+            background-position: center;
             animation: stripesRotate 40s linear infinite;
         }
 
@@ -1108,6 +1062,58 @@
     <div id="notification" class="notification"></div>
 
     <script>
+        // ========================================
+        // PRE-RENDER ROTATING STRIPES (canvas → bitmap)
+        // Avoids Chromium conic-gradient animation blur
+        // ========================================
+        (function() {
+            const size = 2048;
+            const canvas = document.createElement('canvas');
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext('2d');
+            const cx = size / 2;
+            const cy = size / 2;
+            const radius = size;
+            const toRad = deg => (deg - 90) * Math.PI / 180;
+
+            const stripes = [
+                [1, 9], [16, 22], [31, 42], [47, 54], [64, 76],
+                [82, 88], [97, 108], [113, 119], [129, 140], [146, 153],
+                [161, 173], [180, 186], [194, 205], [211, 218], [227, 239],
+                [244, 250], [260, 271], [277, 284], [293, 304], [309, 316],
+                [325, 337], [343, 350]
+            ];
+
+            stripes.forEach(([start, end]) => {
+                ctx.beginPath();
+                ctx.moveTo(cx, cy);
+                ctx.arc(cx, cy, radius, toRad(start), toRad(start + 0.5));
+                ctx.closePath();
+                ctx.fillStyle = '#111';
+                ctx.fill();
+
+                ctx.beginPath();
+                ctx.moveTo(cx, cy);
+                ctx.arc(cx, cy, radius, toRad(start + 0.5), toRad(end));
+                ctx.closePath();
+                ctx.fillStyle = '#D41008';
+                ctx.fill();
+
+                ctx.beginPath();
+                ctx.moveTo(cx, cy);
+                ctx.arc(cx, cy, radius, toRad(end), toRad(end + 0.5));
+                ctx.closePath();
+                ctx.fillStyle = '#111';
+                ctx.fill();
+            });
+
+            const dataUrl = canvas.toDataURL('image/png');
+            document.querySelectorAll('.rotating-stripes').forEach(el => {
+                el.style.backgroundImage = `url(${dataUrl})`;
+            });
+        })();
+
         // ========================================
         // INTERNATIONALIZATION
         // ========================================
