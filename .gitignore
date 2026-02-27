@@ -39,6 +39,9 @@ htmlcov/
 
 /notebooks
 
+# Local preview scripts
+splash_preview.html
+
 # Claude stuff
 .claude/
 tasks/
