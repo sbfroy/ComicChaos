@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Comic Chaos</title>
+    <link rel="icon" type="image/webp" href="/static/images/simple_logo.webp">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -151,6 +152,7 @@
                 transparent 350.5deg 360deg
             );
             animation: stripesRotate 40s linear infinite;
+            will-change: transform;
         }
 
         .splash-stripes {
@@ -943,8 +945,8 @@
         }
 
         .lang-flag svg {
-            width: 42px;
-            height: 30px;
+            height: 28px;
+            width: auto;
             display: block;
             border-radius: 3px;
         }
