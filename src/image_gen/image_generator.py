@@ -406,6 +406,11 @@ class ImageGenerator:
         else:
             bubble_target = "positioned near the main character"
 
+        no_text_rule = (
+            "CRITICAL: The inside must be completely blank — absolutely no text, "
+            "letters, symbols, or marks of any kind. Pure white fill only."
+        )
+
         outline_rule = (
             "CRITICAL: The outline must be completely clean and unbroken. "
             "Nothing may touch, overlap, or cross the outline. Keep a small gap of "
@@ -420,7 +425,7 @@ class ImageGenerator:
                 "Include ONE large, prominent empty white oval speech bubble with a black outline "
                 f"and a pointed tail, {bubble_target}. "
                 "The bubble is an important element in the image — prioritize its size over scene composition. It should cover roughly 20% of the panel. "
-                f"Completely empty inside with no text. The entire bubble must be visible. {outline_rule}"
+                f"The entire bubble must be visible. {no_text_rule} {outline_rule}"
             )
         elif el_type == "thought":
             return (
@@ -428,7 +433,7 @@ class ImageGenerator:
                 "Include ONE large, prominent empty white cloud-shaped thought bubble with small circular "
                 f"tail dots, {bubble_target}'s head. "
                 "The bubble is an important element in the image — prioritize its size over scene composition. It should cover roughly 20% of the panel. "
-                f"Completely empty inside with no text. The entire bubble must be visible. {outline_rule}"
+                f"The entire bubble must be visible. {no_text_rule} {outline_rule}"
             )
         elif el_type == "narration":
             return (
@@ -439,7 +444,7 @@ class ImageGenerator:
                 "The box is an important element in the image — prioritize its size over scene composition. "
                 "It should be wide, spanning most of the panel width, and cover roughly 25% of the panel. "
                 "It can overlap or cover parts of the scene. "
-                f"Completely empty inside with no text. {outline_rule}"
+                f"{no_text_rule} {outline_rule}"
             )
 
         return ""
