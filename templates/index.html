@@ -2032,7 +2032,10 @@
                 const response = await fetch('/api/finish', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ session_id: state.sessionId })
+                    body: JSON.stringify({
+                        session_id: state.sessionId,
+                        user_input: userInput || ''
+                    })
                 });
 
                 if (response.status === 429) {

@@ -164,6 +164,17 @@ def finish_comic():
     if disk_data:
         session.panels_data = disk_data["panels_data"]
 
+    # If the user typed text in the last interactive panel before clicking
+    # Finish, attach it now so the panel gets included in the strip.
+    final_input = (data.get("user_input") or "").strip()
+    if final_input:
+        for panel in reversed(session.panels_data):
+            if (not panel.get("is_title_card")
+                    and not panel.get("is_auto")
+                    and panel.get("user_input_text") is None):
+                panel["user_input_text"] = final_input
+                break
+
     # Rebuild the comic strip fresh from the authoritative panels_data.
     # This bypasses any accumulated state issues from cross-worker routing.
     session.comic_strip = ComicStrip(title=session.config.blueprint.title)
