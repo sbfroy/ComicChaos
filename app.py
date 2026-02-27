@@ -178,24 +178,18 @@ def finish_comic():
                 panel["user_input_text"] = final_input
                 break
 
-    # Rebuild the comic strip fresh from the authoritative panels_data.
-    # Include all panels except the trailing unfilled interactive panel
-    # (the last panel the user hasn't submitted yet).  Previous logic
-    # checked each panel individually with is_committed, but that
-    # incorrectly excluded intermediate interactive panels that never
-    # received user_input_text (e.g. when the LLM returned two
-    # interactive panels instead of [auto, interactive]).
-    panels_to_include = list(session.panels_data)
-    if panels_to_include:
-        last = panels_to_include[-1]
-        if (not last.get("is_title_card")
-                and not last.get("is_auto")
-                and last.get("user_input_text") is None):
-            panels_to_include = panels_to_include[:-1]
-
+    # Rebuild the comic strip from panels_data.  Include every panel that
+    # has a valid image — no filtering.  Whatever the user saw during
+    # generation should appear in the final strip.
     session.comic_strip = ComicStrip(title=session.config.blueprint.title)
-    for panel in panels_to_include:
-        if panel.get("image_bytes"):
+    for i, panel in enumerate(session.panels_data):
+        has_image = panel.get("image_bytes") is not None
+        print(f"  panel[{i}] pn={panel.get('panel_number')} "
+              f"title_card={panel.get('is_title_card', False)} "
+              f"auto={panel.get('is_auto', False)} "
+              f"input={'yes' if panel.get('user_input_text') else 'no'} "
+              f"has_image={has_image}")
+        if has_image:
             session.comic_strip.add_panel(
                 panel["image_bytes"],
                 panel.get("user_input_text") or "",
@@ -205,9 +199,8 @@ def finish_comic():
                 detected_bubbles=panel.get("detected_bubbles"),
             )
 
-    print(f"[FINISH] {session_id}: {len(session.panels_data)} total, "
-          f"{len(panels_to_include)} to include, "
-          f"{session.comic_strip.get_panel_count()} in strip")
+    print(f"[FINISH] {session_id}: {len(session.panels_data)} in panels_data, "
+          f"{session.comic_strip.get_panel_count()} added to strip")
 
     try:
         result = session.finish()

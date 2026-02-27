@@ -78,6 +78,7 @@ class ComicStrip:
 
         # Filter panels that have valid images
         valid_panels = [p for p in self.panels if p["image_bytes"]]
+        print(f"[STRIP] {len(self.panels)} panels total, {len(valid_panels)} with images")
 
         if not valid_panels:
             return None
@@ -119,6 +120,8 @@ class ComicStrip:
                 except Exception:
                     print(f"Panel {panel.get('panel_number', '?')} has corrupt image data, skipping")
                     continue
+
+        print(f"[STRIP] {len(images)} images after processing (dropped {len(valid_panels) - len(images)})")
 
         if not images:
             return None
