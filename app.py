@@ -102,15 +102,27 @@ def cleanup_session_file(session_id):
 
 
 def get_session(session_id):
-    """Look up a session from memory, falling back to disk recovery."""
+    """Look up a session, always merging with disk to handle cross-worker routing."""
     session = sessions.get(session_id)
-    if session:
+
+    if not session:
+        # Not in this worker's memory — try to recover from disk
+        session = recover_session(session_id)
+        if session:
+            sessions[session_id] = session
         return session
 
-    # Not in this worker's memory — try to recover from disk
-    session = recover_session(session_id)
-    if session:
-        sessions[session_id] = session
+    # Session is in memory, but another worker may have advanced it.
+    # Always check disk and use whichever has more panels.
+    disk_data = load_session_data(session_id)
+    if disk_data:
+        disk_panels = disk_data["panels_data"]
+        if len(disk_panels) > len(session.panels_data):
+            print(f"[SESSION] Disk has {len(disk_panels)} panels vs "
+                  f"{len(session.panels_data)} in memory — using disk")
+            session.panels_data = disk_panels
+            session.state = disk_data["state"]
+
     return session
 
 
@@ -158,14 +170,7 @@ def finish_comic():
     if not session:
         return jsonify({"error": "Session not found"}), 404
 
-    # Check disk for panels from other workers, but prefer in-memory data
-    # when it has more panels — save_session() runs at the tail of the SSE
-    # generator and can be skipped if the connection drops mid-stream.
-    disk_data = load_session_data(session_id)
-    if disk_data:
-        disk_panels = disk_data["panels_data"]
-        if len(disk_panels) > len(session.panels_data):
-            session.panels_data = disk_panels
+    # get_session already merged disk data if another worker was ahead.
 
     # If the user typed text in the last interactive panel before clicking
     # Finish, attach it now so the panel gets included in the strip.
@@ -232,7 +237,13 @@ def start_comic_stream():
         sessions[session_id] = session
 
         def generate():
+            prev_count = len(session.panels_data)
             for event in session.start_streaming():
+                # Checkpoint to disk whenever a panel is added so other
+                # workers (and the finish endpoint) always see latest data.
+                if len(session.panels_data) != prev_count:
+                    save_session(session_id, session)
+                    prev_count = len(session.panels_data)
                 yield f"data: {event}\n\n"
             save_session(session_id, session)
 
@@ -275,7 +286,18 @@ def submit_panel_stream():
         session.narratron.language = language
 
     def generate():
+        prev_count = len(session.panels_data)
+        first_event = True
         for event in session.submit_panel_streaming(user_input_text):
+            # Checkpoint to disk whenever state changes.  On the first
+            # event, user_input_text has been set on the current panel.
+            # On complete events, a new panel was appended.  Saving
+            # BEFORE the yield ensures data survives connection drops
+            # and is visible to other workers immediately.
+            if first_event or len(session.panels_data) != prev_count:
+                save_session(session_id, session)
+                prev_count = len(session.panels_data)
+                first_event = False
             yield f"data: {event}\n\n"
         save_session(session_id, session)
 
