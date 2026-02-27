@@ -352,6 +352,38 @@ class ComicSession:
                 elif event["type"] == "complete":
                     image_bytes = event["image_bytes"]
                     detected_bubbles = event["detected_bubbles"]
+
+                    # Restore render state after auto panel
+                    if saved_render:
+                        self.state.render = saved_render
+                        saved_render = None
+
+                    # Store panel data and update state BEFORE yielding
+                    # the SSE event.  The yield is the point where a closed
+                    # connection triggers GeneratorExit — anything after the
+                    # yield won't execute.  By storing first we guarantee
+                    # the panel survives connection drops (especially likely
+                    # during bubble-detection retries which block the stream).
+                    if is_auto:
+                        auto_narrative = self._build_narrative(panel_data.elements, "")
+                        self.state.add_panel(auto_narrative)
+                        if self.comic_strip:
+                            self.comic_strip.add_panel(
+                                image_bytes, auto_narrative, next_panel_num,
+                                elements=panel_data.elements,
+                                user_input_text=None,
+                                detected_bubbles=detected_bubbles,
+                            )
+
+                    self.panels_data.append({
+                        "panel_number": next_panel_num,
+                        "image_bytes": image_bytes,
+                        "elements": panel_data.elements,
+                        "user_input_text": None,
+                        "detected_bubbles": detected_bubbles,
+                        "is_auto": is_auto,
+                    })
+
                     yield safe_json_dumps({
                         "type": complete_type,
                         "panel_number": next_panel_num,
@@ -365,28 +397,6 @@ class ComicSession:
                     yield safe_json_dumps({"type": "error", "error": event["error"]})
                     return
 
-            # Restore render state after auto panel
+            # Restore render state if not already restored (no complete event)
             if saved_render:
                 self.state.render = saved_render
-
-            # For auto panels, add to state and comic strip immediately
-            if is_auto:
-                auto_narrative = self._build_narrative(panel_data.elements, "")
-                self.state.add_panel(auto_narrative)
-                if self.comic_strip:
-                    self.comic_strip.add_panel(
-                        image_bytes, auto_narrative, next_panel_num,
-                        elements=panel_data.elements,
-                        user_input_text=None,
-                        detected_bubbles=detected_bubbles,
-                    )
-
-            # Store panel data
-            self.panels_data.append({
-                "panel_number": next_panel_num,
-                "image_bytes": image_bytes,
-                "elements": panel_data.elements,
-                "user_input_text": None,
-                "detected_bubbles": detected_bubbles,
-                "is_auto": is_auto,
-            })
