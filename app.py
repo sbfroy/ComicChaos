@@ -183,11 +183,19 @@ def finish_comic():
                 panel["user_input_text"] = final_input
                 break
 
-    # Rebuild the comic strip from panels_data.  Include every panel that
-    # has a valid image — no filtering.  Whatever the user saw during
-    # generation should appear in the final strip.
+    # Rebuild the comic strip from panels_data.  Include every panel
+    # except the trailing unfilled interactive panel (the one the user
+    # hasn't written in yet).
+    panels_to_include = list(session.panels_data)
+    if panels_to_include:
+        last = panels_to_include[-1]
+        if (not last.get("is_title_card")
+                and not last.get("is_auto")
+                and last.get("user_input_text") is None):
+            panels_to_include.pop()
+
     session.comic_strip = ComicStrip(title=session.config.blueprint.title)
-    for i, panel in enumerate(session.panels_data):
+    for i, panel in enumerate(panels_to_include):
         has_image = panel.get("image_bytes") is not None
         print(f"  panel[{i}] pn={panel.get('panel_number')} "
               f"title_card={panel.get('is_title_card', False)} "
