@@ -110,8 +110,15 @@ class ComicStrip:
                     img = img.resize((panel_size, panel_size), Image.Resampling.LANCZOS)
                     images.append(img)
             except Exception as e:
-                print(f"Error processing panel: {e}")
-                continue
+                print(f"Error processing panel {panel.get('panel_number', '?')}: {e}")
+                # Fall back to raw image without text overlays
+                try:
+                    img = self._open_as_rgb(panel["image_bytes"])
+                    img = img.resize((panel_size, panel_size), Image.Resampling.LANCZOS)
+                    images.append(img)
+                except Exception:
+                    print(f"Panel {panel.get('panel_number', '?')} has corrupt image data, skipping")
+                    continue
 
         if not images:
             return None

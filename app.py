@@ -179,18 +179,23 @@ def finish_comic():
                 break
 
     # Rebuild the comic strip fresh from the authoritative panels_data.
-    # This bypasses any accumulated state issues from cross-worker routing.
+    # Include all panels except the trailing unfilled interactive panel
+    # (the last panel the user hasn't submitted yet).  Previous logic
+    # checked each panel individually with is_committed, but that
+    # incorrectly excluded intermediate interactive panels that never
+    # received user_input_text (e.g. when the LLM returned two
+    # interactive panels instead of [auto, interactive]).
+    panels_to_include = list(session.panels_data)
+    if panels_to_include:
+        last = panels_to_include[-1]
+        if (not last.get("is_title_card")
+                and not last.get("is_auto")
+                and last.get("user_input_text") is None):
+            panels_to_include = panels_to_include[:-1]
+
     session.comic_strip = ComicStrip(title=session.config.blueprint.title)
-    for panel in session.panels_data:
-        # A panel belongs in the strip if it's a title card, an auto panel,
-        # or an interactive panel the user submitted (user_input_text set).
-        # The trailing interactive panel (awaiting input) is excluded.
-        is_committed = (
-            panel.get("is_title_card")
-            or panel.get("is_auto")
-            or panel.get("user_input_text") is not None
-        )
-        if is_committed and panel.get("image_bytes"):
+    for panel in panels_to_include:
+        if panel.get("image_bytes"):
             session.comic_strip.add_panel(
                 panel["image_bytes"],
                 panel.get("user_input_text") or "",
@@ -200,7 +205,8 @@ def finish_comic():
                 detected_bubbles=panel.get("detected_bubbles"),
             )
 
-    print(f"[FINISH] {session_id}: {len(session.panels_data)} total panels, "
+    print(f"[FINISH] {session_id}: {len(session.panels_data)} total, "
+          f"{len(panels_to_include)} to include, "
           f"{session.comic_strip.get_panel_count()} in strip")
 
     try:
