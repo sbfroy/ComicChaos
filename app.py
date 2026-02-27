@@ -158,11 +158,14 @@ def finish_comic():
     if not session:
         return jsonify({"error": "Session not found"}), 404
 
-    # Always refresh panels_data from disk — another worker may have
-    # processed panels that this worker's in-memory copy doesn't have.
+    # Check disk for panels from other workers, but prefer in-memory data
+    # when it has more panels — save_session() runs at the tail of the SSE
+    # generator and can be skipped if the connection drops mid-stream.
     disk_data = load_session_data(session_id)
     if disk_data:
-        session.panels_data = disk_data["panels_data"]
+        disk_panels = disk_data["panels_data"]
+        if len(disk_panels) > len(session.panels_data):
+            session.panels_data = disk_panels
 
     # If the user typed text in the last interactive panel before clicking
     # Finish, attach it now so the panel gets included in the strip.
