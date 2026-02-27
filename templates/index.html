@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Comic Chaos</title>
-    <link rel="icon" type="image/webp" href="/static/images/simple_logo.webp">
+    <link rel="icon" type="image/webp" href="/static/images/icon.webp">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -152,7 +152,6 @@
                 transparent 350.5deg 360deg
             );
             animation: stripesRotate 40s linear infinite;
-            will-change: transform;
         }
 
         .splash-stripes {
@@ -945,8 +944,8 @@
         }
 
         .lang-flag svg {
+            width: 42px;
             height: 28px;
-            width: auto;
             display: block;
             border-radius: 3px;
         }
@@ -1030,7 +1029,7 @@
     <!-- Language Switcher -->
     <div class="lang-switcher" id="lang-switcher">
         <button class="lang-flag" data-lang="no" onclick="setLanguage('no')">
-            <svg viewBox="0 0 22 16" xmlns="http://www.w3.org/2000/svg">
+            <svg viewBox="0 0 22 16" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
                 <rect width="22" height="16" fill="#BA0C2F"/>
                 <rect x="6" y="0" width="4" height="16" fill="#fff"/>
                 <rect x="0" y="6" width="22" height="4" fill="#fff"/>
@@ -1039,7 +1038,7 @@
             </svg>
         </button>
         <button class="lang-flag" data-lang="en" onclick="setLanguage('en')">
-            <svg viewBox="0 0 60 30" xmlns="http://www.w3.org/2000/svg">
+            <svg viewBox="0 0 60 30" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
                 <clipPath id="s"><path d="M0,0 v30 h60 v-30 z"/></clipPath>
                 <clipPath id="t"><path d="M30,15 h30 v15 z v15 h-30 z h-30 v-15 z v-15 h30 z"/></clipPath>
                 <g clip-path="url(#s)">
