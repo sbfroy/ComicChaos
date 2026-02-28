@@ -156,7 +156,7 @@ The comic will automatically appear in the selection screen.
 
 ## Roadmap
 
-- [ ] Faster image generation, maybe try out nano banana 2
+- [ ] Faster image generation
 - [ ] Better comics
 
 ## Contributing
