@@ -3,6 +3,7 @@
 
 import os
 import pickle
+import time
 
 from dotenv import load_dotenv
 from flask import Flask, render_template, request, jsonify, Response
@@ -35,6 +36,34 @@ api_enabled = os.getenv("API_ENABLED", "true").lower() == "true"
 
 # Store active sessions (in-memory cache — recovered from disk on miss)
 sessions = {}
+
+# Track last-access time per session for TTL-based eviction.
+session_timestamps = {}
+SESSION_TTL_SECONDS = 3600  # 60 minutes
+
+
+def touch_session(session_id):
+    """Record that a session was just accessed."""
+    session_timestamps[session_id] = time.monotonic()
+
+
+def cleanup_stale_sessions():
+    """Evict sessions that haven't been accessed within the TTL.
+
+    Removes both in-memory session objects and on-disk pickle checkpoints.
+    Called at the start of new session creation to keep memory bounded.
+    """
+    now = time.monotonic()
+    stale = [
+        sid for sid, ts in session_timestamps.items()
+        if now - ts > SESSION_TTL_SECONDS
+    ]
+    for sid in stale:
+        sessions.pop(sid, None)
+        session_timestamps.pop(sid, None)
+        cleanup_session_file(sid)
+    if stale:
+        print(f"[SESSION] Cleaned up {len(stale)} stale session(s)")
 
 
 def save_session(session_id, session):
@@ -110,6 +139,7 @@ def get_session(session_id):
         session = recover_session(session_id)
         if session:
             sessions[session_id] = session
+            touch_session(session_id)
         return session
 
     # Session is in memory, but another worker may have advanced it.
@@ -123,6 +153,7 @@ def get_session(session_id):
             session.panels_data = disk_panels
             session.state = disk_data["state"]
 
+    touch_session(session_id)
     return session
 
 
@@ -218,6 +249,7 @@ def finish_comic():
     try:
         result = session.finish()
         sessions.pop(session_id, None)
+        session_timestamps.pop(session_id, None)
         cleanup_session_file(session_id)
         return jsonify(result)
     except Exception as e:
@@ -240,9 +272,12 @@ def start_comic_stream():
     if not comic_id or not session_id:
         return jsonify({"error": "Missing comic_id or session_id"}), 400
 
+    cleanup_stale_sessions()
+
     try:
         session = ComicSession(comic_id, language=language)
         sessions[session_id] = session
+        touch_session(session_id)
 
         def generate():
             prev_count = len(session.panels_data)
